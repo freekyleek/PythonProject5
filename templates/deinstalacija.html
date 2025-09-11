@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Deinstalacija{% endblock %}
+{% block content %}
+  <h1>Deinstalacija — {{ klijent.name }}</h1>
+  <p>Ovdje možete definirati korake ili podatke za deinstalaciju.</p>
+  <div style="margin-top:20px;">
+    <a href="{{ url_for('kreiraj_nalog', name=klijent.name) }}" class="btn">← Natrag na „Kreiraj nalog”</a>
+  </div>
+{% endblock %}

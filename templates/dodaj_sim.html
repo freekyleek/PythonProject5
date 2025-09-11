@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Dodaj SIM{% endblock %}
+{% block content %}
+<h1>Dodaj SIM</h1>
+<form method="post" class="frm">
+  <label for="provider">Provider<span class="req">*</span></label>
+  <select id="provider" name="provider" required>
+    <option value="">-- Odaberite --</option>
+    {% for p in providers %}
+      <option value="{{ p }}" {% if p == provider_sel %}selected{% endif %}>{{ p }}</option>
+    {% endfor %}
+  </select>
+
+  <label for="serijski">Serijski broj<span class="req">*</span></label>
+  <input id="serijski" name="serijski" value="{{ serijski or '' }}" pattern="[A-Za-z0-9\-_/\.]+"
+         title="Dozvoljena su slova, brojevi i znakovi - _ / ." required />
+
+  <div class="actions">
+    <button type="submit" class="btn">Spremi</button>
+    <a class="btn secondary" href="{{ url_for('sim') }}">Natrag</a>
+  </div>
+</form>
+<style>
+.frm{ display:grid; gap:12px; max-width: 520px; }
+.req{ color: #ffd; margin-left:4px;}
+.btn{ display:inline-block; padding:8px 14px; border-radius:8px; background:#198754; color:#fff; text-decoration:none; border:none; cursor:pointer; }
+.btn.secondary{ background:#6c757d; }
+select, input{ padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:rgba(0,0,0,.15); color:#fff; }
+</style>
+{% endblock %}

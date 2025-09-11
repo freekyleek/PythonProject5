@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Nalozi{% endblock %}
+{% block content %}
+<h1>Nalozi</h1>
+<div class="toolbar"><a class="btn" href="{{ url_for('zaduzi_nalog') }}">Zaduži</a></div>
+<div class="box">
+  <h2>Zaključeni nalozi</h2>
+  {% if zakljuceni %}
+    <ul class="orders">
+      {% for n in zakljuceni %}
+        <li class="order-item">
+          <span class="order-title">RN {{ n.rn }} — {{ n.client }}</span>
+          <span class="order-assign">Zaključio: {{ n.closed_by or n.assigned_to or '-' }}</span>
+          <a class="order-link" href="{{ url_for('static', filename=n.file) }}" target="_blank">Dokument</a>
+          {% if current_user.is_superadmin %}
+            <button class="delete-x" title="Obriši nalog" data-rn="{{ n.rn }}">×</button>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nema zaključених nalога.</p>
+  {% endif %}
+</div>
+
+<style>
+.orders{ list-style:none; padding:0; margin:0; }
+.order-item{ display:grid; grid-template-columns: 18px 1fr auto auto auto; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.08); }
+.status-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; background:#777; }
+.status-dot.zadužen{ background:#E8B400; } /* žuta */
+.status-dot.zaključen{ background:#2ECC71; } /* zelena */
+.order-title{ opacity:.95; }
+.order-assign{ opacity:.8; font-size:.95em; }
+.order-link{ margin-left:10px; }
+.delete-x{ background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 18px; line-height: 1; }
+.delete-x:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+.btn{display:inline-block;padding:8px 14px;border-radius:8px;background:#0b5ed7;color:#fff;text-decoration:none;} .toolbar{margin:8px 0 16px;}
+</style>
+<script>
+document.addEventListener('click', async (e)=>{
+  const btn = e.target.closest('.delete-x');
+  if(!btn) return;
+  const rn = btn.getAttribute('data-rn');
+  if(!confirm(`Obrisati nalog RN ${rn}?`)) return;
+  const res = await fetch(`/api/nalog/${encodeURIComponent(rn)}/delete`, {method:'POST'});
+  const data = await res.json().catch(()=>({}));
+  if(data.ok){ location.reload(); }
+  else{ alert(data.error || 'Greška pri brisanju.'); }
+});
+</script>
+{% endblock %}

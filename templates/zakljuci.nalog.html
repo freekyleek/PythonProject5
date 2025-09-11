@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Zaključi nalog{% endblock %}
+{% block content %}
+<h1>Zaključi nalog — RN {{ nalog.rn }}</h1>
+<p>Klijent: {{ klijent.name if klijent else (nalog.client or '-') }}</p>
+
+<form method="post" enctype="multipart/form-data">
+  <div class="box">
+    <h3>Uređaji (zaduženi kod tehničara)</h3>
+    <select name="uredjaji" multiple size="8" style="width:100%;">
+      {% for g, items in dev_groups.items() %}
+      <optgroup label="{{ g }}">
+        {% for d in items %}
+          <option value="{{ d.serijski }}">{{ d.model or g }} — SN: {{ d.serijski }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="box" style="margin-top:16px;">
+    <h3>SIM (zaduženi kod tehničara)</h3>
+    <select name="sim" multiple size="8" style="width:100%;">
+      {% for g, items in sim_groups.items() %}
+      <optgroup label="{{ g }}">
+        {% for s in items %}
+          <option value="{{ s.serijski }}">{{ s.provider or g }} — SN: {{ s.serijski }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="box" style="margin-top:16px;">
+    <h3>Zapisnik (slika)</h3>
+    <input type="file" name="zapisnik" accept="image/*" />
+  </div>
+
+  <div style="margin-top:16px;">
+    <button class="btn btn-primary" type="submit">Zaključi</button>
+    <a class="btn" href="{{ url_for('zaduzeni_nalozi') }}">Odustani</a>
+  </div>
+</form>
+{% endblock %}

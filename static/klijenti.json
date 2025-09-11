@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Billy Pos d.oo",
+    "oib": "12345676567",
+    "headquarters": "Radnička 177, 10000 Zagreb",
+    "shipping": "",
+    "email": "asdsadas@asdas",
+    "phone": "324324234",
+    "created_at": "2025-09-10T22:53:08.193841"
+  },
+  {
+    "name": "Etranet grupa d.o.o.",
+    "oib": "65656765676",
+    "headquarters": "Folnegovićevo naselje 1b, 10000 Zagreb",
+    "shipping": "",
+    "email": "asdasdasd@sdadasd",
+    "phone": "5654654645",
+    "created_at": "2025-09-11T01:21:40.461696"
+  },
+  {
+    "name": "Tvrtka d.o.o.",
+    "oib": "73829382721",
+    "headquarters": "Pere Kvržića 11, 21000 Split",
+    "shipping": "",
+    "email": "dadas@asdsadasd.hr",
+    "phone": "2312321312",
+    "created_at": "2025-09-11T02:01:16.694646"
+  },
+  {
+    "name": "Obrt Hrvoje, vl. Hrvoje Lisac",
+    "oib": "67261526172",
+    "headquarters": "Ilica 23, 10000 Zagreb",
+    "shipping": "",
+    "email": "webtest806@gmail.com",
+    "phone": "099 999 999",
+    "created_at": "2025-09-11T12:00:41.848128"
+  }
+]

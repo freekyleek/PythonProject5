@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Operateri{% endblock %}
+{% block content %}
+  <h1>Operateri</h1>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  {% if current_user.is_superadmin %}
+    <p><a href="{{ url_for('kreiraj_profil') }}" class="btn">➕ Dodaj operatera</a></p>
+  {% endif %}
+
+  {% if operators %}
+    <ul>
+    {% for o in operators %}
+      <li><a href="{{ url_for('operater_profil', username=o.username) }}">
+        {{ o.first_name }} {{ o.last_name }} - {{ o.role }}
+      </a></li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nema operatera.</p>
+  {% endif %}
+{% endblock %}

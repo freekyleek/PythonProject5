@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Kreiraj operatera{% endblock %}
+{% block content %}
+  <h1>Kreiraj operatera</h1>
+  <form method="POST" action="{{ url_for('kreiraj_profil') }}" class="form-grid" novalidate>
+    <label>Ime<input type="text" name="first_name" required></label>
+    <label>Prezime<input type="text" name="last_name" required></label>
+    <label>Korisničko ime<input type="text" name="username" required></label>
+    <label>Lozinka<input type="password" name="password" required></label>
+    <label>E-mail<input type="email" name="email" required></label>
+    <label>Kontakt broj<input type="tel" name="phone" required></label>
+    <label>Uloga<select name="role" required>
+      <option value="">-- odaberi --</option>
+      <option>Prodaja</option>
+      <option>Podrška</option>
+      <option>Voditelj</option>
+      <option>Tehničar</option>
+      <option>Serviser</option>
+    </select></label>
+    <button type="submit" class="btn">Spremi</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Uređaji{% endblock %}
+{% block content %}
+<h1>Uređaji</h1>
+<div class="toolbar">
+  <a class="btn" href="{{ url_for('dodaj_uredjaj') }}">Dodaj</a>
+  <a class="btn" href="{{ url_for('zaduzi_uredjaj') }}" style="margin-left:8px; background:#198754;">Zaduži</a>
+</div>
+{% if uredjaji %}
+<table class="tbl">
+  <thead><tr><th>Model</th><th>Serijski broj</th><th>Dodano</th><th></th></tr></thead>
+  <tbody>
+    {% for u in uredjaji %}
+    <tr>
+      <td>{{ u.model }}</td>
+      <td>{{ u.serijski }}</td>
+      <td>{{ u.created_at[:19] if u.created_at }}</td>
+      <td>
+        {% if current_user.is_superadmin %}
+          <button class="delete-x" title="Obriši uređaj" data-serial="{{ u.serijski }}">×</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Nema uređaja.</p>
+{% endif %}
+<style>
+.toolbar{ margin: 8px 0 16px; }
+.btn{ display:inline-block; padding:8px 14px; border-radius:8px; background:#0b5ed7; color:#fff; text-decoration:none; }
+.tbl{ width:100%; border-collapse:collapse; }
+.tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,.15); padding:8px; text-align:left; }
+.delete-x{ background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 18px; line-height: 1; }
+.delete-x:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+</style>
+<script>
+document.addEventListener('click', async (e)=>{
+  const btn = e.target.closest('.delete-x');
+  if(!btn) return;
+  const serial = btn.getAttribute('data-serial');
+  if(!confirm(`Obrisati uređaj ${serial}?`)) return;
+  const res = await fetch(`/api/uredjaj/${encodeURIComponent(serial)}/delete`, {method:'POST'});
+  const data = await res.json().catch(()=>({}));
+  if(data.ok){ location.reload(); }
+  else{ alert(data.error || 'Greška pri brisanju.'); }
+});
+</script>
+{% endblock %}

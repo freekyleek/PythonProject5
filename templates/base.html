@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Moja Web Aplikacija{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <!-- Stil i forma preuzeti iz dostavljenog base.html predloška (bez dodatnih funkcija) -->
+  <style>
+    :root{
+      --mainbox-bg: #0d6efd;
+      --mainbox-fg: #ffffff;
+    }
+    html, body {
+      height: 100%; margin: 0; padding: 0;
+      background: linear-gradient(270deg, #0f142a, #355cfc, #eaf2ff, #0f142a);
+      background-size: 800% 800%;
+      animation: BackgroundGradientAnimation 30s ease infinite;
+    }
+    @keyframes BackgroundGradientAnimation {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    body { min-height: 100vh; width:100vw; position:relative; overflow-x:hidden; color:#fff; }
+    .bg-moving-logo {
+      position: fixed;
+      z-index: 0;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      opacity: 0.11;
+      background: url('{{ url_for('static', filename='banners/billylogo.png') }}') no-repeat center center;
+      background-size: 32vw auto;
+      animation: moveLogo 8s infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes moveLogo {
+      from { background-position: center 50px; }
+      to   { background-position: center 300px; }
+    }
+    .header-banner, .content-row, .main-area, .sidebar, .right-sidebar { position:relative; z-index:2; }
+
+    /* Profilna kutija – samo prikaz (bez upload funkcije) */
+    .profile-box {
+      position: absolute; top: 20px; right: 60px;
+      text-align: center; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .profile-img {
+      width: 80px; height: 80px; border-radius: 12px; border: 3px solid #3355aa;
+      object-fit: cover; cursor: default; box-shadow: 0 0 8px rgba(0,0,0,0.5);
+      display:flex; align-items:center; justify-content:center; font-size:1.8em; font-weight:bold; background:#224488;
+    }
+    .profile-btn {
+      background-color: #224488; color: white; font-weight: 600; padding: 6px 14px;
+      border: none; border-radius: 20px; font-size: 0.9em; cursor: pointer; width: 160px;
+      transition: background-color 0.3s ease; white-space: nowrap; text-align: center; text-decoration: none; display: inline-block;
+    }
+    .profile-btn:hover { background-color: #1a357d; }
+
+    /* Lijevi sidebar – izgled iz predloška */
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(90deg, #001F4D, #84c3f7, #ffffff, #001F4D);
+      background-size: 300% 100%;
+      animation: sidebarBGShift 15s linear infinite;
+      border: 3px solid;
+      border-image-slice: 1;
+      border-image-source: linear-gradient(90deg, black, gold, black);
+      border-radius: 12px;
+      margin-right: 18px;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-size: 1.05em;
+      padding: 18px 10px 12px 10px;
+      display: flex; flex-direction: column;
+      box-shadow: 0 3px 15px rgba(50,0,0,0.12);
+      color: #fff; text-shadow: 0 0 3px black;
+      position: relative; box-sizing: border-box; min-height: 350px; overflow-y: auto;
+    }
+    .sidebar ul { list-style-type: none; padding-left: 10px; margin: 0; flex-grow: 1; overflow-y: auto; max-height: calc(100vh - 150px); }
+    .sidebar ul li { margin: 10px 0; }
+    .sidebar ul li a { color: #ffd600; text-decoration: none; cursor: pointer; font-weight: bold; display: block; text-shadow: 0 0 3px black; }
+    .sidebar ul li a:hover { text-decoration: underline; }
+    .sidebar ul li.logout-link a { color: #d22727 !important; font-weight: bold; }
+    .sidebar ul li.logout-link { margin-top: auto; }
+    @keyframes sidebarBGShift { 0% { background-position: 0% 0%; } 50% { background-position: 100% 0%; } 100% { background-position: 0% 0%; } }
+
+    /* Glavni sadržaj i “mainbox” okvir iz predloška */
+    .content-row { display: flex; gap: 18px; align-items: flex-start; padding: 16px 20px 32px; }
+    .main-area { flex: 1 1 auto; display: flex; justify-content: center; padding-right: 12px; }
+    .mainbox {
+      width: 100%; max-width: 960px;
+      background: var(--mainbox-bg); color: var(--mainbox-fg);
+      border-radius: 16px; box-shadow: 0 10px 30px rgba(13,110,253,.25);
+      padding: 24px 28px; box-sizing: border-box; position: relative; isolation: isolate; min-height: 200px;
+    }
+    .mainbox::before {
+      content: ""; position: absolute; inset: calc(-0.2cm - 2px); padding: 0.2cm; border-radius: inherit;
+      background: linear-gradient(90deg, #0a3d8f, #ffffff, #0a3d8f);
+      background-size: 200% 100%; animation: BorderFlow 6s linear infinite;
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; filter: drop-shadow(0 0 12px rgba(13,110,253,.35));
+      pointer-events: none; z-index: -1;
+    }
+    @keyframes BorderFlow { 0%{background-position:0% 0;} 100%{background-position:200% 0;} }
+
+    /* Desni sidebar – samo vizualni okvir (bez chat koda) */
+    .right-sidebar {
+      width: 320px; min-height: 350px;
+      background: linear-gradient(90deg, #001F4D, #84c3f7, #ffffff, #001F4D);
+      background-size: 300% 100%; animation: chatboxBGShift 15s linear infinite;
+      border: 3px solid; border-image-slice: 1; border-image-source: linear-gradient(90deg, black, gold, black);
+      border-radius: 12px; color: #fff; box-shadow: 0 3px 15px rgba(50,0,0,0.12);
+      box-sizing: border-box; display: flex; flex-direction: column; align-items: stretch; padding: 18px 10px 12px 10px;
+    }
+    @keyframes chatboxBGShift { 0% { background-position: 0% 0%; } 50% { background-position: 100% 0%; } 100% { background-position: 0% 0%; } }
+    .right-sidebar .card{ background:#0e1420; border:1px solid #2a3342; border-radius:14px; padding:16px; color:#e5e7eb; margin-bottom:12px; }
+    .right-sidebar .card h3{ color:#ffd600; margin:0 0 12px; }
+
+    /* Banner slider (postojeći slide.js kontrolira izmjenu) */
+    .header-banner { position:relative; height: 220px; overflow:hidden; }
+    .banner-slider { position:relative; height:100%; }
+    .banner-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .7s ease; }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="bg-moving-logo"></div>
+
+  <!-- Gornji banner sa slajderom -->
+  <header class="header-banner" role="banner">
+    <div class="banner-slider" aria-hidden="true">
+      <img src="{{ url_for('static', filename='banners/banner1.jpg') }}" alt="Banner 1" class="banner-img" />
+      <img src="{{ url_for('static', filename='banners/banner2.jpg') }}" alt="Banner 2" class="banner-img" />
+      <img src="{{ url_for('static', filename='banners/banner3.jpg') }}" alt="Banner 3" class="banner-img" />
+    </div>
+
+    <!-- Profil/Prijava (samo prikaz) -->
+    <div class="profile-box" aria-label="Profil korisnika">
+      {% if username %}
+        <a href="{{ url_for('profile', username=username) }}" tabindex="0" class="profile-img" aria-label="Profil {{ username }}">
+          {{ username[0]|upper }}
+        </a>
+        <a href="{{ url_for('profile', username=username) }}" class="profile-btn" role="button">Profil: {{ username }}</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="profile-btn">Prijava</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <div class="content-row">
+    <!-- Lijevi sidebox: točan redoslijed tražen iz projekta -->
+    <nav class="sidebar" aria-label="Glavna navigacija">
+      <ul>
+        {% if username %}
+          <li><a href="{{ url_for('klijenti') }}">Klijenti</a></li>
+          <li><a href="{{ url_for('nalozi') }}">Nalozi</a></li>
+          <li><a href="{{ url_for('zaduzeni_nalozi') }}">Zaduženi nalozi</a></li>
+          <li><a href="{{ url_for('uredjaji') }}">Uređaji</a></li>
+          <li><a href="{{ url_for('aktivni_uredjaji') }}">Aktivni uređaji</a></li>
+          <li><a href="{{ url_for('sim') }}">SIM</a></li>
+          <li><a href="{{ url_for('operateri') }}">Operateri</a></li>
+          <li><a href="{{ url_for('datoteke') }}">Datoteke</a></li>
+          <li><a href="{{ url_for('info') }}">Info</a></li>
+          <li class="logout-link"><a href="{{ url_for('logout') }}">Odjava</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}">Prijava</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+
+    <!-- Glavni sadržaj -->
+    <main class="main-area" role="main">
+      <div class="mainbox">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    <!-- Desni sidebox – samo vizualni prostor za dodatke -->
+    <aside class="right-sidebar" aria-label="Bočna traka">
+      {% block rightbar %}
+        <div class="card">
+          <h3>Info</h3>
+          <p>Bočna traka spremna za vaše widgete.</p>
+        </div>
+      {% endblock %}
+    </aside>
+  </div>
+
+  <script src="{{ url_for('static', filename='slide.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

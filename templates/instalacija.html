@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Instalacija{% endblock %}
+{% block content %}
+  <h1>Instalacija — {{ klijent.name }}</h1>
+
+  <form method="POST" id="instForm">
+    <div class="box">
+      <h2>Usluge</h2>
+      <div id="formUsluge"></div>
+    </div>
+
+    <div class="box" style="margin-top:20px;">
+      <h2>Uređaji</h2>
+      <div id="formUredjaji"></div>
+      <p class="hint">Unesite količinu za pojedini uređaj (0 = ne naručuje se).</p>
+    </div>
+
+    <div class="box" style="margin-top:20px;">
+      <h2>Dodatne usluge</h2>
+      <div class="grid-2">
+        <label>SIM kartica
+          <input type="number" name="SIM kartica" min="0" step="1" value="0">
+        </label>
+        <label>Termo traka (58mm)
+          <input type="number" name="Termo traka (58mm)" min="0" step="1" value="0">
+        </label>
+        <label>Termo traka (80mm)
+          <input type="number" name="Termo traka (80mm)" min="0" step="1" value="0">
+        </label>
+        <label>Ladica za novac
+          <input type="number" name="Ladica za novac" min="0" step="1" value="0">
+        </label>
+        <label>Kasa
+          <input type="number" name="Kasa" min="0" step="1" value="0">
+        </label>
+        <label>Bar kod skener
+          <input type="number" name="Bar kod skener" min="0" step="1" value="0">
+        </label>
+        <label>SumUp čitač
+          <input type="number" name="SumUp čitač" min="0" step="1" value="0">
+        </label>
+        <label>Stylus olovka
+          <input type="number" name="Stylus olovka" min="0" step="1" value="0">
+        </label>
+      </div>
+    </div>
+
+    <div class="box" style="margin-top:20px;">
+      <h2>Način isporuke</h2>
+      <div class="stack">
+        <label><input type="radio" name="nacin" value="Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)"> Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)</label>
+        <label><input type="radio" name="nacin" value="Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)"> Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)</label>
+        <label><input type="radio" name="nacin" value="Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)"> Instalacijski paket na lokaciji Pružatelja usluga  (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)</label>
+        <label><input type="radio" name="nacin" value="Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)"> Instalacijski paket  (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)</label>
+        <label><input type="radio" name="nacin" value="Hitna instalacija (instalacija sljedeći radni dan)"> Hitna instalacija (instalacija sljedeći radni dan)</label>
+      </div>
+      <div class="subopts">
+        <p style="margin:10px 0 6px;"><strong>Podopcije dostave:</strong></p>
+        <label><input type="checkbox" name="podopcija" value="Kurirskom službom"> Kurirskom službom</label>
+        <label><input type="checkbox" name="podopcija" value="Kod Pružatelja usluga"> Kod Pružatelja usluga</label>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <button type="submit" class="btn" id="btnKreiraj">📄 Kreiraj</button>
+      <a href="{{ url_for('kreiraj_nalog', name=klijent.name) }}" class="btn">← Natrag</a>
+    </div>
+  </form>
+
+  <style>
+    .hint{ opacity:.9; font-size:.9em; }
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .grid-2 label{ display:flex; flex-direction:column; gap:6px; }
+    .stack label{ display:block; margin:6px 0; }
+    input[type="number"]{ padding:10px; border-radius:8px; border:1px solid #224488; background:#001F4D; color:#fff; }
+    .btn[disabled]{ opacity:.6; pointer-events:none; }
+  </style>
+
+  <script>
+    async function renderUsluge(){
+      let items = [];
+      try{
+        const r = await fetch('{{ url_for('static', filename='usluge.json') }}', {cache:'no-store'});
+        if(r.ok) items = await r.json();
+      }catch(e){}
+      const form = document.getElementById('formUsluge');
+      form.innerHTML = '';
+      items.forEach(v=>{
+        const label = document.createElement('label');
+        label.style.display='block';
+        const input = document.createElement('input');
+        input.type='checkbox'; input.name='usluge'; input.value=v;
+        label.appendChild(input);
+        label.appendChild(document.createTextNode(' '+v));
+        form.appendChild(label);
+      });
+    }
+
+    async function renderUredjaji(){
+      let items = [];
+      try{
+        const r = await fetch('{{ url_for('static', filename='naziv_uredjaja.json') }}', {cache:'no-store'});
+        if(r.ok) items = await r.json();
+      }catch(e){}
+      const form = document.getElementById('formUredjaji');
+      form.innerHTML = '';
+      items.forEach(v=>{
+        const wrap = document.createElement('label');
+        wrap.style.display='grid';
+        wrap.style.gridTemplateColumns='1fr 140px';
+        wrap.style.alignItems='center';
+        wrap.style.gap='10px';
+        wrap.textContent = v;
+        const qty = document.createElement('input');
+        qty.type='number'; qty.min='0'; qty.step='1'; qty.value='0'; qty.name=v;
+        qty.style.justifySelf='end';
+        form.appendChild(wrap);
+        wrap.appendChild(qty);
+      });
+    }
+
+    // Onemogući double-click / višestruki submit
+    const form = document.getElementById('instForm');
+    const btn = document.getElementById('btnKreiraj');
+    form.addEventListener('submit', function(){
+      if(btn){ btn.disabled = true; btn.textContent = 'Kreiram…'; }
+    });
+
+    renderUsluge();
+    renderUredjaji();
+  </script>
+{% endblock %}

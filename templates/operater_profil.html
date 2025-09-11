@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Profil operatera{% endblock %}
+{% block content %}
+  <h1>{{ operater.first_name }} {{ operater.last_name }} - {{ operater.role }}</h1>
+  <p><strong>Korisničko ime:</strong> {{ operater.username }}</p>
+  <p><strong>Email:</strong> {{ operater.email }}</p>
+  <p><strong>Kontakt:</strong> {{ operater.phone }}</p>
+
+<hr />
+<h2>Zaduženi uređaji</h2>
+{% if zaduzeni_uredjaji %}
+<table class="tbl">
+  <thead><tr><th>Model</th><th>Serijski</th><th>Zaduženo</th><th></th></tr></thead>
+  <tbody>
+    {% for d in zaduzeni_uredjaji %}
+    <tr>
+      <td>{{ d.model }}</td><td>{{ d.serijski }}</td><td>{{ d.assigned_at[:19] if d.assigned_at }}</td>
+      <td>
+        {% if current_user.is_superadmin or current_user.username == operater.username %}
+        <button class="btn-razduzi" data-serial="{{ d.serijski }}">Razduži</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Nema zaduženih uređaja.</p>
+{% endif %}
+
+<hr />
+<h2>Zaduženi SIM</h2>
+{% if zaduzeni_sim %}
+<table class="tbl">
+  <thead><tr><th>Provider</th><th>Serijski</th><th>Zaduženo</th><th></th></tr></thead>
+  <tbody>
+    {% for s in zaduzeni_sim %}
+    <tr>
+      <td>{{ s.provider }}</td><td>{{ s.serijski }}</td><td>{{ s.assigned_at[:19] if s.assigned_at }}</td>
+      <td>
+        {% if current_user.is_superadmin or current_user.username == operater.username %}
+        <button class="btn-razduzi-sim" data-serial="{{ s.serijski }}">Razduži</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Nema zaduženih SIM-ova.</p>
+{% endif %}
+
+<hr />
+<h2>Zaduženi nalozi</h2>
+{% if zaduzeni_nalozi %}
+<table class="tbl">
+  <thead><tr><th>RN</th><th>Klijent</th><th>Zaduženo</th><th></th></tr></thead>
+  <tbody>
+    {% for n in zaduzeni_nalozi %}
+    <tr>
+      <td><a href="{{ url_for('zakljuci_nalog', rn=n.rn) }}" target="_blank">{{ n.rn }}</a></td><td>{{ n.client or '-' }}</td><td>{{ n.assigned_at[:19] if n.assigned_at }}</td>
+      <td>
+        {% if current_user.is_superadmin or current_user.username == operater.username %}
+        <button class="btn-razduzi-nalog" data-rn="{{ n.rn }}">Razduži</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Nema zaduženih naloga.</p>
+{% endif %}
+
+<style>
+.tbl{ width:100%; border-collapse:collapse; }
+.tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,.15); padding:8px; text-align:left; }
+.btn-razduzi, .btn-razduzi-sim, .btn-razduzi-nalog{ padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer;}
+.btn-razduzi:hover, .btn-razduzi-sim:hover, .btn-razduzi-nalog:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+</style>
+<script>
+document.addEventListener('click', async (e)=>{
+  const b1 = e.target.closest('.btn-razduzi');
+  if(b1){
+    const s = b1.getAttribute('data-serial');
+    if(!confirm(`Razdužiti uređaj ${s}?`)) return;
+    const r = await fetch(`/api/razduzi/${encodeURIComponent(s)}`, {method:'POST'});
+    const d = await r.json().catch(()=>({}));
+    if(d.ok){ location.reload(); } else { alert(d.error || 'Greška.'); }
+    return;
+  }
+  const b2 = e.target.closest('.btn-razduzi-sim');
+  if(b2){
+    const s = b2.getAttribute('data-serial');
+    if(!confirm(`Razdužiti SIM ${s}?`)) return;
+    const r = await fetch(`/api/razduzi-sim/${encodeURIComponent(s)}`, {method:'POST'});
+    const d = await r.json().catch(()=>({}));
+    if(d.ok){ location.reload(); } else { alert(d.error || 'Greška.'); }
+    return;
+  }
+  const b3 = e.target.closest('.btn-razduzi-nalog');
+  if(b3){
+    const rn = b3.getAttribute('data-rn');
+    if(!confirm(`Razdužiti nalog RN ${rn}?`)) return;
+    const r = await fetch(`/api/razduzi-nalog/${encodeURIComponent(rn)}`, {method:'POST'});
+    const d = await r.json().catch(()=>({}));
+    if(d.ok){ location.reload(); } else { alert(d.error || 'Greška.'); }
+    return;
+  }
+});
+</script>
+{% endblock %}

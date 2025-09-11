@@ -1,0 +1,26 @@
+[
+  {
+    "provider": "MegaTel SIM",
+    "serijski": "4324324234",
+    "assigned_to": "Pero",
+    "assigned_at": "2025-09-11T02:26:51.480602"
+  },
+  {
+    "provider": "HT SIM",
+    "serijski": "231312321321312",
+    "assigned_to": "Pero",
+    "assigned_at": "2025-09-11T02:27:06.616229"
+  },
+  {
+    "provider": "Telemach SIM",
+    "serijski": "213213123",
+    "assigned_to": "Pero",
+    "assigned_at": "2025-09-11T03:14:15.569205"
+  },
+  {
+    "provider": "Telemach SIM",
+    "serijski": "2424324324324324234",
+    "assigned_to": "Pero",
+    "assigned_at": "2025-09-11T08:28:16.749051"
+  }
+]

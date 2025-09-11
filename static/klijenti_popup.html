@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dodaj klijenta</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    body{ color:#fff; background:#0b1b3a; font-family:system-ui, Arial, sans-serif; padding:16px; }
+    .dialog{ max-width:720px; margin:0 auto; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:16px; }
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .grid label{ display:flex; flex-direction:column; gap:6px; }
+    .grid input{ padding:10px; border-radius:8px; border:1px solid #224488; background:#001F4D; color:#fff; }
+    .actions{ display:flex; gap:10px; margin-top:14px; }
+    .btn{ padding:10px 12px; border-radius:8px; border:none; background:#224488; color:#fff; font-weight:700; cursor:pointer; }
+    .btn:hover{ background:#1a346b; }
+    .error{ color:#ffb3b3; margin-top:8px; }
+    .hint{ font-size:.9em; opacity:.9; }
+  </style>
+</head>
+<body>
+  <div class="dialog">
+    <h1>Dodaj klijenta</h1>
+    <form id="clientForm" novalidate>
+      <div class="grid">
+        <label>Naziv klijenta
+          <input type="text" name="name" required>
+        </label>
+        <label>OIB
+          <input type="text" name="oib" required pattern="^\d{11}$" title="OIB mora imati točno 11 znamenki.">
+          <span class="hint">Točno 11 znamenki (0-9)</span>
+        </label>
+        <label>Adresa sjedišta
+          <input type="text" name="headquarters" required>
+        </label>
+        <label>Adresa isporuke
+          <input type="text" name="shipping">
+        </label>
+        <label>E-mail
+          <input type="email" name="email" required>
+        </label>
+        <label>Kontakt broj
+          <input type="tel" name="phone" required>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn">Spremi</button>
+        <button type="button" class="btn" id="btnClose">Zatvori</button>
+      </div>
+      <div id="err" class="error" role="alert" aria-live="assertive"></div>
+    </form>
+  </div>
+
+  <script>
+    async function saveToBackend(payload){
+      const res = await fetch('/api/klijent', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok){
+        const j = await res.json().catch(()=>({error:'Greška pri spremanju.'}));
+        throw new Error(j.error || 'Greška pri spremanju.');
+      }
+      return true;
+    }
+
+    function onSave(e){
+      e.preventDefault();
+      const f = e.target;
+      const payload = {
+        name: f.name.value.trim(),
+        oib: f.oib.value.trim(),
+        headquarters: f.headquarters.value.trim(),
+        shipping: f.shipping.value.trim(),
+        email: f.email.value.trim(),
+        phone: f.phone.value.trim()
+      };
+      const err = document.getElementById('err');
+      err.textContent = '';
+
+      if(!payload.name || !payload.oib || !payload.headquarters || !payload.email || !payload.phone){
+        err.textContent = 'Sva polja osim Adrese isporuke su obavezna.'; return;
+      }
+      if(!/^\d{11}$/.test(payload.oib)){
+        err.textContent = 'OIB mora imati točno 11 znamenki.'; return;
+      }
+
+      saveToBackend(payload)
+        .then(()=>{
+          if (window.opener) {
+            try { window.opener.postMessage({type:'CLIENT_SAVED'}, '*'); } catch(e){}
+          }
+          window.close();
+        })
+        .catch((ex)=>{
+          err.textContent = ex.message || 'Greška pri spremanju.';
+        });
+    }
+
+    document.getElementById('clientForm').addEventListener('submit', onSave);
+    document.getElementById('btnClose').addEventListener('click', () => window.close());
+  </script>
+</body>
+</html>

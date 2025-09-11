@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Klijenti{% endblock %}
+{% block content %}
+  <h1>Klijenti</h1>
+  <p><button id="btnAddClient" class="btn">➕ Dodaj klijenta</button></p>
+
+  {% if klijenti %}
+    <ul class="client-ul">
+      {% for c in klijenti %}
+        <li>
+          <a href="{{ url_for('klijent_profil', name=c.name) }}">{{ c.name }}</a>
+          <span class="client-meta"> | {{ c.headquarters }} | {{ c.oib }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nema klijenata.</p>
+  {% endif %}
+
+  <script>
+    document.getElementById('btnAddClient').addEventListener('click', () => {
+      const w = 680, h = 760;
+      const y = window.top.outerHeight / 2 + window.top.screenY - ( h / 2);
+      const x = window.top.outerWidth / 2 + window.top.screenX - ( w / 2);
+      window.open('{{ url_for('static', filename='klijenti_popup.html') }}', 'klijenti_popup',
+        `width=${w},height=${h},left=${x},top=${y},resizable=yes,scrollbars=yes`);
+    });
+
+    // nakon spremanja iz popup-a osvježavamo listu
+    window.addEventListener('message', (ev) => {
+      if (ev && ev.data && ev.data.type === 'CLIENT_SAVED'){
+        window.location.reload();
+      }
+    });
+  </script>
+
+  <style>
+    .client-ul{ list-style:none; padding:0; }
+    .client-ul li{ padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.15); }
+    .client-ul li a{ font-weight:700; color:#fff; text-decoration:none; }
+    .client-ul li a:hover{ text-decoration:underline; }
+    .client-meta{ opacity:.9; }
+  </style>
+{% endblock %}

@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<h1>Profil {{ operator.first_name }} {{ operator.last_name }}</h1><p>{{ operator.role }}</p>{% endblock %}{% block rightbar %}<a href='{{ url_for('login') }}'>Prijava</a>{% endblock %}

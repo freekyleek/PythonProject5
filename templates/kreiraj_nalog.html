@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Kreiraj nalog{% endblock %}
+{% block content %}
+  <h1>Kreiraj nalog — {{ klijent.name }}</h1>
+
+  <div class="actions" style="display:flex; gap:10px; flex-wrap:wrap; margin: 10px 0 20px;">
+    <a href="{{ url_for('instalacija', name=klijent.name) }}" class="btn">🔧 Instalacija</a>
+    <a href="{{ url_for('deinstalacija', name=klijent.name) }}" class="btn">🧹 Deinstalacija</a>
+    <a href="{{ url_for('servis', name=klijent.name) }}" class="btn">🛠️ Servis</a>
+    <a href="{{ url_for('klijent_profil', name=klijent.name) }}" class="btn">← Natrag na profil</a>
+  </div>
+
+  <p>Odaberite vrstu naloga (Instalacija / Deinstalacija / Servis) za nastavak.</p>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Zaduženi nalozi{% endblock %}
+{% block content %}
+<h1>Zaduženi nalozi</h1>
+{% if nalozi %}
+<table class="tbl">
+  <thead>
+    <tr><th>RN</th><th>Klijent</th><th>Dodijeljen</th><th>Vrijeme</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for n in nalozi %}
+    <tr>
+      <td>{{ n.rn }}</td>
+      <td>{{ n.client or '-' }}</td>
+      <td><a href="{{ url_for('operater_profil', username=n.assigned_to) }}">{{ n.assigned_to }}</a></td>
+      <td>{{ n.assigned_at[:19] if n.assigned_at }}</td>
+      <td>
+        {% if current_user.is_superadmin or current_user.username == n.assigned_to %}
+        <button class="btn-razduzi-nalog" data-rn="{{ n.rn }}">Razduži</button>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Nema zaduženih naloga.</p>
+{% endif %}
+<style>
+.tbl{ width:100%; border-collapse:collapse; }
+.tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,.15); padding:8px; text-align:left; }
+.btn-razduzi-nalog{ padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer;}
+.btn-razduzi-nalog:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+</style>
+<script>
+document.addEventListener('click', async (e)=>{
+  const b = e.target.closest('.btn-razduzi-nalog');
+  if(!b) return;
+  const rn = b.getAttribute('data-rn');
+  if(!confirm(`Razdužiti nalog RN ${rn}?`)) return;
+  const res = await fetch(`/api/razduzi-nalog/${encodeURIComponent(rn)}`, {method:'POST'});
+  const data = await res.json().catch(()=>({}));
+  if(data.ok){ location.reload(); } else { alert(data.error || 'Greška.'); }
+});
+</script>
+{% endblock %}
