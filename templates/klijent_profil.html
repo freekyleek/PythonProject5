@@ -1,68 +1,71 @@
 {% extends 'base.html' %}
-{% block title %}Profil klijenta<div class="box" style="margin-top:20px;">
-  <h2>Uređaji</h2>
-  {% if aktivni_uredjaji %}
-    <ul>
-      {% for d in aktivni_uredjaji %}
-        <li>
-          <strong>{{ d.model }}</strong> — {{ d.serijski }}
-          <button class="btn btn-small btn-danger razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Nema aktivnih uređaja za ovog klijenta.</p>
-  {% endif %}
-</div>
+{% block title %}Profil klijenta
 
-<div class="box" style="margin-top:20px;">
-  <h2>SIM</h2>
-  {% if aktivni_sim %}
-    <ul>
-      {% for s in aktivni_sim %}
-        <li>
-          <strong>{{ s.provider }}</strong> — {{ s.serijski }}
-          <button class="btn btn-small btn-danger razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Nema aktivnih SIM-ova za ovog klijenta.</p>
-  {% endif %}
-</div>
+  <div class="box" style="margin-top:20px;">
+    <h2>Uređaji</h2>
+    {% if aktivni_uredjaji %}
+      <ul>
+        {% for d in aktivni_uredjaji %}
+          <li>
+            <strong>{{ d.model }}</strong> — {{ d.serijski }}
+            <button class="btn btn-small btn-danger razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Nema aktivnih uređaja za ovog klijenta.</p>
+    {% endif %}
+  </div>
 
-<div class="box" style="margin-top:20px;">
-  <h2>Zapisnici</h2>
-  {% if zapisnici %}
-    <div style="display:flex; flex-wrap:wrap; gap:16px;">
-      {% for img in zapisnici %}
-        <a href="{{ url_for('static', filename=img.split('static/')[-1]) }}" target="_blank">
-          <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" style="max-width:400px; height:auto; border:1px solid #e5e7eb; border-radius:8px;" />
-        </a>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p>Nema učitanih zapisnika.</p>
-  {% endif %}
-</div>
+  <div class="box" style="margin-top:20px;">
+    <h2>SIM</h2>
+    {% if aktivni_sim %}
+      <ul>
+        {% for s in aktivni_sim %}
+          <li>
+            <strong>{{ s.provider }}</strong> — {{ s.serijski }}
+            <button class="btn btn-small btn-danger razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Nema aktivnih SIM-ova za ovog klijenta.</p>
+    {% endif %}
+  </div>
 
-<script>
-  document.addEventListener('click', async (e) => {
-    const name = {{ (klijent.name | tojson) if klijent else '""' }};
-    if (e.target.matches('.razduzi-uredjaj')) {
-      const s = e.target.dataset.serijski;
-      const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-uredjaj/${encodeURIComponent(s)}`, {method:'POST'});
-      const j = await res.json();
-      if (j.ok) location.reload(); else alert(j.error||'Greška');
-    }
-    if (e.target.matches('.razduzi-sim')) {
-      const s = e.target.dataset.serijski;
-      const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-sim/${encodeURIComponent(s)}`, {method:'POST'});
-      const j = await res.json();
-      if (j.ok) location.reload(); else alert(j.error||'Greška');
-    }
-  });
-</script>
+  <div class="box" style="margin-top:20px;">
+    <h2>Zapisnici</h2>
+    {% if zapisnici %}
+      <div style="display:flex; flex-wrap:wrap; gap:16px;">
+        {% for img in zapisnici %}
+          <a href="{{ url_for('static', filename=img.split('static/')[-1]) }}" target="_blank">
+            <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" style="max-width:400px; height:auto; border:1px solid #e5e7eb; border-radius:8px;" />
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>Nema učitanih zapisnika.</p>
+    {% endif %}
+  </div>
+
+  <script>
+    document.addEventListener('click', async (e) => {
+      const name = {{ (klijent.name | tojson) if klijent else '""' }};
+      if (e.target.matches('.razduzi-uredjaj')) {
+        const s = e.target.dataset.serijski;
+        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-uredjaj/${encodeURIComponent(s)}`, {method:'POST'});
+        const j = await res.json();
+        if (j.ok) location.reload(); else alert(j.error||'Greška');
+      }
+      if (e.target.matches('.razduzi-sim')) {
+        const s = e.target.dataset.serijski;
+        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-sim/${encodeURIComponent(s)}`, {method:'POST'});
+        const j = await res.json();
+        if (j.ok) location.reload(); else alert(j.error||'Greška');
+      }
+    });
+  </script>
+
 {% endblock %}
 {% block content %}
   <div style="display:flex; align-items:center; justify-content:space-between;">
@@ -93,68 +96,71 @@
       <p>Nema kreiranih naloga.</p>
     {% endif %}
   </div>
-<div class="box" style="margin-top:20px;">
-  <h2>Uređaji</h2>
-  {% if aktivni_uredjaji %}
-    <ul>
-      {% for d in aktivni_uredjaji %}
-        <li>
-          <strong>{{ d.model }}</strong> — {{ d.serijski }}
-          <button class="btn btn-small btn-danger razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Nema aktivnih uređaja za ovog klijenta.</p>
-  {% endif %}
-</div>
 
-<div class="box" style="margin-top:20px;">
-  <h2>SIM</h2>
-  {% if aktivni_sim %}
-    <ul>
-      {% for s in aktivni_sim %}
-        <li>
-          <strong>{{ s.provider }}</strong> — {{ s.serijski }}
-          <button class="btn btn-small btn-danger razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Nema aktivnih SIM-ova za ovog klijenta.</p>
-  {% endif %}
-</div>
 
-<div class="box" style="margin-top:20px;">
-  <h2>Zapisnici</h2>
-  {% if zapisnici %}
-    <div style="display:flex; flex-wrap:wrap; gap:16px;">
-      {% for img in zapisnici %}
-        <a href="{{ url_for('static', filename=img.split('static/')[-1]) }}" target="_blank">
-          <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" style="max-width:400px; height:auto; border:1px solid #e5e7eb; border-radius:8px;" />
-        </a>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p>Nema učitanih zapisnika.</p>
-  {% endif %}
-</div>
+  <div class="box" style="margin-top:20px;">
+    <h2>Uređaji</h2>
+    {% if aktivni_uredjaji %}
+      <ul>
+        {% for d in aktivni_uredjaji %}
+          <li>
+            <strong>{{ d.model }}</strong> — {{ d.serijski }}
+            <button class="btn btn-small btn-danger razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Nema aktivnih uređaja za ovog klijenta.</p>
+    {% endif %}
+  </div>
 
-<script>
-  document.addEventListener('click', async (e) => {
-    const name = {{ (klijent.name | tojson) if klijent else '""' }};
-    if (e.target.matches('.razduzi-uredjaj')) {
-      const s = e.target.dataset.serijski;
-      const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-uredjaj/${encodeURIComponent(s)}`, {method:'POST'});
-      const j = await res.json();
-      if (j.ok) location.reload(); else alert(j.error||'Greška');
-    }
-    if (e.target.matches('.razduzi-sim')) {
-      const s = e.target.dataset.serijski;
-      const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-sim/${encodeURIComponent(s)}`, {method:'POST'});
-      const j = await res.json();
-      if (j.ok) location.reload(); else alert(j.error||'Greška');
-    }
-  });
-</script>
+  <div class="box" style="margin-top:20px;">
+    <h2>SIM</h2>
+    {% if aktivni_sim %}
+      <ul>
+        {% for s in aktivni_sim %}
+          <li>
+            <strong>{{ s.provider }}</strong> — {{ s.serijski }}
+            <button class="btn btn-small btn-danger razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Nema aktivnih SIM-ova za ovog klijenta.</p>
+    {% endif %}
+  </div>
+
+  <div class="box" style="margin-top:20px;">
+    <h2>Zapisnici</h2>
+    {% if zapisnici %}
+      <div style="display:flex; flex-wrap:wrap; gap:16px;">
+        {% for img in zapisnici %}
+          <a href="{{ url_for('static', filename=img.split('static/')[-1]) }}" target="_blank">
+            <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" style="max-width:400px; height:auto; border:1px solid #e5e7eb; border-radius:8px;" />
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>Nema učitanih zapisnika.</p>
+    {% endif %}
+  </div>
+
+  <script>
+    document.addEventListener('click', async (e) => {
+      const name = {{ (klijent.name | tojson) if klijent else '""' }};
+      if (e.target.matches('.razduzi-uredjaj')) {
+        const s = e.target.dataset.serijski;
+        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-uredjaj/${encodeURIComponent(s)}`, {method:'POST'});
+        const j = await res.json();
+        if (j.ok) location.reload(); else alert(j.error||'Greška');
+      }
+      if (e.target.matches('.razduzi-sim')) {
+        const s = e.target.dataset.serijski;
+        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-sim/${encodeURIComponent(s)}`, {method:'POST'});
+        const j = await res.json();
+        if (j.ok) location.reload(); else alert(j.error||'Greška');
+      }
+    });
+  </script>
+
 {% endblock %}

@@ -125,15 +125,6 @@ def write_provider(data): _write_json(PROVIDER_JSON_PATH, data)
 def read_sim(): return _read_json(SIM_JSON_PATH)
 def write_sim(data): _write_json(SIM_JSON_PATH, data)
 
-# -------------------- AKTIVNI UREĐAJI/SIM PO KLIJENTU --------------------
-AKTIVNI_UREDJAJI_JSON_PATH = os.path.join(STATIC_DIR, 'aktivni_uredjaji.json')
-AKTIVNI_SIM_JSON_PATH      = os.path.join(STATIC_DIR, 'aktivni_sim.json')
-
-def read_aktivni_uredjaji(): return _read_json(AKTIVNI_UREDJAJI_JSON_PATH)
-def write_aktivni_uredjaji(data): _write_json(AKTIVNI_UREDJAJI_JSON_PATH, data)
-def read_aktivni_sim(): return _read_json(AKTIVNI_SIM_JSON_PATH)
-def write_aktivni_sim(data): _write_json(AKTIVNI_SIM_JSON_PATH, data)
-
 # -------------------- SIM RUTE --------------------
 @app.route('/sim')
 @login_required
@@ -472,137 +463,137 @@ def api_razduzi_nalog(rn):
 @app.route('/zaduzeni.nalog/<path:rn>', methods=['GET','POST'])
 @login_required
 def zakljuci_nalog(rn):
-# pronađi nalog među zaduženima
-z_nalozi = read_zaduzene_nalozi()
-nalog = next((n for n in z_nalozi if str(n.get('rn')) == str(rn)), None)
-if not nalog:
-    abort(404)
-
-# tehničar i klijent
-tech = (nalog.get('assigned_to') or nalog.get('tehnicar') or '').strip()
-klijenti = read_klijenti()
-cli = None
-cid = nalog.get('client_id') or nalog.get('oib')
-cname = nalog.get('client') or nalog.get('klijent')
-if cid:
-    cli = next((k for k in klijenti if str(k.get('id') or k.get('oib')) == str(cid)), None)
-if not cli and cname:
-    cli = next((k for k in klijenti if (k.get('name') or k.get('naziv')) == cname), None)
-
-# zaduženi uređaji/SIM-ovi; filtriraj na konkretnog tehničara
-try:
-    zdev = read_zaduzene_uredjaje()
-except Exception:
-    zdev = []
-try:
-    zsim = read_zaduzene_sim()
-except Exception:
-    zsim = []
-
-dev_for_tech = [d for d in zdev if not tech or (d.get('assigned_to') or '').strip() == tech]
-sim_for_tech = [s for s in zsim if not tech or (s.get('assigned_to') or '').strip() == tech]
-
-# grupiranje po tipu (ako nema type, koristi model za uređaje; provider za SIM)
-def group_devices(items):
-    groups = {}
-    for it in items:
-        key = (it.get('type') or it.get('model') or 'Ostalo')
-        groups.setdefault(key, []).append(it)
-    return groups
-
-def group_sims(items):
-    groups = {}
-    for it in items:
-        key = (it.get('type') or it.get('provider') or 'Ostalo')
-        groups.setdefault(key, []).append(it)
-    return groups
-
-dev_groups = group_devices(dev_for_tech)
-sim_groups = group_sims(sim_for_tech)
-
-if request.method == 'POST':
-    # odabrano iz formi (moguće višestruki odabir)
-    uredjaji_sel = request.form.getlist('uredjaji') or request.form.getlist('uredjaj') or []
-    sim_sel = request.form.getlist('sim') or request.form.getlist('sims') or []
-
-    # zapisnik: upload slike (ne diraj drugo)
-    f = request.files.get('zapisnik') or request.files.get('zapisnik_img')
-    zapisnik_rel = None
-    if f and f.filename:
-        updir = os.path.join(STATIC_DIR, 'uploads', 'nalozi')
-        os.makedirs(updir, exist_ok=True)
-        # jednostavna normalizacija naziva
-        safe_name = re.sub(r'[^A-Za-z0-9_.-]', '_', f.filename)
-        fname = f"{rn}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_{safe_name}"
-        fpath = os.path.join(updir, fname)
-        f.save(fpath)
-        zapisnik_rel = os.path.join('uploads', 'nalozi', fname)  # relativno na /static
-
-    # makni nalog iz zaduženih
-    z_nalozi = [z for z in z_nalozi if str(z.get('rn')) != str(rn)]
-    write_zaduzene_nalozi(z_nalozi)
-
-    # dodaj zaključen nalog u nalozi.json
-    base = read_nalozi()
-    closed = dict(nalog)
-    closed['status'] = 'zaključen'
-    closed['closed_at'] = datetime.datetime.now().isoformat()
-    closed['closed_by'] = tech
-    closed['devices_used'] = uredjaji_sel
-    closed['sims_used'] = sim_sel
-    if zapisnik_rel:
-        closed['zapisnik_image'] = os.path.join('static', zapisnik_rel)
-    base.append(closed)
-    write_nalozi(base)
-
-    # premjesti uređaje u aktivne (kod klijenta) i izbaci iz zaduženih
+    # pronađi nalog među zaduženima
+    z_nalozi = read_zaduzene_nalozi()
+    nalog = next((n for n in z_nalozi if str(n.get('rn')) == str(rn)), None)
+    if not nalog:
+        abort(404)
+    
+    # tehničar i klijent
+    tech = (nalog.get('assigned_to') or nalog.get('tehnicar') or '').strip()
+    klijenti = read_klijenti()
+    cli = None
+    cid = nalog.get('client_id') or nalog.get('oib')
+    cname = nalog.get('client') or nalog.get('klijent')
+    if cid:
+        cli = next((k for k in klijenti if str(k.get('id') or k.get('oib')) == str(cid)), None)
+    if not cli and cname:
+        cli = next((k for k in klijenti if (k.get('name') or k.get('naziv')) == cname), None)
+    
+    # zaduženi uređaji/SIM-ovi; filtriraj na konkretnog tehničara
     try:
-        zlist_dev = read_zaduzene_uredjaje()
+        zdev = read_zaduzene_uredjaje()
     except Exception:
-        zlist_dev = []
-    akt_dev = read_aktivni_uredjaji()
-    for s in uredjaji_sel:
-        it = next((d for d in zlist_dev if d.get('serijski') == s), None)
-        if it:
-            zlist_dev = [d for d in zlist_dev if d.get('serijski') != s]
-            akt_dev.append({
-                'model': it.get('model',''),
-                'serijski': it.get('serijski',''),
-                'client': (cli.get('name') if isinstance(cli, dict) and cli else (cname or '')),
-                'assigned_at': datetime.datetime.now().isoformat()
-            })
-    write_zaduzene_uredjaje(zlist_dev)
-    write_aktivni_uredjaji(akt_dev)
-
-    # premjesti SIM u aktivne (kod klijenta) i izbaci iz zaduženih
-    zlist_sim = read_zaduzene_sim()
-    akt_sim = read_aktivni_sim()
-    for s in sim_sel:
-        it = next((d for d in zlist_sim if d.get('serijski') == s), None)
-        if it:
-            zlist_sim = [d for d in zlist_sim if d.get('serijski') != s]
-            akt_sim.append({
-                'provider': it.get('provider',''),
-                'serijski': it.get('serijski',''),
-                'client': (cli.get('name') if isinstance(cli, dict) and cli else (cname or '')),
-                'assigned_at': datetime.datetime.now().isoformat()
-            })
-    write_zaduzene_sim(zlist_sim)
-    write_aktivni_sim(akt_sim)
-
-    flash(f'Nalog RN {rn} zaključen.', 'success')
-    if tech:
-        return redirect(url_for('operater_profil', username=tech))
-    return redirect(url_for('zaduzeni_nalozi'))
-
-# GET – prikaži formu za zaključivanje
-return render_template('zakljuci.nalog.html',
-                       title='Zaključi nalog',
-                       username=current_user.username,
-                       nalog=nalog,
-                       klijent=cli,
-                       dev_groups=dev_groups,
-                       sim_groups=sim_groups)
+        zdev = []
+    try:
+        zsim = read_zaduzene_sim()
+    except Exception:
+        zsim = []
+    
+    dev_for_tech = [d for d in zdev if not tech or (d.get('assigned_to') or '').strip() == tech]
+    sim_for_tech = [s for s in zsim if not tech or (s.get('assigned_to') or '').strip() == tech]
+    
+    # grupiranje po tipu (ako nema type, koristi model za uređaje; provider za SIM)
+    def group_devices(items):
+        groups = {}
+        for it in items:
+            key = (it.get('type') or it.get('model') or 'Ostalo')
+            groups.setdefault(key, []).append(it)
+        return groups
+    
+    def group_sims(items):
+        groups = {}
+        for it in items:
+            key = (it.get('type') or it.get('provider') or 'Ostalo')
+            groups.setdefault(key, []).append(it)
+        return groups
+    
+    dev_groups = group_devices(dev_for_tech)
+    sim_groups = group_sims(sim_for_tech)
+    
+    if request.method == 'POST':
+        # odabrano iz formi (moguće višestruki odabir)
+        uredjaji_sel = request.form.getlist('uredjaji') or request.form.getlist('uredjaj') or []
+        sim_sel = request.form.getlist('sim') or request.form.getlist('sims') or []
+    
+        # zapisnik: upload slike (ne diraj drugo)
+        f = request.files.get('zapisnik') or request.files.get('zapisnik_img')
+        zapisnik_rel = None
+        if f and f.filename:
+            updir = os.path.join(STATIC_DIR, 'uploads', 'nalozi')
+            os.makedirs(updir, exist_ok=True)
+            # jednostavna normalizacija naziva
+            safe_name = re.sub(r'[^A-Za-z0-9_.-]', '_', f.filename)
+            fname = f"{rn}_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}_{safe_name}"
+            fpath = os.path.join(updir, fname)
+            f.save(fpath)
+            zapisnik_rel = os.path.join('uploads', 'nalozi', fname)  # relativno na /static
+    
+        # makni nalog iz zaduženih
+        z_nalozi = [z for z in z_nalozi if str(z.get('rn')) != str(rn)]
+        write_zaduzene_nalozi(z_nalozi)
+    
+        # dodaj zaključen nalog u nalozi.json
+        base = read_nalozi()
+        closed = dict(nalog)
+        closed['status'] = 'zaključen'
+        closed['closed_at'] = datetime.datetime.now().isoformat()
+        closed['closed_by'] = tech
+        closed['devices_used'] = uredjaji_sel
+        closed['sims_used'] = sim_sel
+        if zapisnik_rel:
+            closed['zapisnik_image'] = os.path.join('static', zapisnik_rel)
+        base.append(closed)
+        write_nalozi(base)
+    
+        # premjesti uređaje u aktivne (kod klijenta) i izbaci iz zaduženih
+        try:
+            zlist_dev = read_zaduzene_uredjaje()
+        except Exception:
+            zlist_dev = []
+        akt_dev = read_aktivni_uredjaji()
+        for s in uredjaji_sel:
+            it = next((d for d in zlist_dev if d.get('serijski') == s), None)
+            if it:
+                zlist_dev = [d for d in zlist_dev if d.get('serijski') != s]
+                akt_dev.append({
+                    'model': it.get('model',''),
+                    'serijski': it.get('serijski',''),
+                    'client': (cli.get('name') if isinstance(cli, dict) and cli else (cname or '')),
+                    'assigned_at': datetime.datetime.now().isoformat()
+                })
+        write_zaduzene_uredjaje(zlist_dev)
+        write_aktivni_uredjaji(akt_dev)
+    
+        # premjesti SIM u aktivne (kod klijenta) i izbaci iz zaduženih
+        zlist_sim = read_zaduzene_sim()
+        akt_sim = read_aktivni_sim()
+        for s in sim_sel:
+            it = next((d for d in zlist_sim if d.get('serijski') == s), None)
+            if it:
+                zlist_sim = [d for d in zlist_sim if d.get('serijski') != s]
+                akt_sim.append({
+                    'provider': it.get('provider',''),
+                    'serijski': it.get('serijski',''),
+                    'client': (cli.get('name') if isinstance(cli, dict) and cli else (cname or '')),
+                    'assigned_at': datetime.datetime.now().isoformat()
+                })
+        write_zaduzene_sim(zlist_sim)
+        write_aktivni_sim(akt_sim)
+    
+        flash(f'Nalog RN {rn} zaključen.', 'success')
+        if tech:
+            return redirect(url_for('operater_profil', username=tech))
+        return redirect(url_for('zaduzeni_nalozi'))
+    
+    # GET – prikaži formu za zaključivanje
+    return render_template('zakljuci.nalog.html',
+                           title='Zaključi nalog',
+                           username=current_user.username,
+                           nalog=nalog,
+                           klijent=cli,
+                           dev_groups=dev_groups,
+                           sim_groups=sim_groups)
 
 @app.route('/')
 @login_required
@@ -755,23 +746,15 @@ def klijenti():
 @app.route('/klijent/<name>')
 @login_required
 def klijent_profil(name):
-klijenti = read_klijenti()
-k = next((c for c in klijenti if c['name'] == name), None)
-if not k: abort(404)
-orders = [n for n in read_nalozi() if n.get('client') == k['name']]
-orders.sort(key=lambda x: x.get('created_at',''), reverse=True)
-aktivni_dev = [d for d in read_aktivni_uredjaji() if d.get('client') == k['name']]
-aktivni_dev.sort(key=lambda x: (x.get('model',''), x.get('serijski','')))
-aktivni_sim = [s for s in read_aktivni_sim() if s.get('client') == k['name']]
-aktivni_sim.sort(key=lambda x: (x.get('provider',''), x.get('serijski','')))
-zapisnici = [n.get('zapisnik_image') for n in orders if n.get('zapisnik_image')]
-return render_template('klijent_profil.html',
-                       title=f"Profil klijenta - {k['name']}",
-                       username=current_user.username,
-                       klijent=k, nalozi=orders,
-                       aktivni_uredjaji=aktivni_dev,
-                       aktivni_sim=aktivni_sim,
-                       zapisnici=zapisnici)
+    klijenti = read_klijenti()
+    k = next((c for c in klijenti if c['name'] == name), None)
+    if not k: abort(404)
+    orders = [n for n in read_nalozi() if n.get('client') == k['name']]
+    orders.sort(key=lambda x: x.get('created_at',''), reverse=True)
+    return render_template('klijent_profil.html',
+                           title=f"Profil klijenta - {k['name']}",
+                           username=current_user.username,
+                           klijent=k, nalozi=orders)
 
 @app.route('/api/klijent', methods=['POST'])
 @login_required
@@ -962,35 +945,6 @@ def generate_nalog_docx(klijent, formdata):
 def banners(filename):
     return send_from_directory(os.path.join(app.root_path, 'static', 'banners'), filename)
 
-
-
-@app.route('/api/klijent/<name>/razduzi-uredjaj/<serijski>', methods=['POST'])
-@login_required
-def api_klijent_razduzi_uredjaj(name, serijski):
-    akt = read_aktivni_uredjaji()
-    item = next((a for a in akt if a.get('serijski') == serijski and a.get('client') == name), None)
-    if not item:
-        return jsonify({'ok': False, 'error': 'Uređaj nije pronađen kod klijenta.'}), 404
-    akt = [a for a in akt if not (a.get('serijski') == serijski and a.get('client') == name)]
-    write_aktivni_uredjaji(akt)
-    lst = read_uredjaji()
-    lst.append({'model': item.get('model',''), 'serijski': item.get('serijski',''), 'created_at': datetime.datetime.now().isoformat()})
-    write_uredjaji(lst)
-    return jsonify({'ok': True})
-
-@app.route('/api/klijent/<name>/razduzi-sim/<serijski>', methods=['POST'])
-@login_required
-def api_klijent_razduzi_sim(name, serijski):
-    akt = read_aktivni_sim()
-    item = next((a for a in akt if a.get('serijski') == serijski and a.get('client') == name), None)
-    if not item:
-        return jsonify({'ok': False, 'error': 'SIM nije pronađen kod klijenta.'}), 404
-    akt = [a for a in akt if not (a.get('serijski') == serijski and a.get('client') == name)]
-    write_aktivni_sim(akt)
-    lst = read_sim()
-    lst.append({'provider': item.get('provider',''), 'serijski': item.get('serijski',''), 'created_at': datetime.datetime.now().isoformat()})
-    write_sim(lst)
-    return jsonify({'ok': True})
 if __name__ == '__main__':
     with app.app_context():
         ensure_superadmin()
