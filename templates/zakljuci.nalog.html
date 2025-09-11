@@ -1,44 +1,70 @@
-{% extends "base.html" %}
-{% block title %}Zaključi nalog{% endblock %}
-{% block content %}
-<h1>Zaključi nalog — RN {{ nalog.rn }}</h1>
-<p>Klijent: {{ klijent.name if klijent else (nalog.client or '-') }}</p>
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title or 'Zaključi nalog' }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; margin: 24px;}
+    .box{border:1px solid #e5e7eb; padding:16px; border-radius:10px; margin-bottom:16px;}
+    h1{margin:0 0 12px 0;}
+    h3{margin:8px 0 8px 0;}
+    .btn{display:inline-block; padding:10px 16px; border:1px solid #e5e7eb; border-radius:8px; text-decoration:none; cursor:pointer;}
+    .btn-primary{background:#2563eb; color:#fff; border-color:#2563eb;}
+  </style>
+</head>
+<body>
+  <h1>Zaključi nalog — RN {{ nalog.rn }}</h1>
+  <p>Klijent: <strong>{{ klijent.name if klijent else (nalog.client or '-') }}</strong></p>
 
-<form method="post" enctype="multipart/form-data">
-  <div class="box">
-    <h3>Uređaji (zaduženi kod tehničara)</h3>
-    <select name="uredjaji" multiple size="8" style="width:100%;">
-      {% for g, items in dev_groups.items() %}
-      <optgroup label="{{ g }}">
-        {% for d in items %}
-          <option value="{{ d.serijski }}">{{ d.model or g }} — SN: {{ d.serijski }}</option>
+  <form method="post" enctype="multipart/form-data">
+    <div class="box">
+      <h3>Uređaji (zaduženi kod tehničara)</h3>
+      <select name="uredjaj" multiple size="8" style="width:100%;">
+        {% set groups = {} %}
+        {% for d in uredjaji %}
+          {% set g = d.type or d.model or 'Ostalo' %}
+          {% if g not in groups %}{% set _ = groups.update({g: []}) %}{% endif %}
+          {% set _ = groups[g].append(d) %}
         {% endfor %}
-      </optgroup>
-      {% endfor %}
-    </select>
-  </div>
-
-  <div class="box" style="margin-top:16px;">
-    <h3>SIM (zaduženi kod tehničara)</h3>
-    <select name="sim" multiple size="8" style="width:100%;">
-      {% for g, items in sim_groups.items() %}
-      <optgroup label="{{ g }}">
-        {% for s in items %}
-          <option value="{{ s.serijski }}">{{ s.provider or g }} — SN: {{ s.serijski }}</option>
+        {% for g, items in groups.items() %}
+        <optgroup label="{{ g }}">
+          {% for d in items %}
+            <option value="{{ d.serijski }}">{{ d.model or g }} — SN: {{ d.serijski }}</option>
+          {% endfor %}
+        </optgroup>
         {% endfor %}
-      </optgroup>
-      {% endfor %}
-    </select>
-  </div>
+      </select>
+    </div>
 
-  <div class="box" style="margin-top:16px;">
-    <h3>Zapisnik (slika)</h3>
-    <input type="file" name="zapisnik" accept="image/*" />
-  </div>
+    <div class="box">
+      <h3>SIM (zaduženi kod tehničara)</h3>
+      <select name="sim" multiple size="8" style="width:100%;">
+        {% set groups2 = {} %}
+        {% for s in sims %}
+          {% set g = s.type or s.provider or 'Ostalo' %}
+          {% if g not in groups2 %}{% set _ = groups2.update({g: []}) %}{% endif %}
+          {% set _ = groups2[g].append(s) %}
+        {% endfor %}
+        {% for g, items in groups2.items() %}
+        <optgroup label="{{ g }}">
+          {% for s in items %}
+            <option value="{{ s.serijski }}">{{ s.provider or g }} — SN: {{ s.serijski }}</option>
+          {% endfor %}
+        </optgroup>
+        {% endfor %}
+      </select>
+    </div>
 
-  <div style="margin-top:16px;">
-    <button class="btn btn-primary" type="submit">Zaključi</button>
-    <a class="btn" href="{{ url_for('zaduzeni_nalozi') }}">Odustani</a>
-  </div>
-</form>
-{% endblock %}
+    <div class="box">
+      <h3>Zapisnik (slika)</h3>
+      <input type="file" name="zapisnik_img" accept="image/*" />
+    </div>
+
+    <div>
+      <button class="btn btn-primary" type="submit">Zaključi</button>
+      <a class="btn" href="{{ url_for('zaduzeni_nalozi') }}">Odustani</a>
+    </div>
+  </form>
+</body>
+</html>

@@ -1,147 +1,82 @@
-{% extends 'base.html' %}
-{% block title %}Profil klijenta
-
-  <div class="box" style="margin-top:20px;">
-    <h2>Uređaji</h2>
-    {% if aktivni_uredjaji %}
-      <ul>
-        {% for d in aktivni_uredjaji %}
-          <li>
-            <strong>{{ d.model }}</strong> — {{ d.serijski }}
-            <button class="btn btn-small btn-danger razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>Nema aktivnih uređaja za ovog klijenta.</p>
-    {% endif %}
-  </div>
-
-  <div class="box" style="margin-top:20px;">
-    <h2>SIM</h2>
-    {% if aktivni_sim %}
-      <ul>
-        {% for s in aktivni_sim %}
-          <li>
-            <strong>{{ s.provider }}</strong> — {{ s.serijski }}
-            <button class="btn btn-small btn-danger razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p>Nema aktivnih SIM-ova za ovog klijenta.</p>
-    {% endif %}
-  </div>
-
-  <div class="box" style="margin-top:20px;">
-    <h2>Zapisnici</h2>
-    {% if zapisnici %}
-      <div style="display:flex; flex-wrap:wrap; gap:16px;">
-        {% for img in zapisnici %}
-          <a href="{{ url_for('static', filename=img.split('static/')[-1]) }}" target="_blank">
-            <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" style="max-width:400px; height:auto; border:1px solid #e5e7eb; border-radius:8px;" />
-          </a>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p>Nema učitanih zapisnika.</p>
-    {% endif %}
-  </div>
-
-  <script>
-    document.addEventListener('click', async (e) => {
-      const name = {{ (klijent.name | tojson) if klijent else '""' }};
-      if (e.target.matches('.razduzi-uredjaj')) {
-        const s = e.target.dataset.serijski;
-        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-uredjaj/${encodeURIComponent(s)}`, {method:'POST'});
-        const j = await res.json();
-        if (j.ok) location.reload(); else alert(j.error||'Greška');
-      }
-      if (e.target.matches('.razduzi-sim')) {
-        const s = e.target.dataset.serijski;
-        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-sim/${encodeURIComponent(s)}`, {method:'POST'});
-        const j = await res.json();
-        if (j.ok) location.reload(); else alert(j.error||'Greška');
-      }
-    });
-  </script>
-
-{% endblock %}
-{% block content %}
-  <div style="display:flex; align-items:center; justify-content:space-between;">
-    <h1>{{ klijent.name }}</h1>
-    <a href="{{ url_for('kreiraj_nalog', name=klijent.name) }}" class="btn" style="white-space:nowrap;">🧾 Kreiraj nalog</a>
-  </div>
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title or 'Profil klijenta' }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; margin: 24px;}
+    .box{border:1px solid #e5e7eb; padding:16px; border-radius:10px; margin-bottom:16px;}
+    h1{margin:0 0 12px 0;}
+    h2{margin:0 0 8px 0;}
+    .btn{display:inline-block; padding:6px 10px; border:1px solid #e5e7eb; border-radius:8px; text-decoration:none; cursor:pointer; background:#ef4444; color:#fff;}
+    ul{padding-left:20px;}
+    li{margin:6px 0;}
+    .thumbs{display:flex; flex-wrap:wrap; gap:16px;}
+    .thumbs img{max-width:400px; height:auto; border:1px solid #e5e7eb; border-radius:8px;}
+    .muted{color:#6b7280;}
+  </style>
+</head>
+<body>
+  <h1>Profil klijenta — {{ klijent.name }}</h1>
 
   <div class="box">
-    <h2>Osnovni podaci</h2>
-    <p><strong>Naziv klijenta:</strong> {{ klijent.name }}</p>
-    <p><strong>OIB:</strong> {{ klijent.oib }}</p>
-    <p><strong>Adresa sjedišta:</strong> {{ klijent.headquarters }}</p>
-    <p><strong>Adresa isporuke:</strong> {{ klijent.shipping }}</p>
-    <p><strong>E-mail:</strong> {{ klijent.email }}</p>
-    <p><strong>Kontakt broj:</strong> {{ klijent.phone }}</p>
-    <p><strong>Kreirano:</strong> {{ klijent.created_at }}</p>
-  </div>
-
-  <div class="box" style="margin-top:20px;">
-    <h2>Kreirani nalozi</h2>
+    <h2>Nalozi</h2>
     {% if nalozi %}
       <ul>
         {% for n in nalozi %}
-          <li><a href="{{ url_for('static', filename=n.file) }}" target="_blank">{{ n.file.split('/')[-1] }}</a> <small>({{ n.created_at }})</small></li>
+          <li><strong>{{ n.type|capitalize }}</strong> — RN {{ n.rn }} — <span class="muted">{{ n.status or 'nezadužen' }}</span></li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>Nema kreiranih naloga.</p>
+      <p class="muted">Nema naloga.</p>
     {% endif %}
   </div>
 
-
-  <div class="box" style="margin-top:20px;">
+  <div class="box">
     <h2>Uređaji</h2>
     {% if aktivni_uredjaji %}
       <ul>
         {% for d in aktivni_uredjaji %}
           <li>
             <strong>{{ d.model }}</strong> — {{ d.serijski }}
-            <button class="btn btn-small btn-danger razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
+            <button class="btn razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>Nema aktivnih uređaja za ovog klijenta.</p>
+      <p class="muted">Nema aktivnih uređaja za ovog klijenta.</p>
     {% endif %}
   </div>
 
-  <div class="box" style="margin-top:20px;">
+  <div class="box">
     <h2>SIM</h2>
     {% if aktivni_sim %}
       <ul>
         {% for s in aktivni_sim %}
           <li>
             <strong>{{ s.provider }}</strong> — {{ s.serijski }}
-            <button class="btn btn-small btn-danger razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
+            <button class="btn razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
           </li>
         {% endfor %}
       </ul>
     {% else %}
-      <p>Nema aktivnih SIM-ova za ovog klijenta.</p>
+      <p class="muted">Nema aktivnih SIM-ova za ovog klijenta.</p>
     {% endif %}
   </div>
 
-  <div class="box" style="margin-top:20px;">
+  <div class="box">
     <h2>Zapisnici</h2>
     {% if zapisnici %}
-      <div style="display:flex; flex-wrap:wrap; gap:16px;">
+      <div class="thumbs">
         {% for img in zapisnici %}
           <a href="{{ url_for('static', filename=img.split('static/')[-1]) }}" target="_blank">
-            <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" style="max-width:400px; height:auto; border:1px solid #e5e7eb; border-radius:8px;" />
+            <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" alt="zapisnik" />
           </a>
         {% endfor %}
       </div>
     {% else %}
-      <p>Nema učitanih zapisnika.</p>
+      <p class="muted">Nema učitanih zapisnika.</p>
     {% endif %}
   </div>
 
@@ -162,5 +97,5 @@
       }
     });
   </script>
-
-{% endblock %}
+</body>
+</html>
