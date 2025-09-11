@@ -1,70 +1,106 @@
-<!doctype html>
-<html lang="hr">
-<head>
-  <meta charset="utf-8">
-  <title>{{ title or 'Zaključi nalog' }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; margin: 24px;}
-    .box{border:1px solid #e5e7eb; padding:16px; border-radius:10px; margin-bottom:16px;}
-    h1{margin:0 0 12px 0;}
-    h3{margin:8px 0 8px 0;}
-    .btn{display:inline-block; padding:10px 16px; border:1px solid #e5e7eb; border-radius:8px; text-decoration:none; cursor:pointer;}
-    .btn-primary{background:#2563eb; color:#fff; border-color:#2563eb;}
-  </style>
-</head>
-<body>
-  <h1>Zaključi nalog — RN {{ nalog.rn }}</h1>
-  <p>Klijent: <strong>{{ klijent.name if klijent else (nalog.client or '-') }}</strong></p>
+{% extends 'base.html' %}
+{% block title %}Zaključi nalog{% endblock %}
+{% block content %}
+<h1>Zaključi nalog — RN {{ nalog.rn }}</h1>
 
-  <form method="post" enctype="multipart/form-data">
-    <div class="box">
-      <h3>Uređaji (zaduženi kod tehničara)</h3>
-      <select name="uredjaj" multiple size="8" style="width:100%;">
-        {% set groups = {} %}
-        {% for d in uredjaji %}
-          {% set g = d.type or d.model or 'Ostalo' %}
-          {% if g not in groups %}{% set _ = groups.update({g: []}) %}{% endif %}
-          {% set _ = groups[g].append(d) %}
-        {% endfor %}
-        {% for g, items in groups.items() %}
-        <optgroup label="{{ g }}">
-          {% for d in items %}
-            <option value="{{ d.serijski }}">{{ d.model or g }} — SN: {{ d.serijski }}</option>
+{% if klijent %}
+<div class="card">
+  <h3>Podaci o klijentu</h3>
+  <div class="grid">
+    <div><strong>Naziv:</strong> {{ klijent.naziv or klijent.name }}</div>
+    <div><strong>OIB/ID:</strong> {{ klijent.oib or klijent.id }}</div>
+    <div><strong>Adresa:</strong> {{ klijent.adresa or klijent.address }}</div>
+    <div><strong>Kontakt:</strong> {{ klijent.kontakt or klijent.contact }}</div>
+    <div><strong>Email:</strong> {{ klijent.email }}</div>
+    <div><strong>Telefon:</strong> {{ klijent.telefon or klijent.phone }}</div>
+  </div>
+</div>
+{% else %}
+<p><em>Podaci o klijentu nisu pronađeni u klijenti.json.</em></p>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data" class="frm">
+  <div class="box">
+    <label>Uređaj <span class="req">*</span></label>
+    <div id="dev-wrap">
+      <div class="row">
+        <select name="uredjaj" required>
+          <option value="">-- Odaberite --</option>
+          {% for d in uredjaji %}
+            <option value="{{ d.serijski }}">{{ d.model }} — {{ d.serijski }}</option>
           {% endfor %}
-        </optgroup>
-        {% endfor %}
-      </select>
+        </select>
+        <button type="button" class="icon-plus" id="add-dev">+</button>
+      </div>
     </div>
+  </div>
 
-    <div class="box">
-      <h3>SIM (zaduženi kod tehničara)</h3>
-      <select name="sim" multiple size="8" style="width:100%;">
-        {% set groups2 = {} %}
-        {% for s in sims %}
-          {% set g = s.type or s.provider or 'Ostalo' %}
-          {% if g not in groups2 %}{% set _ = groups2.update({g: []}) %}{% endif %}
-          {% set _ = groups2[g].append(s) %}
-        {% endfor %}
-        {% for g, items in groups2.items() %}
-        <optgroup label="{{ g }}">
-          {% for s in items %}
-            <option value="{{ s.serijski }}">{{ s.provider or g }} — SN: {{ s.serijski }}</option>
+  <div class="box">
+    <label>SIM <span class="req">*</span></label>
+    <div id="sim-wrap">
+      <div class="row">
+        <select name="sim" required>
+          <option value="">-- Odaberite --</option>
+          {% for s in sims %}
+            <option value="{{ s.serijski }}">{{ s.provider }} — {{ s.serijski }}</option>
           {% endfor %}
-        </optgroup>
-        {% endfor %}
-      </select>
+        </select>
+        <button type="button" class="icon-plus" id="add-sim">+</button>
+      </div>
     </div>
+  </div>
 
-    <div class="box">
-      <h3>Zapisnik (slika)</h3>
-      <input type="file" name="zapisnik_img" accept="image/*" />
-    </div>
+  <div class="box">
+    <label>Slika zapisnika <span class="req">*</span></label>
+    <input type="file" name="zapisnik_img" accept=".jpg,.jpeg,.png" required />
+  </div>
 
-    <div>
-      <button class="btn btn-primary" type="submit">Zaključi</button>
-      <a class="btn" href="{{ url_for('zaduzeni_nalozi') }}">Odustani</a>
-    </div>
-  </form>
-</body>
-</html>
+  <div class="actions">
+    <button type="submit" class="btn">Zaključi nalog</button>
+    <a class="btn secondary" href="{{ url_for('operater_profil', username=nalog.assigned_to) }}">Odustani</a>
+  </div>
+</form>
+
+<style>
+.card{ padding:12px; border:1px solid rgba(255,255,255,.15); border-radius:10px; margin-bottom:16px; }
+.grid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px;}
+.frm .box{ margin-bottom:14px;}
+.row{ display:flex; gap:8px; align-items:center; margin-bottom:8px;}
+select{ padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:rgba(0,0,0,.15); color:#fff; min-width:320px;}
+.req{ color:#ffd;}
+.btn{ display:inline-block; padding:8px 14px; border-radius:8px; background:#198754; color:#fff; text-decoration:none; border:none; cursor:pointer;}
+.btn.secondary{ background:#6c757d;}
+.icon-plus{ width:32px; height:32px; border-radius:50%; border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff; font-size:20px; line-height:0; cursor:pointer; }
+</style>
+
+<script>
+function syncUnique(name){
+  // prevent same value appearing in multiple selects: disable selected in other selects
+  const groups = document.querySelectorAll('select[name="'+name+'"]');
+  const selected = new Set(Array.from(groups).map(s=>s.value).filter(Boolean));
+  groups.forEach(sel=>{
+    Array.from(sel.options).forEach(opt=>{
+      if(!opt.value) return;
+      opt.disabled = selected.has(opt.value) && sel.value !== opt.value;
+    });
+  });
+}
+document.addEventListener('change', (e)=>{
+  if(e.target.matches('select[name="uredjaj"]')) syncUnique('uredjaj');
+  if(e.target.matches('select[name="sim"]')) syncUnique('sim');
+});
+
+function addSelect(wrapperId, name){
+  const wrap = document.getElementById(wrapperId);
+  const row = wrap.querySelector('.row').cloneNode(true);
+  // reset select value
+  const sel = row.querySelector('select');
+  sel.name = name; sel.value='';
+  wrap.appendChild(row);
+  syncUnique(name);
+}
+
+document.getElementById('add-dev').addEventListener('click', ()=>addSelect('dev-wrap','uredjaj'));
+document.getElementById('add-sim').addEventListener('click', ()=>addSelect('sim-wrap','sim'));
+</script>
+{% endblock %}

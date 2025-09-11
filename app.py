@@ -472,135 +472,135 @@ def api_razduzi_nalog(rn):
 @app.route('/zaduzeni.nalog/<path:rn>', methods=['GET','POST'])
 @login_required
 def zakljuci_nalog(rn):
-
-# find nalog in assigned list
-zn = read_zaduzene_nalozi()
-nalog = next((n for n in zn if str(n.get('rn')) == str(rn)), None)
-if not nalog:
-    abort(404)
-
-tech = (nalog.get('assigned_to') or nalog.get('assignedTo') or nalog.get('tehnicar') or '').strip()
-
-# load client
-klijenti = read_klijenti()
-cli = None
-cid = nalog.get('client_id') or nalog.get('clientId') or nalog.get('oib')
-cname = nalog.get('client') or nalog.get('klijent') or nalog.get('customer')
-if cid:
-    cli = next((k for k in klijenti if str(k.get('id') or k.get('oib')) == str(cid)), None)
-if not cli and cname:
-    cli = next((k for k in klijenti if str(k.get('name') or k.get('naziv') or k.get('client')) == str(cname)), None)
-
-# load assigned devices/SIMs for that technician
-try:
-    zdev = read_zaduzene_uredjaje()
-except Exception:
-    zdev = []
-try:
-    zsim = read_zaduzene_sim()
-except Exception:
-    zsim = []
-
-dev_opts = [d for d in zdev if (d.get('assigned_to') == tech)]
-sim_opts = [s for s in zsim if (s.get('assigned_to') == tech)]
-
-# ensure unique by serial
-seen = set(); dev_opts_u=[] 
-for d in dev_opts:
-    s = d.get('serijski')
-    if s and s not in seen:
-        dev_opts_u.append(d); seen.add(s)
-seen = set(); sim_opts_u=[] 
-for s in sim_opts:
-    ss = s.get('serijski')
-    if ss and ss not in seen:
-        sim_opts_u.append(s); seen.add(ss)
-
-if request.method == 'POST':
-    # collect selections
-    uredjaji_sel = request.form.getlist('uredjaj') or request.form.getlist('uredjaji')
-    sim_sel = request.form.getlist('sim') or request.form.getlist('sims')
-
-    # normalize
-    uredjaji_sel = [x.strip() for x in uredjaji_sel if x and x.strip()]
-    sim_sel = [x.strip() for x in sim_sel if x and x.strip()]
-
-    file = request.files.get('zapisnik_img') or request.files.get('zapisnik')
-    if not uredjaji_sel or not sim_sel or not file or not file.filename:
-        flash('Obavezno je odabrati barem jedan Uređaj, barem jedan SIM i priložiti sliku zapisnika.', 'danger')
-        return render_template('zakljuci.nalog.html', title='Zaključi nalog', username=current_user.username, nalog=nalog, klijent=cli, uredjaji=dev_opts_u, sims=sim_opts_u)
-
-    # validate file type
-    ext = os.path.splitext(file.filename)[1].lower()
-    if ext not in ('.jpg','.jpeg','.png'):
-        flash('Dozvoljeni formati slike: JPG/PNG.', 'danger')
-        return render_template('zakljuci.nalog.html', title='Zaključi nalog', username=current_user.username, nalog=nalog, klijent=cli, uredjaji=dev_opts_u, sims=sim_opts_u)
-
-    # save image
-    ts = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    safe_rn = re.sub(r'[^A-Za-z0-9_-]+', '_', str(rn))
-    fname = f'{safe_rn}_{ts}{ext}'
-    dest = os.path.join(STATIC_DIR, 'uploads', 'nalozi', fname)
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
-    file.save(dest)
-
-    # remove from zaduzeni.nalozi and append to nalozi with 'zaključen'
-    zn = [z for z in zn if str(z.get('rn')) != str(rn)]
-    write_zaduzene_nalozi(zn)
-    base = read_nalozi()
-    nalog_closed = dict(nalog)
-    nalog_closed['status'] = 'zaključen'
-    nalog_closed['closed_at'] = datetime.datetime.now().isoformat()
-    nalog_closed['closed_by'] = tech
-    nalog_closed['devices_used'] = uredjaji_sel
-    nalog_closed['sims_used'] = sim_sel
-    nalog_closed['zapisnik_image'] = os.path.join('static','uploads','nalozi', fname)
-    base.append(nalog_closed)
-    write_nalozi(base)
-
-    # move selected devices to aktivni_uredjaji (per client)
+    
+    # find nalog in assigned list
+    zn = read_zaduzene_nalozi()
+    nalog = next((n for n in zn if str(n.get('rn')) == str(rn)), None)
+    if not nalog:
+        abort(404)
+    
+    tech = (nalog.get('assigned_to') or nalog.get('assignedTo') or nalog.get('tehnicar') or '').strip()
+    
+    # load client
+    klijenti = read_klijenti()
+    cli = None
+    cid = nalog.get('client_id') or nalog.get('clientId') or nalog.get('oib')
+    cname = nalog.get('client') or nalog.get('klijent') or nalog.get('customer')
+    if cid:
+        cli = next((k for k in klijenti if str(k.get('id') or k.get('oib')) == str(cid)), None)
+    if not cli and cname:
+        cli = next((k for k in klijenti if str(k.get('name') or k.get('naziv') or k.get('client')) == str(cname)), None)
+    
+    # load assigned devices/SIMs for that technician
     try:
-        zlist_dev = read_zaduzene_uredjaje()
+        zdev = read_zaduzene_uredjaje()
     except Exception:
-        zlist_dev = []
-    akt_dev = read_aktivni_uredjaji()
-    client_name = (cli.get('name') if isinstance(cli, dict) and cli else (cname or ''))
-    for s in uredjaji_sel:
-        it = next((d for d in zlist_dev if d.get('serijski') == s), None)
-        if it:
-            zlist_dev = [d for d in zlist_dev if d.get('serijski') != s]
-            akt_dev.append({
-                'model': it.get('model',''),
-                'serijski': it.get('serijski',''),
-                'client': client_name,
-                'assigned_at': datetime.datetime.now().isoformat()
-            })
-    write_zaduzene_uredjaje(zlist_dev)
-    write_aktivni_uredjaji(akt_dev)
-
-    # move selected sims to aktivni_sim (per client)
-    zlist_sim = read_zaduzene_sim()
-    akt_sim = read_aktivni_sim()
-    for s in sim_sel:
-        it = next((d for d in zlist_sim if d.get('serijski') == s), None)
-        if it:
-            zlist_sim = [d for d in zlist_sim if d.get('serijski') != s]
-            akt_sim.append({
-                'provider': it.get('provider',''),
-                'serijski': it.get('serijski',''),
-                'client': client_name,
-                'assigned_at': datetime.datetime.now().isoformat()
-            })
-    write_zaduzene_sim(zlist_sim)
-    write_aktivni_sim(akt_sim)
-
-    flash(f'Nalog RN {rn} zaključen.', 'success')
-    if tech:
-        return redirect(url_for('operater_profil', username=tech))
-    return redirect(url_for('zaduzeni_nalozi'))
-
-return render_template('zakljuci.nalog.html', title='Zaključi nalog', username=current_user.username, nalog=nalog, klijent=cli, uredjaji=dev_opts_u, sims=sim_opts_u)
-
+        zdev = []
+    try:
+        zsim = read_zaduzene_sim()
+    except Exception:
+        zsim = []
+    
+    dev_opts = [d for d in zdev if (d.get('assigned_to') == tech)]
+    sim_opts = [s for s in zsim if (s.get('assigned_to') == tech)]
+    
+    # ensure unique by serial
+    seen = set(); dev_opts_u=[] 
+    for d in dev_opts:
+        s = d.get('serijski')
+        if s and s not in seen:
+            dev_opts_u.append(d); seen.add(s)
+    seen = set(); sim_opts_u=[] 
+    for s in sim_opts:
+        ss = s.get('serijski')
+        if ss and ss not in seen:
+            sim_opts_u.append(s); seen.add(ss)
+    
+    if request.method == 'POST':
+        # collect selections
+        uredjaji_sel = request.form.getlist('uredjaj') or request.form.getlist('uredjaji')
+        sim_sel = request.form.getlist('sim') or request.form.getlist('sims')
+    
+        # normalize
+        uredjaji_sel = [x.strip() for x in uredjaji_sel if x and x.strip()]
+        sim_sel = [x.strip() for x in sim_sel if x and x.strip()]
+    
+        file = request.files.get('zapisnik_img') or request.files.get('zapisnik')
+        if not uredjaji_sel or not sim_sel or not file or not file.filename:
+            flash('Obavezno je odabrati barem jedan Uređaj, barem jedan SIM i priložiti sliku zapisnika.', 'danger')
+            return render_template('zakljuci.nalog.html', title='Zaključi nalog', username=current_user.username, nalog=nalog, klijent=cli, uredjaji=dev_opts_u, sims=sim_opts_u)
+    
+        # validate file type
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in ('.jpg','.jpeg','.png'):
+            flash('Dozvoljeni formati slike: JPG/PNG.', 'danger')
+            return render_template('zakljuci.nalog.html', title='Zaključi nalog', username=current_user.username, nalog=nalog, klijent=cli, uredjaji=dev_opts_u, sims=sim_opts_u)
+    
+        # save image
+        ts = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        safe_rn = re.sub(r'[^A-Za-z0-9_-]+', '_', str(rn))
+        fname = f'{safe_rn}_{ts}{ext}'
+        dest = os.path.join(STATIC_DIR, 'uploads', 'nalozi', fname)
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        file.save(dest)
+    
+        # remove from zaduzeni.nalozi and append to nalozi with 'zaključen'
+        zn = [z for z in zn if str(z.get('rn')) != str(rn)]
+        write_zaduzene_nalozi(zn)
+        base = read_nalozi()
+        nalog_closed = dict(nalog)
+        nalog_closed['status'] = 'zaključen'
+        nalog_closed['closed_at'] = datetime.datetime.now().isoformat()
+        nalog_closed['closed_by'] = tech
+        nalog_closed['devices_used'] = uredjaji_sel
+        nalog_closed['sims_used'] = sim_sel
+        nalog_closed['zapisnik_image'] = os.path.join('static','uploads','nalozi', fname)
+        base.append(nalog_closed)
+        write_nalozi(base)
+    
+        # move selected devices to aktivni_uredjaji (per client)
+        try:
+            zlist_dev = read_zaduzene_uredjaje()
+        except Exception:
+            zlist_dev = []
+        akt_dev = read_aktivni_uredjaji()
+        client_name = (cli.get('name') if isinstance(cli, dict) and cli else (cname or ''))
+        for s in uredjaji_sel:
+            it = next((d for d in zlist_dev if d.get('serijski') == s), None)
+            if it:
+                zlist_dev = [d for d in zlist_dev if d.get('serijski') != s]
+                akt_dev.append({
+                    'model': it.get('model',''),
+                    'serijski': it.get('serijski',''),
+                    'client': client_name,
+                    'assigned_at': datetime.datetime.now().isoformat()
+                })
+        write_zaduzene_uredjaje(zlist_dev)
+        write_aktivni_uredjaji(akt_dev)
+    
+        # move selected sims to aktivni_sim (per client)
+        zlist_sim = read_zaduzene_sim()
+        akt_sim = read_aktivni_sim()
+        for s in sim_sel:
+            it = next((d for d in zlist_sim if d.get('serijski') == s), None)
+            if it:
+                zlist_sim = [d for d in zlist_sim if d.get('serijski') != s]
+                akt_sim.append({
+                    'provider': it.get('provider',''),
+                    'serijski': it.get('serijski',''),
+                    'client': client_name,
+                    'assigned_at': datetime.datetime.now().isoformat()
+                })
+        write_zaduzene_sim(zlist_sim)
+        write_aktivni_sim(akt_sim)
+    
+        flash(f'Nalog RN {rn} zaključen.', 'success')
+        if tech:
+            return redirect(url_for('operater_profil', username=tech))
+        return redirect(url_for('zaduzeni_nalozi'))
+    
+    return render_template('zakljuci.nalog.html', title='Zaključi nalog', username=current_user.username, nalog=nalog, klijent=cli, uredjaji=dev_opts_u, sims=sim_opts_u)
+    
 @app.route('/')
 @login_required
 def home():
@@ -752,30 +752,30 @@ def klijenti():
 @app.route('/klijent/<name>')
 @login_required
 def klijent_profil(name):
-
-klijenti = read_klijenti()
-k = next((c for c in klijenti if c['name'] == name), None)
-if not k: abort(404)
-orders = [n for n in read_nalozi() if n.get('client') == k['name']]
-orders.sort(key=lambda x: x.get('created_at',''), reverse=True)
-
-# Aktivni uređaji/SIM kod ovog klijenta
-aktivni_dev = [d for d in read_aktivni_uredjaji() if d.get('client') == k['name']]
-aktivni_dev.sort(key=lambda x: (x.get('model',''), x.get('serijski','')))
-aktivni_sim = [s for s in read_aktivni_sim() if s.get('client') == k['name']]
-aktivni_sim.sort(key=lambda x: (x.get('provider',''), x.get('serijski','')))
-
-# Zapisnici iz zatvorenih naloga
-zapisnici = [n.get('zapisnik_image') for n in orders if n.get('zapisnik_image')]
-
-return render_template('klijent_profil.html',
-                       title=f"Profil klijenta - {k['name']}",
-                       username=current_user.username,
-                       klijent=k, nalozi=orders,
-                       aktivni_uredjaji=aktivni_dev,
-                       aktivni_sim=aktivni_sim,
-                       zapisnici=zapisnici)
-
+    
+    klijenti = read_klijenti()
+    k = next((c for c in klijenti if c['name'] == name), None)
+    if not k: abort(404)
+    orders = [n for n in read_nalozi() if n.get('client') == k['name']]
+    orders.sort(key=lambda x: x.get('created_at',''), reverse=True)
+    
+    # Aktivni uređaji/SIM kod ovog klijenta
+    aktivni_dev = [d for d in read_aktivni_uredjaji() if d.get('client') == k['name']]
+    aktivni_dev.sort(key=lambda x: (x.get('model',''), x.get('serijski','')))
+    aktivni_sim = [s for s in read_aktivni_sim() if s.get('client') == k['name']]
+    aktivni_sim.sort(key=lambda x: (x.get('provider',''), x.get('serijski','')))
+    
+    # Zapisnici iz zatvorenih naloga
+    zapisnici = [n.get('zapisnik_image') for n in orders if n.get('zapisnik_image')]
+    
+    return render_template('klijent_profil.html',
+                           title=f"Profil klijenta - {k['name']}",
+                           username=current_user.username,
+                           klijent=k, nalozi=orders,
+                           aktivni_uredjaji=aktivni_dev,
+                           aktivni_sim=aktivni_sim,
+                           zapisnici=zapisnici)
+    
 @app.route('/api/klijent', methods=['POST'])
 @login_required
 def api_klijent_save():
