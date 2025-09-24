@@ -1,38 +1,59 @@
 [
   {
-    "name": "Billy Pos d.oo",
-    "oib": "12345676567",
+    "name": "Billy POS d.o.o.",
+    "oib": "73737373872",
     "headquarters": "Radnička 177, 10000 Zagreb",
     "shipping": "",
-    "email": "asdsadas@asdas",
-    "phone": "324324234",
-    "created_at": "2025-09-10T22:53:08.193841"
+    "email": "sadasd@sdasdsa",
+    "phone": "8238219321",
+    "created_at": "2025-09-17T12:40:23.946803",
+    "sn_uredjaja": "",
+    "model_uredjaja": "",
+    "sn_SIM": ""
   },
   {
     "name": "Etranet grupa d.o.o.",
-    "oib": "65656765676",
-    "headquarters": "Folnegovićevo naselje 1b, 10000 Zagreb",
+    "oib": "34567898765",
+    "headquarters": "Radnička cesta 177, 10000 Zagreb",
     "shipping": "",
-    "email": "asdasdasd@sdadasd",
-    "phone": "5654654645",
-    "created_at": "2025-09-11T01:21:40.461696"
+    "email": "dasdsd@dsasdasd",
+    "phone": "0999 999 9 9",
+    "created_at": "2025-09-18T20:49:50.275458",
+    "sn_uredjaja": "",
+    "model_uredjaja": "",
+    "sn_SIM": ""
   },
   {
     "name": "Tvrtka d.o.o.",
-    "oib": "73829382721",
-    "headquarters": "Pere Kvržića 11, 21000 Split",
-    "shipping": "",
-    "email": "dadas@asdsadasd.hr",
-    "phone": "2312321312",
-    "created_at": "2025-09-11T02:01:16.694646"
+    "oib": "76276726152",
+    "headquarters": "Petrova 1, 10000 Zagreb",
+    "shipping": "Marmontova 23, 21000 Split",
+    "email": "sdasd@asdasd",
+    "phone": "888271737123",
+    "created_at": "2025-09-23T21:19:29.958549",
+    "sn_uredjaja": "",
+    "model_uredjaja": "",
+    "sn_SIM": ""
   },
   {
-    "name": "Obrt Hrvoje, vl. Hrvoje Lisac",
-    "oib": "67261526172",
-    "headquarters": "Ilica 23, 10000 Zagreb",
+    "name": "Obrt, vl Pero Perić",
+    "oib": "73555415212",
+    "headquarters": "Perina 4, 31000 Osijek",
     "shipping": "",
-    "email": "webtest806@gmail.com",
-    "phone": "099 999 999",
-    "created_at": "2025-09-11T12:00:41.848128"
+    "email": "adasd@sdasd",
+    "phone": "3423423423",
+    "created_at": "2025-09-23T22:32:56.563209"
+  },
+  {
+    "name": "Domaća radinost, vl Mirka Mirkić",
+    "oib": "22123432123",
+    "headquarters": "Ivekova 3, 23000 Zadar",
+    "shipping": "",
+    "email": "asdas@asdasdas",
+    "phone": "sadsadsa",
+    "created_at": "2025-09-23T23:06:04.418332",
+    "sn_uredjaja": "",
+    "model_uredjaja": "",
+    "sn_SIM": ""
   }
 ]

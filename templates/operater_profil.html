@@ -1,13 +1,189 @@
 {% extends 'base.html' %}
 {% block title %}Profil operatera{% endblock %}
 {% block content %}
-  <h1>{{ operater.first_name }} {{ operater.last_name }} - {{ operater.role }}</h1>
-  <p><strong>Korisničko ime:</strong> {{ operater.username }}</p>
-  <p><strong>Email:</strong> {{ operater.email }}</p>
-  <p><strong>Kontakt:</strong> {{ operater.phone }}</p>
+<style>
+.profile-header{ position:relative; display:flex; align-items:flex-start; gap:16px; padding:12px 8px; }
+.avatar-box{ display:block; width:200px; height:200px; border:2px dashed rgba(255,255,255,.3); border-radius:12px; overflow:hidden; cursor:pointer; position:relative; }
+.avatar-box:hover{ border-color: rgba(255,255,255,.6); }
+#profile-avatar{ width:200px; height:200px; object-fit:cover; display:block; }
+.avatar-placeholder{ width:200px; height:200px; display:flex; align-items:center; justify-content:center; font-size:64px; color:rgba(255,255,255,.5); background:rgba(255,255,255,.1); }
+.profile-title h1{ margin:0 0 8px 0; }
+.btn-edit{ margin-left:auto; padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer; }
+.btn-edit:hover{ background: rgba(13,110,253,.2); border-color: rgba(13,110,253,.6); }
+
+/* Modal */
+.modal{ display:none; position:fixed; inset:0; z-index:1000; }
+.modal.show{ display:block; }
+.modal-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.6); }
+.modal-card{ position:relative; width:min(520px, 92vw); margin:8vh auto 0 auto; background:#111318; border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:16px; }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.modal-close{ background:transparent; color:#fff; border:0; font-size:24px; cursor:pointer; }
+#edit-form .row{ display:flex; flex-direction:column; gap:6px; margin:8px 0; }
+#edit-form input{ padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.2); background:#0c0e12; color:#fff; }
+.actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.btn-save{ padding:8px 14px; border-radius:8px; border:1px solid rgba(25,135,84,.6); background:rgba(25,135,84,.2); color:#d1ffd8; cursor:pointer; }
+.btn-save:hover{ background:rgba(25,135,84,.35); }
+.btn-cancel{ padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer; }
+</style>
+
+<script>
+(function(){
+  const avatarInput = document.getElementById('avatar-input');
+  const avatarBox = document.querySelector('.avatar-box');
+  if(avatarBox && avatarInput){
+    avatarBox.addEventListener('click', () => avatarInput.click());
+    avatarInput.addEventListener('change', async () => {
+      const f = avatarInput.files && avatarInput.files[0];
+      if(!f) return;
+      const fd = new FormData();
+      fd.append('avatar', f);
+      const res = await fetch(`/api/operater/{{ operater.username }}/avatar`, {method:'POST', body: fd});
+      const data = await res.json().catch(()=>({}));
+      if(data && data.ok){ location.reload(); } else { alert(data.error || 'Greška pri spremanju slike.'); }
+    });
+  }
+
+  const modal = document.getElementById('edit-modal');
+  const btnEdit = document.getElementById('btn-edit');
+  const btnClose = document.getElementById('modal-close');
+  const btnCancel = document.getElementById('modal-cancel');
+  const form = document.getElementById('edit-form');
+
+  function showModal(){ modal.classList.add('show'); modal.setAttribute('aria-hidden', 'false'); }
+  function hideModal(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden', 'true'); }
+
+  if(btnEdit){ btnEdit.addEventListener('click', showModal); }
+  if(btnClose){ btnClose.addEventListener('click', hideModal); }
+  if(btnCancel){ btnCancel.addEventListener('click', hideModal); }
+  if(modal){ modal.addEventListener('click', (e)=>{ if(e.target.classList.contains('modal-backdrop')) hideModal(); }); }
+
+  if(form){
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(form);
+      const res = await fetch(`/api/operater/{{ operater.username }}/update`, { method:'POST', body: fd });
+      const data = await res.json().catch(()=>({}));
+      if(data && data.ok){ location.reload(); } else { alert(data.error || 'Greška pri spremanju.'); }
+    });
+  }
+})();
+</script>
+
+<script>
+// Postavi avatar slike na sve linkove s klasom .profile-img (ako postoji avatar)
+(async function(){
+  try{
+    const res = await fetch('/api/operateri/avatars');
+    const d = await res.json();
+    if(!d || !d.ok) return;
+    const map = d.avatars || {};
+    document.querySelectorAll('a.profile-img[href^="/operater/"]').forEach(a=>{
+      const m = a.getAttribute('href').match(/\/operater\/([^\/?#]+)/);
+      if(!m) return;
+      const uname = decodeURIComponent(m[1]);
+      const url = map[uname];
+      if(url){
+        // Ukloni tekstualno slovo i ubaci <img>
+        a.textContent = '';
+        const img = document.createElement('img');
+        img.setAttribute('alt', `Profilna slika ${uname}`);
+        img.setAttribute('src', url);
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '50%';
+        a.appendChild(img);
+      }
+    });
+  }catch(e){ /* ignore */ }
+})();
+</script>
+
+
+
+<div class="profile-header">
+  <label for="avatar-input" class="avatar-box" title="Klikni za promjenu slike">
+    {% set _avatar = operater.avatar if operater.avatar else None %}
+    {% if _avatar %}
+      <img id="profile-avatar" src="{{ url_for('static', filename=_avatar) }}" alt="Profilna slika" />
+    {% else %}
+      <div id="profile-avatar" class="avatar-placeholder">+</div>
+    {% endif %}
+  </label>
+  <input id="avatar-input" type="file" accept="image/*" hidden />
+
+  <div class="profile-title">
+    <h1>{{ operater.first_name }} {{ operater.last_name }} - {{ operater.role }}</h1>
+    <div class="profile-meta">
+      <p><strong>Korisničko ime:</strong> {{ operater.username }}</p>
+      <p><strong>Email:</strong> {{ operater.email }}</p>
+      <p><strong>Kontakt:</strong> {{ operater.phone }}</p>
+    </div>
+  {% if has_role('superadmin','admin') or current_user.username == operater.username %}
+  <div class="profile-meta" style="margin-top:8px;">
+    <p><strong>Osobni potpis:</strong>
+      {% if operater.signature %}
+        <img src="{{ url_for('static', filename=operater.signature) }}" alt="Potpis" style="height:40px;vertical-align:middle;margin-left:8px;border:1px solid rgba(255,255,255,.2);padding:2px;background:#fff;">
+      {% else %}
+        <span class="text-muted" style="opacity:.8">Nema postavljen potpis.</span>
+      {% endif %}
+      <label for="signature-input" class="btn-edit" style="margin-left:10px; display:inline-block; cursor:pointer;" title="Upload PNG potpisa">📤 Upload</label>
+      <button id="signature-save" type="button" class="btn-edit" style="margin-left:8px;" disabled title="Spremi potpis">💾 Spremi</button>
+      <form id="sigForm" action="{{ url_for('api_operater_signature', username=operater.username) }}" method="post" enctype="multipart/form-data" style="display:inline;">
+        <input id="signature-input" name="signature" type="file" accept="image/png" style="display:none;" />
+      </form>
+    </p>
+    <div class="form-text" style="font-size:12px;opacity:.8;">Potpis (PNG) je vidljiv samo vama, administratoru i superadministratoru. Spremit će se u /static/signatures.</div>
+  </div>
+  {% endif %}
+
+  </div>
+
+  {% if has_role('superadmin','admin') or current_user.username == operater.username %}
+  <button id="btn-edit" class="btn-edit">Uredi</button>
+  {% endif %}
+</div>
+
+<!-- Edit modal -->
+<div id="edit-modal" class="modal" aria-hidden="true">
+  <div class="modal-backdrop"></div>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Uredi podatke</h3>
+      <button id="modal-close" class="modal-close" aria-label="Zatvori">×</button>
+    </div>
+    <form id="edit-form">
+      <div class="row">
+        <label>Ime</label>
+        <input type="text" name="first_name" value="{{ operater.first_name or '' }}" />
+      </div>
+      <div class="row">
+        <label>Prezime</label>
+        <input type="text" name="last_name" value="{{ operater.last_name or '' }}" />
+      </div>
+      <div class="row">
+        <label>E-mail</label>
+        <input type="email" name="email" value="{{ operater.email or '' }}" />
+      </div>
+      <div class="row">
+        <label>Lozinka</label>
+        <input type="password" name="password" placeholder="•••••••" />
+        <small>Ostavi prazno ako ne mijenjaš.</small>
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn-save">Spremi</button>
+        <button type="button" id="modal-cancel" class="btn-cancel">Odustani</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <hr />
-<h2>Zaduženi uređaji</h2>
+
+
+<h2>{% set _role = (operater.role or '')|lower %}
+{% if _role in ['tehničar','tehnicar','podrška','podrska'] %}
+Zaduženi uređaji</h2>
 {% if zaduzeni_uredjaji %}
 <table class="tbl">
   <thead><tr><th>Model</th><th>Serijski</th><th>Zaduženo</th><th></th></tr></thead>
@@ -16,7 +192,7 @@
     <tr>
       <td>{{ d.model }}</td><td>{{ d.serijski }}</td><td>{{ d.assigned_at[:19] if d.assigned_at }}</td>
       <td>
-        {% if current_user.is_superadmin or current_user.username == operater.username %}
+        {% if has_role('superadmin','admin') or current_user.username == operater.username %}
         <button class="btn-razduzi" data-serial="{{ d.serijski }}">Razduži</button>
         {% endif %}
       </td>
@@ -38,7 +214,7 @@
     <tr>
       <td>{{ s.provider }}</td><td>{{ s.serijski }}</td><td>{{ s.assigned_at[:19] if s.assigned_at }}</td>
       <td>
-        {% if current_user.is_superadmin or current_user.username == operater.username %}
+        {% if has_role('superadmin','admin') or current_user.username == operater.username %}
         <button class="btn-razduzi-sim" data-serial="{{ s.serijski }}">Razduži</button>
         {% endif %}
       </td>
@@ -54,13 +230,21 @@
 <h2>Zaduženi nalozi</h2>
 {% if zaduzeni_nalozi %}
 <table class="tbl">
-  <thead><tr><th>RN</th><th>Klijent</th><th>Zaduženo</th><th></th></tr></thead>
+  <thead><tr><th>RN</th><th>Klijent</th><th>Tip</th><th>Zaduženo</th><th></th></tr></thead>
   <tbody>
     {% for n in zaduzeni_nalozi %}
     <tr>
-      <td><a href="{{ url_for('zakljuci_nalog', rn=n.rn) }}" target="_blank">{{ n.rn }}</a></td><td>{{ n.client or '-' }}</td><td>{{ n.assigned_at[:19] if n.assigned_at }}</td>
+      <td><a href="{{ url_for('zakljuci_nalog', rn=n.rn) }}" target="_blank">{{ n.rn }}</a></td>
+      <td>{{ n.client or '-' }}</td>
       <td>
-        {% if current_user.is_superadmin or current_user.username == operater.username %}
+        {% set _type = (n.type or '')|lower %}
+        {% if _type == 'deinstalacija' %}<span class="badge badge-deinst">DEINST</span>
+        {% elif _type == 'servis' %}<span class="badge badge-servis">SERVIS</span>
+        {% else %}<span class="badge badge-inst">INST</span>{% endif %}
+      </td>
+      <td>{{ n.assigned_at[:19] if n.assigned_at }}</td>
+      <td>
+        {% if has_role('superadmin','admin') or current_user.username == operater.username %}
         <button class="btn-razduzi-nalog" data-rn="{{ n.rn }}">Razduži</button>
         {% endif %}
       </td>
@@ -78,6 +262,8 @@
 .btn-razduzi, .btn-razduzi-sim, .btn-razduzi-nalog{ padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer;}
 .btn-razduzi:hover, .btn-razduzi-sim:hover, .btn-razduzi-nalog:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
 </style>
+
+{% endif %}
 <script>
 document.addEventListener('click', async (e)=>{
   const b1 = e.target.closest('.btn-razduzi');
@@ -109,4 +295,145 @@ document.addEventListener('click', async (e)=>{
   }
 });
 </script>
+
+<style>
+.profile-header{ position:relative; display:flex; align-items:flex-start; gap:16px; padding:12px 8px; }
+.avatar-box{ display:block; width:200px; height:200px; border:2px dashed rgba(255,255,255,.3); border-radius:12px; overflow:hidden; cursor:pointer; position:relative; }
+.avatar-box:hover{ border-color: rgba(255,255,255,.6); }
+#profile-avatar{ width:200px; height:200px; object-fit:cover; display:block; }
+.avatar-placeholder{ width:200px; height:200px; display:flex; align-items:center; justify-content:center; font-size:64px; color:rgba(255,255,255,.5); background:rgba(255,255,255,.1); }
+.profile-title h1{ margin:0 0 8px 0; }
+.btn-edit{ margin-left:auto; padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer; }
+.btn-edit:hover{ background: rgba(13,110,253,.2); border-color: rgba(13,110,253,.6); }
+
+/* Modal */
+.modal{ display:none; position:fixed; inset:0; z-index:1000; }
+.modal.show{ display:block; }
+.modal-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.6); }
+.modal-card{ position:relative; width:min(520px, 92vw); margin:8vh auto 0 auto; background:#111318; border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:16px; }
+.modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.modal-close{ background:transparent; color:#fff; border:0; font-size:24px; cursor:pointer; }
+#edit-form .row{ display:flex; flex-direction:column; gap:6px; margin:8px 0; }
+#edit-form input{ padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.2); background:#0c0e12; color:#fff; }
+.actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+.btn-save{ padding:8px 14px; border-radius:8px; border:1px solid rgba(25,135,84,.6); background:rgba(25,135,84,.2); color:#d1ffd8; cursor:pointer; }
+.btn-save:hover{ background:rgba(25,135,84,.35); }
+.btn-cancel{ padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer; }
+</style>
+
+<script>
+(function(){
+  const avatarInput = document.getElementById('avatar-input');
+  const avatarBox = document.querySelector('.avatar-box');
+  if(avatarBox && avatarInput){
+    avatarBox.addEventListener('click', () => avatarInput.click());
+    avatarInput.addEventListener('change', async () => {
+      const f = avatarInput.files && avatarInput.files[0];
+      if(!f) return;
+      const fd = new FormData();
+      fd.append('avatar', f);
+      const res = await fetch(`/api/operater/{{ operater.username }}/avatar`, {method:'POST', body: fd});
+      const data = await res.json().catch(()=>({}));
+      if(data && data.ok){ location.reload(); } else { alert(data.error || 'Greška pri spremanju slike.'); }
+    });
+  }
+
+  const modal = document.getElementById('edit-modal');
+  const btnEdit = document.getElementById('btn-edit');
+  const btnClose = document.getElementById('modal-close');
+  const btnCancel = document.getElementById('modal-cancel');
+  const form = document.getElementById('edit-form');
+
+  function showModal(){ modal.classList.add('show'); modal.setAttribute('aria-hidden', 'false'); }
+  function hideModal(){ modal.classList.remove('show'); modal.setAttribute('aria-hidden', 'true'); }
+
+  if(btnEdit){ btnEdit.addEventListener('click', showModal); }
+  if(btnClose){ btnClose.addEventListener('click', hideModal); }
+  if(btnCancel){ btnCancel.addEventListener('click', hideModal); }
+  if(modal){ modal.addEventListener('click', (e)=>{ if(e.target.classList.contains('modal-backdrop')) hideModal(); }); }
+
+  if(form){
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(form);
+      const res = await fetch(`/api/operater/{{ operater.username }}/update`, { method:'POST', body: fd });
+      const data = await res.json().catch(()=>({}));
+      if(data && data.ok){ location.reload(); } else { alert(data.error || 'Greška pri spremanju.'); }
+    });
+  }
+})();
+</script>
+
+<script>
+// Postavi avatar slike na sve linkove s klasom .profile-img (ako postoji avatar)
+(async function(){
+  try{
+    const res = await fetch('/api/operateri/avatars');
+    const d = await res.json();
+    if(!d || !d.ok) return;
+    const map = d.avatars || {};
+    document.querySelectorAll('a.profile-img[href^="/operater/"]').forEach(a=>{
+      const m = a.getAttribute('href').match(/\/operater\/([^\/?#]+)/);
+      if(!m) return;
+      const uname = decodeURIComponent(m[1]);
+      const url = map[uname];
+      if(url){
+        // Ukloni tekstualno slovo i ubaci <img>
+        a.textContent = '';
+        const img = document.createElement('img');
+        img.setAttribute('alt', `Profilna slika ${uname}`);
+        img.setAttribute('src', url);
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '50%';
+        a.appendChild(img);
+      }
+    });
+  }catch(e){ /* ignore */ }
+})();
+</script>
+
+
+<script>
+(function(){
+  const sigInput = document.getElementById('signature-input');
+  const sigSave = document.getElementById('signature-save');
+  const form = document.getElementById('sigForm');
+  const postUrl = `{{ url_for('api_operater_signature', username=operater.username) }}`;
+
+  function enableSave(enable){ if(sigSave){ sigSave.disabled = !enable; } }
+
+  if(sigInput){
+    sigInput.addEventListener('change', ()=>{
+      const f = sigInput.files && sigInput.files[0];
+      if(!f){ enableSave(false); return; }
+      if(!f.name.toLowerCase().endsWith('.png')){
+        alert('Potpis mora biti PNG.');
+        sigInput.value=''; enableSave(false); return;
+      }
+      enableSave(true);
+    });
+  }
+
+  if(sigSave){
+    sigSave.addEventListener('click', async ()=>{
+      const f = sigInput.files && sigInput.files[0];
+      if(!f){ alert('Prvo odaberite PNG datoteku.'); return; }
+      const fd = new FormData(form);
+      try{
+        const res = await fetch(postUrl, { method:'POST', body: fd, credentials:'same-origin' });
+        if(res.ok){
+          const data = await res.json().catch(()=>({}));
+          if(data && data.ok){ location.reload(); return; }
+        }
+        form.submit();
+      }catch(e){
+        form.submit();
+      }
+    });
+  }
+})();
+</script>
+
 {% endblock %}

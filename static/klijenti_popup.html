@@ -90,6 +90,7 @@
         .then(()=>{
           if (window.opener) {
             try { window.opener.postMessage({type:'CLIENT_SAVED'}, '*'); } catch(e){}
+          try { const ch = new BroadcastChannel('klijenti_channel'); ch.postMessage('CLIENT_SAVED'); } catch(e){}
           }
           window.close();
         })

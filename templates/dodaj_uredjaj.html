@@ -14,6 +14,16 @@
   <label for="serijski">Serijski broj<span class="req">*</span></label>
   <input id="serijski" name="serijski" value="{{ serijski or '' }}" pattern="[A-Za-z0-9\-_/\.]+"
          title="Dozvoljena su slova, brojevi i znakovi - _ / ." required />
+  
+  <label for="namjena">Namjena uređaja<span class="req">*</span></label>
+  <select id="namjena" name="namjena" required>
+    <option value="">-- Odaberite --</option>
+    {% set _opts = namjene or ['Kupnja','Najam'] %}
+    {% for opt in _opts %}
+      <option value="{{ opt }}" {% if opt == namjena_sel %}selected{% endif %}>{{ opt }}</option>
+    {% endfor %}
+  </select>
+
 
   <div class="actions">
     <button type="submit" class="btn">Spremi</button>

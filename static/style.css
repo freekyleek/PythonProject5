@@ -1,1 +1,171 @@
+:root { --app-font: "Segoe UI", "Segoe UI Regular", SegoeUI, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+
+body, html {
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive, sans-serif !important;
+}
 body{font-family:sans-serif;} .sidebar{background:#eee;padding:10px;}
+.mainbox { background: #1E0A78; color: #fff; }
+
+.mainbox h1, .mainbox h2, .mainbox h3, .mainbox h4 { color: #DBD300; }
+
+.mainbox-box {
+  border: 2px solid #000;
+  border-radius: 14px;
+  margin: 1em 0;
+  padding: 1em;
+  background: rgba(255,255,255,0.06);
+}
+
+/* === Global button styling (all buttons red, white text, black border) === */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+a.btn,
+.profile-btn,
+[role="button"].btn,
+a.button {
+  background-color: #FF0000 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #000000 !important;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 700;
+  text-decoration: none !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+a.btn:hover,
+.profile-btn:hover,
+[role="button"].btn:hover,
+a.button:hover {
+  filter: brightness(0.9);
+}
+
+button:active,
+input[type="button"]:active,
+input[type="submit"]:active,
+input[type="reset"]:active,
+a.btn:active,
+.profile-btn:active,
+[role="button"].btn:active,
+a.button:active {
+  transform: translateY(1px);
+}
+
+button:focus,
+input[type="button"]:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+a.btn:focus,
+.profile-btn:focus,
+[role="button"].btn:focus,
+a.button:focus {
+  outline: 3px dashed #000;
+  outline-offset: 2px;
+}
+
+button[disabled],
+input[type="button"][disabled],
+input[type="submit"][disabled],
+input[type="reset"][disabled],
+a.btn[aria-disabled="true"],
+.profile-btn[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button i,
+a.btn i,
+.profile-btn i,
+a.button i {
+  color: #FFFFFF !important;
+}
+
+.btn-icon {
+  padding: 6px 10px;
+  width: auto;
+  min-width: 36px;
+  justify-content: center;
+}
+
+.btn-zaduzi {}
+.btn-razduzi {}
+
+.btn-delete:hover {
+  filter: brightness(0.85);
+}
+
+/* === Chatbox layout fix (button inside margins, scrolling after ~10 messages) === */
+.right-sidebar .chatbox{
+  display:flex; flex-direction:column; gap:10px; background:#000; border:1px solid #2a3342; border-radius:14px; color:#fff; min-height:350px; height:100%; padding:0;
+}
+.chat-header{ padding:12px 14px; border-bottom:1px solid #2a3342; }
+.chat-header h3{ margin:0; color:#ffd600; }
+.chat-messages{ list-style:none; margin:0; padding:12px 14px; overflow-y:auto; flex:1; background:#000; }
+.chat-messages li{ margin:6px 0; line-height:1.35; word-wrap:break-word; overflow-wrap:anywhere; }
+.chat-messages .username{ font-weight:700; margin-right:6px; }
+.chat-messages .msg-text{ color:#ffffff; }
+.chat-messages li:nth-child(even) .msg-text{ color:#ffd600; } /* svaka sljedeća poruka žuta */
+.chat-input{ border-top:1px solid #2a3342; padding:10px; background:#0b0f18; border-bottom-left-radius:14px; border-bottom-right-radius:14px; }
+.chat-input .input-row{ display:flex; align-items:center; gap:8px; }
+.chat-input .emoji-btn, .chat-input .send-btn{
+  background:#1f2937; border:1px solid #374151; border-radius:10px; padding:6px 12px; cursor:pointer; color:#e5e7eb;
+}
+.chat-input .emoji-btn{ padding:6px 10px; }
+.chat-input input#chat-text{ flex:1; background:#111827; border:1px solid #374151; border-radius:10px; padding:8px 10px; color:#fff; outline:none; }
+.emoji-panel{ display:grid; grid-template-columns: repeat(8, 1fr); gap:6px; margin-top:8px; background:#000; border:1px solid #2a3342; border-radius:12px; padding:8px; max-height:140px; overflow-y:auto; }
+.emoji-panel[hidden]{ display:none; }
+.emoji-panel button{ background:#0b0f18; border:1px solid #2a3342; border-radius:8px; font-size:18px; line-height:1; padding:6px 0; cursor:pointer; color:#fff; }
+.chat-notice{ margin-top:6px; font-size:0.9em; color:#ffd600; }
+/* Constrain chat-messages height to roughly fit ~10 messages before scroll (approx, depends on line length) */
+.right-sidebar .chatbox .chat-messages{ max-height: 260px; }
+
+
+/* === Global text font (Segoe UI across text, excluding buttons & icons) === */
+/* Var je definirana gore kao --app-font. Primjenjujemo je na tipografske elemente.
+   Ne diramo gumbe (.btn, [role="button"], button, input[type=button|submit|reset]) niti ikone (.fa*, i, svg). */
+p, h1, h2, h3, h4, h5, h6,
+li, dt, dd, blockquote, small,
+code, pre, kbd, samp,
+label, legend,
+table, caption, thead, tbody, tfoot, tr, th, td,
+a:not(.btn):not([role="button"]),
+span:not(.btn):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class^="fa-"]),
+input[type="text"], input[type="search"], input[type="email"], input[type="password"],
+textarea, select
+{
+  font-family: var(--app-font) !important;
+  font-weight: 400;
+}
+
+
+/* === Buttons & links below banner tweaks (per request) === */
+/* 1) Svi gumbi ispod bannera (navigacija) OSIM Naslovna (/) i Odjava (/odjava) imaju plavu pozadinu #0B2B9E */
+.top-links li > a:not([href="/"]):not([href="/odjava"]) {
+  background-color: #0B2B9E !important;
+}
+
+/* 2) Svi linkovi ispod bannera (pretpostavka: glavni sadržaj #mainbox) su bold i veći za +4px */
+#mainbox a {
+  font-weight: 700 !important;
+  font-size: calc(1em + 4px) !important;
+}
+
+/* 3) Svi naslovi unutar Mainboxa su bold (izraženiji) */
+#mainbox h1,
+#mainbox h2,
+#mainbox h3,
+#mainbox h4,
+#mainbox h5,
+#mainbox h6 {
+  font-weight: 700 !important;
+}

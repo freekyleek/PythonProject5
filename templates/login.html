@@ -95,6 +95,11 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+    
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
     .login-box button:hover {
       background-color: #a81a1a;
@@ -112,6 +117,45 @@
       pointer-events: none;
       z-index: 20;
     }
+  
+    .login-box .secondary {
+      background-color: #355cfc;
+    }
+    .login-box .secondary:hover {
+      background-color: #2746c0;
+    }
+    .link-btn {
+      background: none;
+      border: none;
+      color: #ffffff;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 6px;
+      font-size: 0.95em;
+    }
+    .forgot-box {
+      margin-top: 10px;
+    }
+
+
+    .forgot-link {
+      display: block;
+      margin-top: 6px;
+      text-align: center;
+      font-size: 0.85em; /* smanjen font */
+      color: #ffffff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+
+    /* pomak loga 3cm prema gore (estetski) */
+    .logo-container {
+      position: relative;
+      top: -3cm;
+    }
+
   </style>
   {% block extra_head %}{% endblock %}
 </head>
@@ -129,11 +173,35 @@
         <input type="password" id="password" name="password" autocomplete="current-password" required />
         <button type="submit">Prijava</button>
       </form>
+
+      <div class="forgot-box">
+        <a href="#" class="forgot-link" id="forgotToggle">Zaboravio/la si lozinku?</a>
+        <form id="forgotForm" method="POST" action="/forgot-password" style="display:none; margin-top:10px;">
+          <label for="fp_email">E-mail</label>
+          <input type="email" id="fp_email" name="email" autocomplete="email" required />
+          <button type="submit" class="secondary">Pošalji</button>
+        </form>
+      </div>
+
     </div>
     <div class="developed-by">Developed by: Hrvoje</div>
   {% else %}
     {% block content %}{% endblock %}
     <div class="developed-by">Developed by: Hrvoje</div>
   {% endif %}
+
+  <script>
+    (function() {
+      var t = document.getElementById('forgotToggle');
+      if (t) {
+        t.addEventListener('click', function(e){ e.preventDefault();
+          var f = document.getElementById('forgotForm');
+          if (!f) return;
+          f.style.display = (f.style.display === 'none' || f.style.display === '') ? 'block' : 'none';
+        });
+      }
+    })();
+  </script>
+
 </body>
 </html>

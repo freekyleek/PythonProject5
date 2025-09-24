@@ -1,10 +1,19 @@
 [
   {
-    "first_name": "Pero",
-    "last_name": "Pero",
-    "username": "Pero",
-    "email": "asdasd@asdasd",
+    "first_name": "Luka",
+    "last_name": "S",
+    "username": "Luka",
+    "email": "webtest806@gmail.com",
     "phone": "0321312",
+    "role": "Tehničar",
+    "signature": "signatures/Luka.png"
+  },
+  {
+    "first_name": "Fran",
+    "last_name": "G",
+    "username": "Fran",
+    "email": "sdasd@asdsad",
+    "phone": "231231231",
     "role": "Tehničar"
   }
 ]

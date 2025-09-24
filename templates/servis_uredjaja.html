@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block content %}
+{% if has_role('superadmin','admin','serviser','podrska','podrška') %}
+<div class="container my-4 {% if has_role('podrska','podrška') %}support-readonly{% endif %}">
+  <h1 class="h3 mb-3">Servis uređaja</h1>
+
+  <style>
+    .repair-icons { display: inline-flex; gap: 6px; align-items: center; }
+    .icon-box {
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 4px;
+      color: #fff;
+      text-decoration: none;
+      user-select: none;
+      cursor: pointer;
+    }
+    .icon-yes { background: #28a745; }
+    .icon-no  { background: #dc3545; }
+    th { white-space: nowrap; }
+    .boxed {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px;
+      background: #f9fafb;
+    }
+    .muted { color: #6c757d; }
+  
+  
+    .boxed.otpisani {
+      background-color: #000 !important;
+      color: #fff !important;
+    }
+    .boxed.otpisani table,
+    .boxed.otpisani th,
+    .boxed.otpisani td {
+      color: #fff !important;
+    }
+  
+
+.support-readonly .repair-icons { display: none !important; }
+.support-readonly [data-action] { pointer-events: none; }
+</style>
+
+  {% if uredjaji %}
+  <div class="table-responsive mb-4">
+    <table class="table table-sm table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Klijent</th>
+          <th>Model</th>
+          <th>Serijski</th>
+          <th>RN</th>
+          <th>Status</th>
+          <th>Datum</th>
+          {% if not has_role('podrska','podrška') %}<th>Akcija</th>{% else %}<th>&nbsp;</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in uredjaji %}
+          <tr>
+            <td>{{ it.client }}</td>
+            <td>{{ it.model }}</td>
+            <td>{{ it.serijski }}</td>
+            <td>{{ it.rn }}</td>
+            <td>{{ it.status }}</td>
+            <td>{{ it.moved_at }}</td>
+            {% if not has_role('podrska','podrška') %}<td>
+              <div class="repair-icons">
+                <span class="icon-box icon-yes" title="Popravljen — vrati u skladište"
+                      data-action="return" data-serijski="{{ it.serijski }}">&#10003;</span>
+                <span class="icon-box icon-no" title="Otpiši uređaj"
+                      data-action="writeoff" data-serijski="{{ it.serijski }}">&#10005;</span>
+              </div>
+            </td>{% else %}<td></td>{% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info">Nema uređaja na servisu.</div>
+  {% endif %}
+
+  <h2 class="h5 mb-2">Otpisani uređaji</h2>
+  <div class="boxed otpisani">
+    {% if otpisani %}
+      <div class="table-responsive">
+        <table class="table table-sm table-bordered align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Klijent</th>
+              <th>Model</th>
+              <th>Serijski</th>
+              <th>RN</th>
+              <th>Status</th>
+              <th>Otpisan</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in otpisani %}
+              <tr>
+                <td>{{ it.client }}</td>
+                <td>{{ it.model }}</td>
+                <td>{{ it.serijski }}</td>
+                <td>{{ it.rn }}</td>
+                <td><span class="badge text-bg-danger">otpisan</span></td>
+                <td>{{ it.otpisan_at or it.moved_at }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="muted">Nema otpisanih uređaja.</div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('[data-action][data-serijski]');
+  if (!btn) return;
+  const serijski = btn.getAttribute('data-serijski');
+  const action = btn.getAttribute('data-action');
+  let url = null;
+  if (action === 'return') {
+    url = `/api/servis/${encodeURIComponent(serijski)}/return`;
+  } else if (action === 'writeoff') {
+    if (!confirm('Jeste li sigurni da želite otpisati ovaj uređaj?')) return;
+    url = `/api/servis/${encodeURIComponent(serijski)}/writeoff`;
+  }
+  if (!url) return;
+  fetch(url, {
+    method: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(r => r.json())
+  .then(j => {
+    if (j && j.ok) {
+      location.reload();
+    } else {
+      alert((j && j.error) ? j.error : 'Greška pri spremanju.');
+    }
+  })
+  .catch(() => alert('Greška pri komunikaciji sa serverom.'));
+}, false);
+</script>
+{% else %}<p>Nedovoljna prava.</p>{% endif %}
+{% endblock %}

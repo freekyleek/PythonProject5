@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{{ title or 'Zaključi deinstalaciju' }}{% endblock %}
+{% block content %}
+<h1>Zaključi deinstalaciju — {{ nalog.client }}</h1>
+
+<form method="post" enctype="multipart/form-data">
+  <input type="hidden" name="deinst_action" value="zakljuci">
+  <h3>Uređaji za povrat u skladište</h3>
+  {% if uredjaji_klijent and uredjaji_klijent|length %}
+  <table class="table">
+    <thead><tr><th></th><th>Model</th><th>Serijski</th></tr></thead>
+    <tbody>
+      {% for d in uredjaji_klijent %}
+      <tr>
+        <td><input type="checkbox" name="return_device" value="{{ d.serijski }}"></td>
+        <td>{{ d.model }}</td>
+        <td>{{ d.serijski }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p>Nema evidentiranih uređaja u ovom nalogu.</p>{% endif %}
+
+  <h3>SIM kartice za povrat</h3>
+  {% if sims_klijent and sims_klijent|length %}
+  <table class="table">
+    <thead><tr><th></th><th>Serijski</th><th>Operator</th></tr></thead>
+    <tbody>
+      {% for s in sims_klijent %}
+      <tr>
+        <td><input type="checkbox" name="return_sim" value="{{ s.serijski }}"></td>
+        <td>{{ s.serijski }}</td>
+        <td>{{ s.provider }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p>Nema evidentiranih SIM kartica u ovom nalogu.</p>{% endif %}
+
+
+  <div class="form-row" style="margin-top:14px;">
+    <label for="zapisnik_img"><strong>📎 Dodaj zapisnik</strong> (JPG/PNG, obavezno):</label><br>
+    <input type="file" name="zapisnik_img" id="zapisnik_img" accept=".jpg,.jpeg,.png" required>
+  </div>
+
+  <div class="form-row" style="margin-top:12px;">
+    <button class="btn btn-primary" type="submit">Dodaj zapisnik i zaključi</button>
+    <a class="btn btn-secondary" href="{{ url_for('nalozi') }}">Odustani</a>
+  </div>
+</form>
+{% endblock %}

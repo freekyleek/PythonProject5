@@ -1,8 +1,14 @@
 [
   {
-    "model": "Billy Easy PRO",
-    "serijski": "324234234234",
-    "assigned_to": "Pero",
-    "assigned_at": "2025-09-11T02:31:47.933178"
+    "model": "Billy Easy",
+    "serijski": "44444",
+    "assigned_to": "Mario",
+    "assigned_at": "2025-09-23T21:30:31.719906"
+  },
+  {
+    "model": "Billy Desk mini",
+    "serijski": "test215",
+    "assigned_to": "Mario",
+    "assigned_at": "2025-09-23T23:09:32.461840"
   }
 ]

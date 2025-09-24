@@ -1,44 +1,198 @@
+
+<style>
+.btn-icon{ display:inline-flex; align-items:center; gap:6px; padding:8px 12px; border-radius:8px; background:#0b5ed7; color:#fff; text-decoration:none; margin-left:8px; }
+.btn-icon .icon{ width:18px; height:18px; display:inline-block; vertical-align:middle; }
+.btn-icon:hover{ filter:brightness(1.05); }
+</style>
+
 {% extends 'base.html' %}
-{% block title %}Klijenti{% endblock %}
+{% block title %}Klijenti
+{% block extra_scripts %}
+<script>
+(function(){
+  var inp = document.getElementById('file-import-excel');
+  var frm = document.getElementById('form-import-excel');
+  if(inp && frm){
+    inp.addEventListener('change', function(){
+      if(!inp.files || !inp.files.length) return;
+      var ok = true;
+      try { ok = confirm('Uvesti klijente iz odabrane XLSX datoteke? Postojeći OIB-ovi neće se duplicirati.'); } catch(e) { ok = true; }
+      if(ok) frm.submit(); else inp.value = '';
+    });
+  }
+})();
+</script>
+{% endblock %}
+
+{% endblock %}
 {% block content %}
+<div class="page-head">
   <h1>Klijenti</h1>
-  <p><button id="btnAddClient" class="btn">➕ Dodaj klijenta</button></p>
+  <div class="counters-top-right">
+    <div class="counter-item"><span class="counter-dot green"></span><span class="counter-label">Aktivni:</span> <span id="count-aktivni">{{ aktivni_count or 0 }}</span></div>
+    <div class="counter-item"><span class="counter-dot red"></span><span class="counter-label">Neaktivni:</span> <span id="count-neaktivni">{{ neaktivni_count or 0 }}</span></div>
+  </div>
+</div>
+
+<div class="box box-klijenti"><div class="box-body">
+  <div class="toolbar">
+
+{% if has_role('superadmin','admin') %}
+  <a class="btn btn-icon" id="btn-export-excel" href="{{ url_for('export_klijenti_xlsx') }}" title="Export Excel">
+    <img class="icon" src="{{ url_for('static', filename='icons/exceldownload.png') }}" alt="Export Excel"/>
+    <span>Export Excel</span>
+  </a>
+  <form id="form-import-excel" action="{{ url_for('import_klijenti_xlsx') }}" method="post" enctype="multipart/form-data" style="display:inline;">
+    <label for="file-import-excel" class="btn btn-icon" title="Import Excel">
+      <img class="icon" src="{{ url_for('static', filename='icons/excelupload.png') }}" alt="Import Excel"/>
+      <span>Import Excel</span>
+    </label>
+    <input type="file" id="file-import-excel" name="file" accept=".xlsx" style="display:none;">
+  </form>
+{% endif %}
+
+
+    {% if has_role('superadmin','admin','prodaja') %}
+      <button class="btn" id="btn-add-client">➕ Dodaj Klijenta</button>
+    {% endif %}
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
 
   {% if klijenti %}
-    <ul class="client-ul">
-      {% for c in klijenti %}
-        <li>
-          <a href="{{ url_for('klijent_profil', name=c.name) }}">{{ c.name }}</a>
-          <span class="client-meta"> | {{ c.headquarters }} | {{ c.oib }}</span>
-        </li>
-      {% endfor %}
-    </ul>
+  <table class="tbl tbl-klijenti" style="width:100%; table-layout:fixed;">
+    <colgroup>
+      <col style="width:25%">
+      <col style="width:25%">
+      <col style="width:25%">
+      <col style="width:25%">
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Naziv</th>
+        <th>OIB</th>
+        <th>Sjedište</th>
+        <th>Aktivan</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for k in klijenti %}
+      <tr data-name="{{ k.name }}">
+        <td><a href="{{ url_for('klijent_profil', name=k.name) }}">{{ k.name }}</a></td>
+        <td>{{ k.oib }}</td>
+        <td>{{ k.headquarters }}</td>
+        <td>
+          <span class="client-status-dot{{ ' active' if k.active else '' }}" id="dot-{{ k.name | replace(' ', '_') }}"></span>
+          <span style="margin-left:6px;vertical-align:middle;">
+            <span id="lbl-{{ k.name | replace(' ', '_') }}">{{ 'Aktivan' if k.active else 'Neaktivan' }}</span>
+          </span>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
   {% else %}
     <p>Nema klijenata.</p>
   {% endif %}
+</div></div>
+{% endblock %}
 
-  <script>
-    document.getElementById('btnAddClient').addEventListener('click', () => {
-      const w = 680, h = 760;
-      const y = window.top.outerHeight / 2 + window.top.screenY - ( h / 2);
-      const x = window.top.outerWidth / 2 + window.top.screenX - ( w / 2);
-      window.open('{{ url_for('static', filename='klijenti_popup.html') }}', 'klijenti_popup',
-        `width=${w},height=${h},left=${x},top=${y},resizable=yes,scrollbars=yes`);
+{% block extra_head %}
+{{ super() }}
+<style>
+/* Counters (top-right) */
+.page-head{ position: relative; }
+.counters-top-right{ position:absolute; top:0; right:0; display:flex; gap:12px; align-items:center; font-size:14px; }
+.counter-item{ display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.06); padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,0.15); }
+.counter-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; box-shadow:0 0 8px currentColor; }
+.counter-dot.green{ background:#22c55e; color:#22c55e; }
+.counter-dot.red{ background:#ef4444; color:#ef4444; }
+.counter-label{ opacity:.9; }
+
+/* Buttons / table */
+.toolbar{ margin: 8px 0 16px; }
+.btn{ display:inline-block; padding:8px 14px; border-radius:8px; background:#0b5ed7; color:#fff; text-decoration:none; }
+.tbl{ width:100%; border-collapse:collapse; }
+.tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,.15); padding:8px; text-align:left; }
+
+/* Status dot in 'Aktivan' column */
+.client-status-dot{ display:inline-block; width:12px; height:12px; border-radius:50%; border:1px solid rgba(255,255,255,.35); vertical-align:middle; background:#e74c3c; }
+tr[data-name] .client-status-dot.active{ background:#22c55e; }
+
+/* Space for any future footer on the box (keeps layout consistent with /sim) */
+.box.box-klijenti{ position:relative; padding-bottom:8px; }
+.box.box-klijenti .box-body{ position:relative; }
+</style>
+{% endblock %}
+
+{% block extra_scripts %}
+{{ super() }}
+<script>
+// Toggle status colors & recalc counters on the fly
+(function(){
+  function qs(sel, ctx){ return (ctx||document).querySelector(sel); }
+  function qsa(sel, ctx){ return Array.from((ctx||document).querySelectorAll(sel)); }
+  function toKey(name){ return (name||'').replace(/\s+/g,'_'); }
+
+  function setRowStatus(name, active){
+    var row = qs('tr[data-name="' + CSS.escape(name) + '"]');
+    if(!row) return;
+    var key = toKey(name);
+    var dot = qs('#dot-' + key, row);
+    var lbl = qs('#lbl-' + key, row);
+    if(dot){
+      if(active){ dot.classList.add('active'); dot.style.background = '#22c55e'; }
+      else{ dot.classList.remove('active'); dot.style.background = '#e74c3c'; }
+    }
+    if(lbl){ lbl.textContent = active ? 'Aktivan' : 'Neaktivan'; }
+  }
+
+  function recalcCounters(){
+    var rows = qsa('tbody tr[data-name]');
+    var akt = 0, neakt = 0;
+    rows.forEach(function(r){
+      var lbl = r.querySelector('[id^="lbl-"]');
+      if(!lbl) return;
+      if((lbl.textContent||'').trim().toLowerCase()==='aktivan') akt++; else neakt++;
     });
+    var ca = qs('#count-aktivni'); if(ca){ ca.textContent = String(akt); }
+    var cn = qs('#count-neaktivni'); if(cn){ cn.textContent = String(neakt); }
+  }
 
-    // nakon spremanja iz popup-a osvježavamo listu
-    window.addEventListener('message', (ev) => {
-      if (ev && ev.data && ev.data.type === 'CLIENT_SAVED'){
-        window.location.reload();
-      }
+  // Live updates via polling (safe fallback)
+  function pollStatuses(){
+    fetch('/api/klijenti/statuses', { credentials: 'same-origin' })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){
+        if(!j || !j.ok || !Array.isArray(j.data)) return;
+        j.data.forEach(function(it){ setRowStatus(it.name, !!it.active); });
+        recalcCounters();
+      })
+      .catch(function(){});
+  }
+  setInterval(pollStatuses, 12000);
+  pollStatuses();
+
+  // Add client popup
+  var btn = document.getElementById('btn-add-client');
+  if(btn){
+    btn.addEventListener('click', function(){
+      var w = 860, h = 720;
+      var y = window.top.outerHeight ? Math.max(0, (window.top.outerHeight - h) / 2) : 50;
+      var x = window.top.outerWidth  ? Math.max(0, (window.top.outerWidth  - w) / 2) : 50;
+      window.open('/static/klijenti_popup.html', 'DodajKlijenta',
+        'popup=yes,noopener,noreferrer,toolbar=no,menubar=no,location=no,status=no,scrollbars=yes,resizable=yes'
+        + ',width=' + w + ',height=' + h + ',left=' + x + ',top=' + y);
     });
-  </script>
-
-  <style>
-    .client-ul{ list-style:none; padding:0; }
-    .client-ul li{ padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.15); }
-    .client-ul li a{ font-weight:700; color:#fff; text-decoration:none; }
-    .client-ul li a:hover{ text-decoration:underline; }
-    .client-meta{ opacity:.9; }
-  </style>
+  }
+})();
+</script>
 {% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}{{ title or 'Zaduži nalog' }}{% else %}<p>Nedovoljna prava.</p>{% endif %}
+{% endblock %}
+{% block content %}
+{% if has_role('voditelj','podrska','podrška','admin','superadmin') %}
+<h1>{{ title or 'Zaduži nalog' }}</h1>
+
+<form method="post">
+  {{ csrf_token() if csrf_token is defined }}
+
+    <div class="form-row" style="margin-bottom:12px;">
+    <label for="tehnicar">Zaduži na</label>
+    <select id="tehnicar" name="tehnicar" required>
+      <option value="" disabled selected>— odaberi —</option>
+
+      {% if podrska_ops and podrska_ops|length %}
+      <optgroup label="Podrška">
+        {% for p in podrska_ops %}
+          {% set valp = p.username or p.user or p.email or p.name %}
+          {% set txtp = (p.name or p.full_name or p.username or p.email or valp) ~ ' (Podrška)' %}
+          <option value="{{ valp }}">{{ txtp }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endif %}
+
+      {% if tehnicari and tehnicari|length %}
+      <optgroup label="Tehničar">
+        {% for t in tehnicari %}
+          {% set val = t.username or t.user or t.email or t.name %}
+          {% set txt = t.name or t.full_name or t.username or t.email or val %}
+          <option value="{{ val }}">{{ txt }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endif %}
+    </select>
+  </div>
+
+
+  {% set inst_list = (nalozi | selectattr('type', 'equalto', 'instalacija') | list) if nalozi is defined else [] %}
+  {% set dein_list = (nalozi | selectattr('type', 'equalto', 'deinstalacija') | list) if nalozi is defined else [] %}
+  {% set serv_list = (nalozi | selectattr('type', 'equalto', 'servis') | list) if nalozi is defined else [] %}
+
+  <div class="form-row" style="margin-bottom:12px;">
+    <label for="nalog">Nalog</label>
+    <select id="nalog" name="nalog" required>
+      <option value="" disabled selected>— odaberi —</option>
+
+      {% if inst_list and inst_list|length %}
+      <optgroup label="{{ (icons.instalacija if icons else '⚙️') ~ ' Instalacije' }}">
+        {% for n in inst_list %}
+          <option value="{{ n.rn }}">{{ n.rn }} — {{ n.client or n.klijent or n.customer or '-' }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endif %}
+
+      {% if dein_list and dein_list|length %}
+      <optgroup label="{{ (icons.deinstalacija if icons else '♻️') ~ ' Deinstalacije' }}">
+        {% for n in dein_list %}
+          <option value="{{ n.rn }}">{{ n.rn }} — {{ n.client or n.klijent or n.customer or '-' }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endif %}
+
+      {% if serv_list and serv_list|length %}
+      <optgroup label="{{ (icons.servis if icons else '🛠️') ~ ' Servisi' }}">
+        {% for n in serv_list %}
+          <option value="{{ n.rn }}">{{ n.rn }} — {{ n.client or n.klijent or n.customer or '-' }}</option>
+        {% endfor %}
+      </optgroup>
+      {% endif %}
+    </select>
+  </div>
+
+  <div class="form-row">
+    <button type="submit" class="btn btn-primary">Zaduži</button>
+    <a href="{{ url_for('nalozi') }}" class="btn">Odustani</a>
+  </div>
+</form>
+{% else %}<p>Nedovoljna prava.</p>{% endif %}
+{% endblock %}

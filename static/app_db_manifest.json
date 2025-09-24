@@ -1,0 +1,11 @@
+{
+  "db_path": "/mnt/data/app.db",
+  "tables": [
+    "user",
+    "sqlite_sequence"
+  ],
+  "counts": {
+    "user": 0,
+    "sqlite_sequence": 0
+  }
+}

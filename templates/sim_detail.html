@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}SIM detalji
+{% if not has_role('tehničar','tehnicar') %}
+<div class="card" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:16px; margin-top:16px;">
+  <h3 style="margin:0 0 12px 0;">Privremeno isključi</h3>
+  <form id="simStatusForm" style="display:flex; gap:8px; align-items:center;">
+    <label for="simStatusSel" style="opacity:.85;">Status</label>
+    <select id="simStatusSel" name="status">
+      <option value="aktivan" {% if sim.status == 'aktivan' or sim.status_color != 'orange' %}selected{% endif %}>Aktivan</option>
+      <option value="privremeno isključen" {% if sim.status_color == 'orange' or sim.status == 'privremeno isključen' %}selected{% endif %}>Privremeno isključen</option>
+    </select>
+    <button type="submit" class="btn" style="padding:6px 10px; border-radius:8px;">Spremi</button>
+    <span id="simStatusMsg" style="margin-left:8px; font-size:12px; opacity:.8;"></span>
+  </form>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('simStatusForm');
+  if (!form) return;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const sel = document.getElementById('simStatusSel');
+    const msg = document.getElementById('simStatusMsg');
+    msg.textContent = 'Spremanje...';
+    try {
+      const res = await fetch("{{ url_for('api_set_sim_status', serijski=sim.serijski) }}", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status: sel.value})
+      });
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        msg.textContent = 'Niste prijavljeni (sesija je možda istekla). Prijavite se pa pokušajte ponovno.';
+        return;
+      }
+      const data = await res.json();
+      if (data.ok) {
+        msg.textContent = 'Spremljeno.';
+        window.location.reload();
+      } else {
+        msg.textContent = 'Greška: ' + (data.error || 'Neuspjelo.');
+      }
+    } catch (err) {
+      msg.textContent = 'Greška pri spremanju.';
+    }
+  });
+});
+</script>
+{% endif %}
+
+{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>SIM detalji</h1>
+</div>
+
+{% if sim %}
+<div class="card" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:16px;">
+  <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+    <span class="status-dot" data-color="{{ sim.status_color or 'yellow' }}"></span>
+    <div>
+      <div style="opacity:.85;">Serijski broj</div>
+      <div style="font-size:20px; font-weight:600;">{{ sim.serijski }}</div>
+    </div>
+  </div>
+  <div class="grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+    <div><div class="lbl">Provider</div><div class="val">{{ sim.provider or '-' }}</div></div>
+    <div><div class="lbl">Zadužio</div><div class="val">{{ sim.assigned_to or '-' }}</div></div>
+    <div><div class="lbl">Klijent</div><div class="val">{% if sim.client_name %}<a href="{{ url_for('klijent_profil', name=sim.client_name) }}">{{ sim.client_name }}</a>{% else %}-{% endif %}</div></div>
+    <div><div class="lbl">Dodano</div><div class="val">{{ sim.created_at[:19] if sim.created_at else '-' }}</div></div>
+  </div>
+</div>
+{% else %}
+<p>SIM nije pronađen.</p>
+{% endif %}
+
+<style>
+.status-dot{ display:inline-block; width:12px; height:12px; border-radius:50%; border:1px solid rgba(255,255,255,.35); vertical-align:middle; }
+.status-dot[data-color="green"]{ background:#22c55e; }
+.status-dot[data-color="yellow"]{ background:#eab308; }
+.status-dot[data-color="red"]{ background:#ef4444; }
+.lbl{ font-size:12px; opacity:.8; margin-bottom:4px; }
+.val{ font-size:16px; font-weight:500; }
+.status-dot[data-color="orange"]{ background:#f97316; }
+</style>
+
+{% if not has_role('tehničar','tehnicar') %}
+<div class="card" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:16px; margin-top:16px;">
+  <h3 style="margin:0 0 12px 0;">Privremeno isključi</h3>
+  <form id="simStatusForm" style="display:flex; gap:8px; align-items:center;">
+    <label for="simStatusSel" style="opacity:.85;">Status</label>
+    <select id="simStatusSel" name="status">
+      <option value="aktivan" {% if sim.status == 'aktivan' or sim.status_color != 'orange' %}selected{% endif %}>Aktivan</option>
+      <option value="privremeno isključen" {% if sim.status_color == 'orange' or sim.status == 'privremeno isključen' %}selected{% endif %}>Privremeno isključen</option>
+    </select>
+    <button type="submit" class="btn" style="padding:6px 10px; border-radius:8px;">Spremi</button>
+    <span id="simStatusMsg" style="margin-left:8px; font-size:12px; opacity:.8;"></span>
+  </form>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('simStatusForm');
+  if (!form) return;
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const sel = document.getElementById('simStatusSel');
+    const msg = document.getElementById('simStatusMsg');
+    msg.textContent = 'Spremanje...';
+    try {
+      const res = await fetch("{{ url_for('api_set_sim_status', serijski=sim.serijski) }}", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({status: sel.value})
+      });
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        msg.textContent = 'Niste prijavljeni (sesija je možda istekla). Prijavite se pa pokušajte ponovno.';
+        return;
+      }
+      const data = await res.json();
+      if (data.ok) {
+        msg.textContent = 'Spremljeno.';
+        window.location.reload();
+      } else {
+        msg.textContent = 'Greška: ' + (data.error || 'Neuspjelo.');
+      }
+    } catch (err) {
+      msg.textContent = 'Greška pri spremanju.';
+    }
+  });
+});
+</script>
+{% endif %}
+
+{% endblock %}
+
+<h3>Dnevnik promjena</h3>
+<div style="border:1px solid rgba(0,0,0,0.15); border-radius:6px; padding:8px; background:#fafafa;">
+  <textarea readonly rows="10" style="width:100%; resize:vertical; overflow:auto; white-space:pre-wrap;">
+{% for e in logs %}[{{ e.ts[:19].replace('T',' ') }}] {{ e.action }}{% if e.who %} — {{ e.who }}{% endif %}{% if e.details %} — {{ e.details|tojson }}{% endif %}
+{% endfor %}
+  </textarea>
+</div>

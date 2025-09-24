@@ -1,23 +1,76 @@
 {% extends 'base.html' %}
-{% block title %}Uređaji{% endblock %}
+{% block title %}Uređaji
+<script>
+// AJAX brisanje uređaja sa stranice /uredjaji
+(function(){
+  document.addEventListener('click', async function(e){
+    var btn = e.target.closest('.delete-x');
+    if (!btn) return;
+    var serial = btn.getAttribute('data-serial') || '';
+    if (!serial) return;
+    // Ako korisnik nije potvrdio u prethodnom handleru, dodaj još jednu potvrdu.
+    if (!confirm('Potpuno obrisati uređaj ' + serial + ' iz svih evidencija?')) {
+      e.preventDefault(); e.stopPropagation(); return;
+    }
+    try {
+      const res = await fetch('/api/uredjaj/' + encodeURIComponent(serial) + '/delete', {
+        method: 'POST',
+        headers: {'X-Requested-With':'fetch'}
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data && data.ok) {
+        var row = btn.closest('tr');
+        if (row) row.remove();
+      } else {
+        alert((data && data.error) ? data.error : 'Brisanje nije uspjelo.');
+      }
+    } catch(err){
+      console.error(err);
+      alert('Greška pri brisanju uređaja.');
+    }
+  }, true);
+})();
+</script>
+
+
+{% endblock %}
 {% block content %}
-<h1>Uređaji</h1>
-<div class="toolbar">
-  <a class="btn" href="{{ url_for('dodaj_uredjaj') }}">Dodaj</a>
-  <a class="btn" href="{{ url_for('zaduzi_uredjaj') }}" style="margin-left:8px; background:#198754;">Zaduži</a>
+<div class="page-head">
+  <h1>Uređaji</h1>
+  <div class="counters-top-right">
+    <div class="counter-item"><span class="counter-dot green"></span><span class="counter-label">Aktivni:</span> {{ aktivni_count or 0 }}</div>
+    <div class="counter-item"><span class="counter-dot yellow"></span><span class="counter-label">Zaduženi:</span> {{ zaduzeni_count or 0 }}</div>
+    <div class="counter-item"><span class="counter-dot orange"></span><span class="counter-label">Privremeno isključen:</span> {{ privremeni_count or 0 }}</div>
+    <div class="counter-item"><span class="counter-dot red"></span><span class="counter-label">Neaktivni:</span> {{ neaktivni_count or 0 }}</div>
+  </div>
 </div>
+
+<div class="toolbar">
+  {% if has_role('superadmin','admin','serviser') %}<a class="btn" href="{{ url_for('dodaj_uredjaj') }}">Dodaj</a>{% endif %}
+  {% if has_role('superadmin','admin','voditelj','podrška','podrska') %}<a class="btn" href="{{ url_for('zaduzi_uredjaj') }}" style="margin-left:8px; background:#198754;">Zaduži</a>{% endif %}
+
+  <div class="search-wrap" style="position:absolute; right:0; top:0;">
+    <input id="deviceSearch" type="text" placeholder="Pretraži serijski ili klijenta" aria-label="Pretraži serijski ili klijenta"
+           style="background:#fff; color:#000; border:1px solid rgba(0,0,0,25); border-radius:8px; padding:8px 12px; outline:none; font:inherit; width:260px;">
+  
+  </div></div>
+
 {% if uredjaji %}
 <table class="tbl">
-  <thead><tr><th>Model</th><th>Serijski broj</th><th>Dodano</th><th></th></tr></thead>
+  <thead><tr><th style="width:28px"></th><th>Model</th><th>Serijski broj</th><th>Zadužio</th><th>Klijent</th><th>Namjena</th><th>Dodano</th><th></th></tr></thead>
   <tbody>
     {% for u in uredjaji %}
     <tr>
+      <td><span class="status-dot" data-color="{{ u.status_color or 'yellow' }}"></span></td>
       <td>{{ u.model }}</td>
-      <td>{{ u.serijski }}</td>
+      <td><a href="{{ url_for('uredjaj_detalj', serijski=u.serijski) }}">{{ u.serijski }}</a></td>
+      <td>{{ u.assigned_to or '-' }}</td>
+      <td>{% if u.client_name %}<a href="{{ url_for('klijent_profil', name=u.client_name) }}">{{ u.client_name }}</a>{% else %}-{% endif %}</td>
+      <td>{{ u.namjena or '-' }}</td>
       <td>{{ u.created_at[:19] if u.created_at }}</td>
       <td>
-        {% if current_user.is_superadmin %}
-          <button class="delete-x" title="Obriši uređaj" data-serial="{{ u.serijski }}">×</button>
+        {% if has_role('superadmin','admin','serviser') %}
+          <button class="delete-x" title="Obriši uređaj" data-serial="{{ u.serijski }}"></button>
         {% endif %}
       </td>
     </tr>
@@ -27,24 +80,164 @@
 {% else %}
 <p>Nema uređaja.</p>
 {% endif %}
+
 <style>
 .toolbar{ margin: 8px 0 16px; }
 .btn{ display:inline-block; padding:8px 14px; border-radius:8px; background:#0b5ed7; color:#fff; text-decoration:none; }
 .tbl{ width:100%; border-collapse:collapse; }
-.tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,.15); padding:8px; text-align:left; }
-.delete-x{ background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 18px; line-height: 1; }
-.delete-x:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+.tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,15); padding:8px; text-align:left; }
+.delete-x{ background:none; border:none; cursor:pointer; padding:4px; line-height:1; }
+.status-dot{ display:inline-block; width:12px; height:12px; border-radius:50%; border:1px solid rgba(255,255,255,35); vertical-align:middle; }
+.status-dot[data-color="green"]{ background:#22c55e; }
+.status-dot[data-color="yellow"]{ background:#eab308; }
+.status-dot[data-color="red"]{ background:#ef4444; }
+.status-dot[data-color="orange"]{ background:#f97316; } /* orange */
+
+.page-head{ position: relative; }
+.counters-top-right{ position:absolute; top:0; right:0; display:flex; gap:12px; align-items:center; font-size:14px; }
+.counter-item{ display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.06); padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,0.15); }
+.counter-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; box-shadow:0 0 8px currentColor; }
+.counter-dot.green{ background:#22c55e; color:#22c55e; }
+.counter-dot.yellow{ background:#eab308; color:#eab308; }
+.counter-dot.orange{ background:#f97316; color:#f97316; } /* orange */
+.counter-dot.red{ background:#ef4444; color:#ef4444; }
+.counter-label{ opacity:.9; }
+</style>
+
+<script>
+// Minimal delete button icon + confirm
+(function(){
+  function setDeleteIcons(){
+    document.querySelectorAll('.delete-x').forEach(function(btn){
+      if(!btn.innerHTML){
+        btn.innerHTML = "<svg aria-hidden='true' focusable='false' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16'><line x1='4' y1='4' x2='20' y2='20' stroke='red' stroke-width='2' stroke-linecap='round'/><line x1='20' y1='4' x2='4' y2='20' stroke='red' stroke-width='2' stroke-linecap='round'/></svg>";
+      }
+      if(!btn.title) btn.title = 'Obriši';
+    });
+  }
+  function attachConfirmDelegation(){
+    document.addEventListener('click', function(e){
+      var btn = e.target.closest('.delete-x');
+      if(!btn) return;
+      if(!confirm('Jeste li sigurni da želite obrisati?')){
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    }, true);
+  }
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setDeleteIcons(); attachConfirmDelegation(); });
+  } else { setDeleteIcons(); attachConfirmDelegation(); }
+})();
+
+// Simple client/serial filter
+(function(){
+  function norm(s){ try{ return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim(); }catch(e){ return (s||'').toUpperCase().trim(); } }
+  var input = document.getElementById('deviceSearch');
+  if(!input) return;
+  var table = document.querySelector('.tbl');
+  var thead = table ? table.querySelector('thead') : null;
+  var tbody = table ? table.querySelector('tbody') : null;
+  var idxSer=-1, idxKlijent=-1;
+  function scanHeads(){
+    if(!thead) return;
+    var heads = Array.prototype.map.call(thead.querySelectorAll('th'), function(th){ return norm(th.textContent); });
+    for (var i=0;i<heads.length;i++){ var t=heads[i]; if(t.indexOf('SERIJSKI')!==-1) idxSer=i; if(t.indexOf('KLIJENT')!==-1) idxKlijent=i; }
+  }
+  scanHeads();
+  var rows = Array.prototype.slice.call((tbody !== table ? tbody : table).querySelectorAll('tr'));
+  if (thead && rows.length && rows[0].querySelector && rows[0].querySelector('th')) rows.shift();
+  function applyFilter(q){
+    var qq = norm(q);
+    rows.forEach(function(r){
+      if(!qq){ r.style.display=''; return; }
+      var cells = r.children || [];
+      var ser = cells[idxSer] ? norm(cells[idxSer].textContent) : '';
+      var kli = cells[idxKlijent] ? norm(cells[idxKlijent].textContent) : '';
+      var match = ser.indexOf(qq)!==-1 || kli.indexOf(qq)!==-1;
+      r.style.display = match ? '' : 'none';
+    });
+  }
+  input.addEventListener('input', function(e){ applyFilter(e.target.value); });
+})();
+</script>
+<script>
+(function(){
+  var btn = document.getElementById('importExcelBtn');
+  var input = document.getElementById('importExcelInput');
+  var form = document.getElementById('importExcelForm');
+  if(btn && input && form){
+    btn.addEventListener('click', function(){ input.click(); });
+    input.addEventListener('change', function(){
+      if(input.files && input.files.length > 0){ form.submit(); }
+    });
+  }
+})();
+</script><div class="excel-actions">
+  <a class="excel-btn" href="{{ url_for('export_uredjaji_xlsx') }}" title="Izvoz u Excel (.xlsx)">
+    <img src="{{ url_for('static', filename='icons/exceldownload.png') }}" alt="Export Excel" />
+    <span>Export</span>
+  </a>
+  <form id="importExcelFormBottom" action="{{ url_for('import_uredjaji_xlsx') }}" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" id="importExcelInputBottom" accept=".xlsx" style="display:none;">
+    <button type="button" class="excel-btn" id="importExcelBtnBottom" title="Uvoz iz Excel (.xlsx)">
+      <img src="{{ url_for('static', filename='icons/excelupload.png') }}" alt="Import Excel" />
+      <span>Import</span>
+    </button>
+  </form>
+</div>
+<style>
+.excel-actions{  position: static;  display: flex;  justify-content: flex-end;  gap: 10px;  padding: 24px 0 0 0;}
+.excel-btn{  display:inline-flex;  align-items:center;  gap:8px;  padding:10px 16px;  border-radius:10px;  background:#dc3545;  color:#fff;  text-decoration:none;  cursor:pointer;  line-height:1;  border:0;  font:inherit;  -webkit-appearance:none;  appearance:none;}
+.excel-btn img{width:18px;height:18px;display:inline-block;}
+.excel-btn:hover,.excel-btn:focus{filter:brightness(1.05);outline:none;}
 </style>
 <script>
-document.addEventListener('click', async (e)=>{
-  const btn = e.target.closest('.delete-x');
-  if(!btn) return;
-  const serial = btn.getAttribute('data-serial');
-  if(!confirm(`Obrisati uređaj ${serial}?`)) return;
-  const res = await fetch(`/api/uredjaj/${encodeURIComponent(serial)}/delete`, {method:'POST'});
-  const data = await res.json().catch(()=>({}));
-  if(data.ok){ location.reload(); }
-  else{ alert(data.error || 'Greška pri brisanju.'); }
-});
+(function(){
+  var btn = document.getElementById('importExcelBtnBottom');
+  var input = document.getElementById('importExcelInputBottom');
+  var form = document.getElementById('importExcelFormBottom');
+  if(btn && input && form){
+    btn.addEventListener('click', function(){ input.click(); });
+    input.addEventListener('change', function(){
+      if(input.files && input.files.length > 0){ form.submit(); }
+    });
+  }
+})();
 </script>
+
+
+<script>
+// AJAX brisanje uređaja sa stranice /uredjaji
+(function(){
+  document.addEventListener('click', async function(e){
+    var btn = e.target.closest('.delete-x');
+    if (!btn) return;
+    var serial = btn.getAttribute('data-serial') || '';
+    if (!serial) return;
+    // Ako korisnik nije potvrdio u prethodnom handleru, dodaj još jednu potvrdu.
+    if (!confirm('Potpuno obrisati uređaj ' + serial + ' iz svih evidencija?')) {
+      e.preventDefault(); e.stopPropagation(); return;
+    }
+    try {
+      const res = await fetch('/api/uredjaj/' + encodeURIComponent(serial) + '/delete', {
+        method: 'POST',
+        headers: {'X-Requested-With':'fetch'}
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data && data.ok) {
+        var row = btn.closest('tr');
+        if (row) row.remove();
+      } else {
+        alert((data && data.error) ? data.error : 'Brisanje nije uspjelo.');
+      }
+    } catch(err){
+      console.error(err);
+      alert('Greška pri brisanju uređaja.');
+    }
+  }, true);
+})();
+</script>
+
+
 {% endblock %}

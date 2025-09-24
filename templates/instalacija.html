@@ -3,44 +3,65 @@
 {% block content %}
   <h1>Instalacija — {{ klijent.name }}</h1>
 
-  <form method="POST" id="instForm">
+  <form method="POST" id="instForm" novalidate enctype="multipart/form-data">
     <div class="box">
       <h2>Usluge</h2>
-      <div id="formUsluge"></div>
+      <div id="formUsluge" class="stack"></div>
+      <!-- Billy Pay opcije (skriveno dok nije označeno) -->
+      <div id="payBox" style="display:none; margin-top:8px;">
+        <label style="display:block;">
+          <span style="display:block; margin-bottom:6px;">Opcija Billy Pay</span>
+          <select id="payOpcije" name="billy_pay_opcija">
+            <option value="">— odaberi opciju —</option>
+          </select>
+        </label>
+        <p class="hint">Prikaže se kad je označena kućica „Billy Pay”.</p>
+      </div>
+      <p class="hint">Odaberi barem jednu uslugu.</p>
     </div>
 
     <div class="box" style="margin-top:20px;">
       <h2>Uređaji</h2>
-      <div id="formUredjaji"></div>
-      <p class="hint">Unesite količinu za pojedini uređaj (0 = ne naručuje se).</p>
+      <div id="formUredjaji" class="grid-2"></div>
+      <p class="hint">Unesi količinu (0–99). Ako je količina &gt; 0, obavezno odaberi vrstu usluge za svaki uređaj.</p>
     </div>
 
     <div class="box" style="margin-top:20px;">
-      <h2>Dodatne usluge</h2>
-      <div class="grid-2">
-        <label>SIM kartica
-          <input type="number" name="SIM kartica" min="0" step="1" value="0">
+      <h2 style="display:flex; align-items:center; gap:10px;">
+        Dodatne usluge
+      </h2>
+      <div class="grid-2" id="formDodatne">
+        <label class="row">
+          <span>SIM kartica</span>
+          <input class="qty2" type="number" name="SIM kartica" min="0" max="99" step="1" value="0">
         </label>
-        <label>Termo traka (58mm)
-          <input type="number" name="Termo traka (58mm)" min="0" step="1" value="0">
+        <label class="row">
+          <span>Termo traka (58mm)</span>
+          <input class="qty2" type="number" name="Termo traka (58mm)" min="0" max="99" step="1" value="0">
         </label>
-        <label>Termo traka (80mm)
-          <input type="number" name="Termo traka (80mm)" min="0" step="1" value="0">
+        <label class="row">
+          <span>Termo traka (80mm)</span>
+          <input class="qty2" type="number" name="Termo traka (80mm)" min="0" max="99" step="1" value="0">
         </label>
-        <label>Ladica za novac
-          <input type="number" name="Ladica za novac" min="0" step="1" value="0">
+        <label class="row">
+          <span>Ladica za novac</span>
+          <input class="qty2" type="number" name="Ladica za novac" min="0" max="99" step="1" value="0">
         </label>
-        <label>Kasa
-          <input type="number" name="Kasa" min="0" step="1" value="0">
+        <label class="row">
+          <span>Kasa</span>
+          <input class="qty2" type="number" name="Kasa" min="0" max="99" step="1" value="0">
         </label>
-        <label>Bar kod skener
-          <input type="number" name="Bar kod skener" min="0" step="1" value="0">
+        <label class="row">
+          <span>Bar kod skener</span>
+          <input class="qty2" type="number" name="Bar kod skener" min="0" max="99" step="1" value="0">
         </label>
-        <label>SumUp čitač
-          <input type="number" name="SumUp čitač" min="0" step="1" value="0">
+        <label class="row">
+          <span>SumUp čitač</span>
+          <input class="qty2" type="number" name="SumUp čitač" min="0" max="99" step="1" value="0">
         </label>
-        <label>Stylus olovka
-          <input type="number" name="Stylus olovka" min="0" step="1" value="0">
+        <label class="row">
+          <span>Stylus olovka</span>
+          <input class="qty2" type="number" name="Stylus olovka" min="0" max="99" step="1" value="0">
         </label>
       </div>
     </div>
@@ -48,44 +69,62 @@
     <div class="box" style="margin-top:20px;">
       <h2>Način isporuke</h2>
       <div class="stack">
-        <label><input type="radio" name="nacin" value="Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)"> Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)</label>
-        <label><input type="radio" name="nacin" value="Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)"> Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)</label>
-        <label><input type="radio" name="nacin" value="Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)"> Instalacijski paket na lokaciji Pružatelja usluga  (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)</label>
-        <label><input type="radio" name="nacin" value="Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)"> Instalacijski paket  (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)</label>
-        <label><input type="radio" name="nacin" value="Hitna instalacija (instalacija sljedeći radni dan)"> Hitna instalacija (instalacija sljedeći radni dan)</label>
+        <!-- Osnovne opcije (radio) -->
+        <label><input type="radio" name="nacin" value="Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)" required> Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)</label>
+        <label><input type="radio" name="nacin" value="Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)" required> Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)</label>
+        <label><input type="radio" name="nacin" value="Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)" required> Instalacijski paket na lokaciji Pružatelja usluga  (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)</label>
+        <label><input type="radio" name="nacin" value="Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)" required> Instalacijski paket  (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)</label>
+        <!-- Dodatna opcija (checkbox) koja se smije kombinirati s gore odabranom -->
+        <label><input type="checkbox" name="hitna" value="Hitna instalacija (instalacija sljedeći radni dan)"> Hitna instalacija (instalacija sljedeći radni dan)</label>
       </div>
       <div class="subopts">
         <p style="margin:10px 0 6px;"><strong>Podopcije dostave:</strong></p>
-        <label><input type="checkbox" name="podopcija" value="Kurirskom službom"> Kurirskom službom</label>
-        <label><input type="checkbox" name="podopcija" value="Kod Pružatelja usluga"> Kod Pružatelja usluga</label>
+        <!-- Samo JEDAN je dozvoljen i obavezan -->
+        <label><input type="radio" name="podopcija" value="Kurirskom službom" required> Kurirskom službom</label>
+        <label><input type="radio" name="podopcija" value="Kod Pružatelja usluga" required> Kod Pružatelja usluga</label>
       </div>
     </div>
 
     <div style="margin-top:20px;">
-      <button type="submit" class="btn" id="btnKreiraj">📄 Kreiraj</button>
+      
+    <!-- Zahtjev: obavezni upload slike (JPG/PNG) -->
+    <div class="form-row" style="margin:12px 0;">
+      <label for="zahtjev_img"><strong>Priloži zahtjev</strong> (obavezno, JPG/PNG/PDF):</label>
+      <input type="file" id="zahtjev_img" name="zahtjev_img" accept=".jpg,.jpeg,.png,.pdf" required>
+    </div>
+<button type="submit" class="btn" id="btnKreiraj">📄 Kreiraj</button>
       <a href="{{ url_for('kreiraj_nalog', name=klijent.name) }}" class="btn">← Natrag</a>
     </div>
   </form>
 
   <style>
     .hint{ opacity:.9; font-size:.9em; }
-    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-    .grid-2 label{ display:flex; flex-direction:column; gap:6px; }
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; }
     .stack label{ display:block; margin:6px 0; }
+    .row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .qty2{ width:3.2ch; text-align:right; }
     input[type="number"]{ padding:10px; border-radius:8px; border:1px solid #224488; background:#001F4D; color:#fff; }
+    select{ padding:8px; border-radius:8px; border:1px solid #224488; background:#001F4D; color:#fff; width:15ch; }
+    .device{ display:flex; flex-direction:column; gap:8px; }
+    .device .top{ display:flex; align-items:center; gap:10px; justify-content:space-between; }
+    .device .right{ display:flex; align-items:center; gap:8px; }
+    .qty{ width:3.2ch; text-align:right; }
+    .service-selects{ display:flex; flex-direction:column; gap:6px; margin-left:auto; }
+    .device-name{ font-weight:600; }
     .btn[disabled]{ opacity:.6; pointer-events:none; }
   </style>
 
   <script>
-    async function renderUsluge(){
-      let items = [];
-      try{
-        const r = await fetch('{{ url_for('static', filename='usluge.json') }}', {cache:'no-store'});
-        if(r.ok) items = await r.json();
-      }catch(e){}
+    // Helpers
+    const slugify = (s) => (s || '').normalize('NFKD').replace(/[^\w\s-]/g,'').trim().toLowerCase().replace(/[\s_-]+/g,'-').replace(/^-+|-+$/g,'');
+
+    // 1) Usluge — samo Billy S, Billy M, Billy Pay (bez Kupnja i Najam) + prikaz Pay opcija
+    function renderUsluge(){
+      const allowed = ['Billy S','Billy M','Billy Pay'];
       const form = document.getElementById('formUsluge');
       form.innerHTML = '';
-      items.forEach(v=>{
+      let billyPayInput = null;
+      allowed.forEach(v=>{
         const label = document.createElement('label');
         label.style.display='block';
         const input = document.createElement('input');
@@ -93,9 +132,80 @@
         label.appendChild(input);
         label.appendChild(document.createTextNode(' '+v));
         form.appendChild(label);
+        if(v === 'Billy Pay'){ billyPayInput = input; }
       });
+
+      const payBox = document.getElementById('payBox');
+      const paySel = document.getElementById('payOpcije');
+      function syncPayBox(){
+        if(billyPayInput && billyPayInput.checked){
+          payBox.style.display = '';
+          // ako select još nije napunjen (samo placeholder), napuni ga
+          if(paySel && paySel.options.length <= 1){
+            loadPayOpcije();
+          }
+        }else{
+          payBox.style.display = 'none';
+          if(paySel) paySel.value = '';
+        }
+      }
+      if(billyPayInput){
+        billyPayInput.addEventListener('change', syncPayBox);
+        // inicijalno
+        syncPayBox();
+      }
     }
 
+    // 2) Učitaj NAMJENE UREĐAJA (umjesto vrsta.usluge)
+    let uslugaOpcije = [];
+    async function loadVrsteUsluga(){
+      try{
+        const r = await fetch('{{ url_for('static', filename='namjena.uredjaja.JSON') }}', {cache:'no-store'});
+        if(r.ok){
+          uslugaOpcije = await r.json();
+        }
+      }catch(e){ uslugaOpcije = []; }
+      if(!Array.isArray(uslugaOpcije)) uslugaOpcije = [];
+    }
+    function makeServiceSelect(nameBase){
+      const sel = document.createElement('select');
+      sel.name = nameBase;
+      const opt0 = document.createElement('option');
+      opt0.value = ''; opt0.textContent = '— odaberi vrstu usluge —';
+      sel.appendChild(opt0);
+      uslugaOpcije.forEach(v=>{
+        const o = document.createElement('option');
+        o.value = v; o.textContent = v;
+        sel.appendChild(o);
+      });
+      return sel;
+    }
+
+    // 2b) Učitaj PAY OPCIJE
+    let payOpcije = [];
+    async function loadPayOpcije(){
+      try{
+        const r = await fetch('{{ url_for('static', filename='pay.opcije.JSON') }}', {cache:'no-store'});
+        if(r.ok){
+          payOpcije = await r.json();
+        }
+      }catch(e){ payOpcije = []; }
+      if(!Array.isArray(payOpcije)) payOpcije = [];
+      const sel = document.getElementById('payOpcije');
+      if(sel){
+        sel.innerHTML = '';
+        const opt0 = document.createElement('option');
+        opt0.value = ''; opt0.textContent = '— odaberi opciju —';
+        sel.appendChild(opt0);
+        payOpcije.forEach(v=>{
+          const o = document.createElement('option');
+          o.value = v; o.textContent = v;
+          sel.appendChild(o);
+        });
+      }
+    }
+
+    // 3) Uređaji — grid 1-2 / 3-4...; količina (2 znamenke) + padajući izbornik(i) obavezni uz količinu
     async function renderUredjaji(){
       let items = [];
       try{
@@ -104,29 +214,113 @@
       }catch(e){}
       const form = document.getElementById('formUredjaji');
       form.innerHTML = '';
-      items.forEach(v=>{
-        const wrap = document.createElement('label');
-        wrap.style.display='grid';
-        wrap.style.gridTemplateColumns='1fr 140px';
-        wrap.style.alignItems='center';
-        wrap.style.gap='10px';
-        wrap.textContent = v;
+      (items||[]).forEach(v=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'device';
+
+        const top = document.createElement('div');
+        top.className = 'top';
+
+        const name = document.createElement('div');
+        name.className = 'device-name';
+        name.textContent = v;
+
+        const right = document.createElement('div');
+        right.className = 'right';
+
         const qty = document.createElement('input');
-        qty.type='number'; qty.min='0'; qty.step='1'; qty.value='0'; qty.name=v;
-        qty.style.justifySelf='end';
+        qty.type='number'; qty.min='0'; qty.max='99'; qty.step='1'; qty.value='0'; qty.name=v;
+        qty.className='qty';
+
+        const selectsWrap = document.createElement('div');
+        selectsWrap.className = 'service-selects';
+
+        function refreshSelects(){
+          const count = Math.max(0, parseInt(qty.value||'0'));
+          selectsWrap.innerHTML='';
+          const baseName = 'vrsta_usluge__'+slugify(v)+'[]';
+          for(let i=0;i<count;i++){
+            const sel = makeServiceSelect(baseName);
+            sel.required = (count>0);
+            selectsWrap.appendChild(sel);
+          }
+        }
+        qty.addEventListener('input', refreshSelects);
+        qty.addEventListener('change', refreshSelects);
+
+        right.appendChild(qty);
+        top.appendChild(name);
+        top.appendChild(right);
+        wrap.appendChild(top);
+        wrap.appendChild(selectsWrap);
         form.appendChild(wrap);
-        wrap.appendChild(qty);
       });
+    }
+
+    // Submit validation (frontend guardrails)
+    function validateForm(ev){
+      // 1) usluge at least one
+      const anyUsluga = !!document.querySelector('input[name="usluge"]:checked');
+      if(!anyUsluga){
+        ev.preventDefault();
+        alert('Odaberi barem jednu uslugu (Billy S, Billy M ili Billy Pay).');
+        return false;
+      }
+      // 1a) ako je Billy Pay označen, zahtijevaj odabir iz padajućeg izbornika
+      const billyPayChecked = !!document.querySelector('input[name="usluge"][value="Billy Pay"]:checked');
+      if(billyPayChecked){
+        const sel = document.getElementById('payOpcije');
+        if(!sel || !sel.value){
+          ev.preventDefault();
+          alert('Za „Billy Pay” odaberi opciju iz padajućeg izbornika.');
+          return false;
+        }
+      }
+      // 2) način isporuke
+      if(!document.querySelector('input[name="nacin"]:checked')){
+        ev.preventDefault();
+        alert('Odaberi "Način isporuke".');
+        return false;
+      }
+      // 3) podopcija (radio) required
+      if(!document.querySelector('input[name="podopcija"]:checked')){
+        ev.preventDefault();
+        alert('Odaberi jednu podopciju dostave.');
+        return false;
+      }
+      // 4) for each device qty>0 ensure selects chosen
+      const devices = document.querySelectorAll('#formUredjaji .device');
+      for(const d of devices){
+        const qty = parseInt((d.querySelector('.qty')?.value)||'0');
+        if(qty>0){
+          const selects = d.querySelectorAll('.service-selects select');
+          if(selects.length !== qty){
+            ev.preventDefault();
+            alert('Za svaki uređaj s količinom > 0 mora biti odabrana vrsta usluge (po jedan odabir po uređaju).');
+            return false;
+          }
+          for(const s of selects){
+            if(!s.value){
+              ev.preventDefault();
+              alert('Odaberi vrstu usluge za svaki uređaj.');
+              return false;
+            }
+          }
+        }
+      }
+      return true;
     }
 
     // Onemogući double-click / višestruki submit
     const form = document.getElementById('instForm');
     const btn = document.getElementById('btnKreiraj');
-    form.addEventListener('submit', function(){
+    form.addEventListener('submit', function(e){
+      if(!validateForm(e)) return;
       if(btn){ btn.disabled = true; btn.textContent = 'Kreiram…'; }
     });
 
+    // Init
     renderUsluge();
-    renderUredjaji();
+    loadVrsteUsluga().then(renderUredjaji);
   </script>
 {% endblock %}

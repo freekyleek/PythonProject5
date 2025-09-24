@@ -15,7 +15,7 @@
       <td><a href="{{ url_for('operater_profil', username=n.assigned_to) }}">{{ n.assigned_to }}</a></td>
       <td>{{ n.assigned_at[:19] if n.assigned_at }}</td>
       <td>
-        {% if current_user.is_superadmin or current_user.username == n.assigned_to %}
+        {% if has_role('superadmin','admin','podrska','voditelj','podrška') or current_user.username == n.assigned_to %}
         <button class="btn-razduzi-nalog" data-rn="{{ n.rn }}">Razduži</button>
         {% endif %}
       </td>

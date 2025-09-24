@@ -1,21 +1,177 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="hr">
-  <head>
-    <meta charset="utf-8">
-    <title>{{ title or "Naslovna" }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
-      .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; max-width: 680px; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
-      h1 { margin: 0 0 1rem 0; font-size: 1.5rem; }
-      a.button { display: inline-block; padding: .6rem 1rem; border-radius: 10px; border: 1px solid #111827; text-decoration: none; }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <h1>Pozdrav, {{ username }}!</h1>
-      <p>Idi na pregled naloga:</p>
-      <p><a class="button" href="{{ url_for('nalozi') }}">/nalozi</a></p>
-    </div>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Operateri — Box po statusu</title>
+  <style>
+    :root{
+      --bg: #0b0e13;
+      --panel: #121826;
+      --panel-2: #0f1522;
+      --text: #e6ebf5;
+      --muted: #9fb0c6;
+      --accent: #4ea1ff;
+      --border: #25324a;
+      --chip: #202a3f;
+    }
+    html, body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+    header { display:flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    h1 { font-size: clamp(24px, 2.6vw, 34px); margin: 0; letter-spacing: 0.3px; }
+    .actions { display:flex; gap:12px; align-items:center; }
+    .btn {
+      display:inline-flex; align-items:center; gap:10px; border: 1px solid var(--border);
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      color: var(--text); padding: 10px 14px; border-radius: 12px; font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
+      transition: transform .1s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: #304061; }
+    .search { flex: 1 1 auto; max-width: 420px; }
+    .search input {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: #0f1421; color: var(--text); outline: none;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    @media (max-width: 760px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+    .box {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00));
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.02);
+    }
+    .box h2{
+      font-size: 18px; margin: 0 0 10px 0; display:flex; align-items:center; gap:10px;
+    }
+    .badge{
+      background: var(--chip); border: 1px solid var(--border); color: var(--muted);
+      padding: 4px 10px; border-radius: 999px; font-size: 12px;
+    }
+    ul.operators { list-style: none; margin:0; padding:0; display:flex; flex-direction: column; gap: 8px; }
+    .op {
+      display:flex; align-items:center; justify-content: space-between; gap:12px;
+      background: #0f1522; border:1px solid var(--border); border-radius: 12px; padding:10px 12px;
+    }
+    .op-main { display:flex; align-items:center; gap:10px; min-width: 0; }
+    .avatar {
+      width:28px; height:28px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #4ea1ff, #6e56cf 60%, #111 100%);
+      border:1px solid var(--border);
+      flex: 0 0 auto;
+    }
+    .op-name { font-weight: 650; }
+    .op-user { color: var(--muted); font-size: 12px; }
+    .op a.btn-mini{
+      border-radius: 10px; padding: 6px 10px; font-size: 12px;
+      background: #0c111b; border:1px solid var(--border);
+    }
+    footer { margin-top: 26px; color: var(--muted); font-size: 12px; }
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Operateri</h1>
+      <div class="actions">
+        <div class="search">
+          <input id="search" type="search" placeholder="Pretraži operatere..." />
+        </div>
+        <a id="dodaj" class="btn" href="#" title="Dodaj operatera">➕ Dodaj operatera</a>
+      </div>
+    </header>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+
+    <footer>
+      <p>Raspored: 1–2, ispod 3–4, itd. Kutije se pune operatorima prema statusu/ulozi.</p>
+    </footer>
+  </div>
+
+  <script>
+    // ▼▼ Zamijenite ovu listu stvarnim podacima ili je učitajte iz JSON-a ▼▼
+    const operators = [
+      { first_name: "Ana",  last_name: "Anić",   username: "aanic",  role: "Tehničar" },
+      { first_name: "Boris",last_name: "Barišić",username: "bbaris", role: "Tehničar" },
+      { first_name: "Cera", last_name: "Curić",  username: "ccuric", role: "Dispečer" },
+      { first_name: "Dora", last_name: "Đurić",  username: "ddjuric",role: "Supervizor" },
+      { first_name: "Ema",  last_name: "Erceg",  username: "eerceg", role: "Dispečer" },
+      { first_name: "Filip",last_name: "Filipović",username:"ffilip",role: "Tehničar" },
+      { first_name: "Gita", last_name: "Galić",  username: "ggalic", role: "Administrator" },
+      { first_name: "Hrvoje",last_name:"Lisac",  username: "hlisac", role: "Tehničar" }
+    ];
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    const gridEl = document.getElementById('grid');
+    const searchEl = document.getElementById('search');
+
+    function groupByRole(items){
+      const map = new Map();
+      for(const o of items){
+        const key = o.role || 'Neodređeno';
+        if(!map.has(key)) map.set(key, []);
+        map.get(key).push(o);
+      }
+      // Stabilno sortiranje po nazivu statusa
+      return Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0],'hr'));
+    }
+
+    function render(list){
+      gridEl.innerHTML = '';
+      const groups = groupByRole(list);
+      for(const [role, ops] of groups){
+        const box = document.createElement('div');
+        box.className = 'box';
+        box.innerHTML = \`
+          <h2>\${role} <span class="badge">\${ops.length}</span></h2>
+          <ul class="operators"></ul>
+        \`;
+        const ul = box.querySelector('ul');
+        for(const o of ops.sort((a,b)=> (a.last_name+a.first_name).localeCompare(b.last_name+b.first_name,'hr'))){
+          const li = document.createElement('li');
+          li.className = 'op';
+          li.innerHTML = \`
+            <div class="op-main">
+              <span class="avatar" aria-hidden="true"></span>
+              <div>
+                <div class="op-name">\${o.first_name} \${o.last_name}</div>
+                <div class="op-user">@\${o.username}</div>
+              </div>
+            </div>
+            <a class="btn-mini" href="#\${encodeURIComponent(o.username)}" title="Otvori profil">Profil</a>
+          \`;
+          ul.appendChild(li);
+        }
+        gridEl.appendChild(box);
+      }
+    }
+
+    function applySearch(){
+      const q = (searchEl.value || '').toLowerCase().trim();
+      if(!q){ render(operators); return; }
+      const filtered = operators.filter(o => (
+        (o.first_name && o.first_name.toLowerCase().includes(q)) ||
+        (o.last_name && o.last_name.toLowerCase().includes(q)) ||
+        (o.username && o.username.toLowerCase().includes(q)) ||
+        (o.role && o.role.toLowerCase().includes(q))
+      ));
+      render(filtered);
+    }
+
+    searchEl.addEventListener('input', applySearch);
+
+    // Init
+    render(operators);
+  </script>
+</body>
 </html>

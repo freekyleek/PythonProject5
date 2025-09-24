@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Aktivni SIM{% endblock %}
+{% block content %}
+<h1 style="margin-top:0">Aktivni SIM</h1>
+<p>Popis trenutno zaduženih SIM-ova.</p>
+{% if sims and sims|length > 0 %}
+  <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; background:#0e1420; border:1px solid #2a3342;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #2a3342;">#</th>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #2a3342;">Provider</th>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #2a3342;">Serijski</th>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #2a3342;">Zadužen za</th>
+          <th style="text-align:left; padding:8px; border-bottom:1px solid #2a3342;">Zadužen od</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in sims %}
+        <tr>
+          <td style="padding:8px; border-bottom:1px solid #2a3342;">{{ loop.index }}</td>
+          <td style="padding:8px; border-bottom:1px solid #2a3342;">{{ s.provider }}</td>
+          <td style="padding:8px; border-bottom:1px solid #2a3342;">{{ s.serijski }}</td>
+          <td style="padding:8px; border-bottom:1px solid #2a3342;">{{ s.assigned_to or '-' }}</td>
+          <td style="padding:8px; border-bottom:1px solid #2a3342;">{{ (s.assigned_at or '')[:19].replace('T',' ') }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="card">Nema aktivnih (zaduženih) SIM kartica.</div>
+{% endif %}
+{% endblock %}

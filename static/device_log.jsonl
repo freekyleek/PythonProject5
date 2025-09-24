@@ -1,0 +1,65 @@
+{"ts": "2025-09-23T00:29:02.121131", "serijski": "443534534", "action": "kreiran", "who": "hlisac", "details": {"model": "Billy Mobile 3", "namjena": "Kupnja"}}
+{"ts": "2025-09-23T00:29:10.601335", "serijski": "345345345345", "action": "kreiran", "who": "hlisac", "details": {"model": "Billy the POS", "namjena": "Kupnja"}}
+{"ts": "2025-09-23T00:29:23.181186", "serijski": "34543534545", "action": "kreiran", "who": "hlisac", "details": {"model": "Billy Black", "namjena": "Kupnja"}}
+{"ts": "2025-09-23T00:29:31.967377", "serijski": "345345435435345", "action": "kreiran", "who": "hlisac", "details": {"model": "Billy Black", "namjena": "Kupnja"}}
+{"ts": "2025-09-23T00:29:39.973152", "serijski": "345435435345", "action": "kreiran", "who": "hlisac", "details": {"model": "Billy Desk mini", "namjena": "Kupnja"}}
+{"ts": "2025-09-23T00:29:52.534609", "serijski": "34543534545", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T00:30:05.940597", "serijski": "345345345345", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T00:30:11.954183", "serijski": "345345435435345", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T00:30:18.903478", "serijski": "443534534", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T00:30:26.347379", "serijski": "345435435345", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T00:33:49.177985", "serijski": "34543534545", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0001/2025", "client": "Billy POS d.o.o."}}
+{"ts": "2025-09-23T00:35:05.240939", "serijski": "345345345345", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0002/2025", "client": "Billy POS d.o.o."}}
+{"ts": "2025-09-23T00:45:08.267583", "serijski": "34543534545", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T08:19:15.005308", "serijski": "345345435435345", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0006/2025", "client": "Billy POS d.o.o."}}
+{"ts": "2025-09-23T09:29:18.972222", "serijski": "321", "action": "namjena promijenjena na Kupnja", "who": "hlisac", "details": {}}
+{"ts": "2025-09-23T10:00:54.244978", "serijski": "321", "action": "obrisan", "who": "hlisac", "details": {"by": "hlisac"}}
+{"ts": "2025-09-23T10:01:05.570821", "serijski": "123", "action": "obrisan", "who": "hlisac", "details": {"by": "hlisac"}}
+{"ts": "2025-09-23T11:37:51.087236", "serijski": "TESTSSSTESTKupnja", "action": "obrisan", "who": "hlisac", "details": {"by": "hlisac"}}
+{"ts": "2025-09-23T12:15:38.941546", "serijski": "34543534545", "action": "privremeno isključen", "who": "hlisac", "details": {}}
+{"ts": "2025-09-23T12:27:36.261142", "serijski": "345345435435345", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T12:28:00.177231", "serijski": "BBB6666", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T12:30:09.533513", "serijski": "345345435435345", "action": "privremeno isključen", "who": "hlisac", "details": {}}
+{"ts": "2025-09-23T12:30:22.180536", "serijski": "BBB6666", "action": "privremeno isključen", "who": "hlisac", "details": {}}
+{"ts": "2025-09-23T21:29:46.891348", "serijski": "333333", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T21:30:12.393220", "serijski": "22222", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T21:30:31.762121", "serijski": "44444", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T21:30:55.096577", "serijski": "111111", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T21:31:27.011938", "serijski": "66666", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T21:36:41.415743", "serijski": "22222", "action": "privremeno isključen", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T21:37:05.460586", "serijski": "333333", "action": "privremeno isključen", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T21:39:00.607964", "serijski": "333333", "action": "servis evidentiran", "who": "Mario", "details": {"rn": "0001/2025", "client": "Tvrtka d.o.o."}}
+{"ts": "2025-09-23T21:44:34.063228", "serijski": "22222", "action": "deinstaliran", "who": "Paola", "details": {"rn": "0007/2025", "client": "Tvrtka d.o.o."}}
+{"ts": "2025-09-23T21:44:34.064466", "serijski": "66666", "action": "deinstaliran", "who": "Paola", "details": {"rn": "0007/2025", "client": "Tvrtka d.o.o."}}
+{"ts": "2025-09-23T22:37:08.381344", "serijski": "111111", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T22:37:23.840196", "serijski": "55555", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T22:44:25.694506", "serijski": "66666", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T23:08:40.823607", "serijski": "test213", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T23:09:06.336114", "serijski": "test214", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T23:09:32.464728", "serijski": "test215", "action": "zadužen tehničaru", "who": "Mario", "details": {}}
+{"ts": "2025-09-23T23:09:53.370476", "serijski": "test216", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T23:16:00.541092", "serijski": "55555", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0008/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:16:00.542543", "serijski": "66666", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0008/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:16:00.543929", "serijski": "test213", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0008/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:16:00.546801", "serijski": "test214", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0008/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:28:50.582846", "serijski": "66666", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T23:29:16.537505", "serijski": "test214", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-23T23:33:34.449849", "serijski": "55555", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0009/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:33:34.450689", "serijski": "test216", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0009/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:33:34.451479", "serijski": "66666", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0009/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:33:34.452441", "serijski": "test214", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0009/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:47:00.283759", "serijski": "test216", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0010/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:47:00.287679", "serijski": "66666", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0010/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-23T23:47:00.288733", "serijski": "test214", "action": "deinstaliran", "who": "hlisac", "details": {"rn": "0010/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-24T01:16:57.862942", "serijski": "test216", "action": "servis evidentiran", "who": "hlisac", "details": {"rn": "0002/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-24T01:39:00.243170", "serijski": "443534534", "action": "servis evidentiran", "who": "hlisac", "details": {"rn": "0003/2025", "client": "Billy POS d.o.o."}}
+{"ts": "2025-09-24T01:41:24.603399", "serijski": "test213", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-24T01:48:53.605976", "serijski": "34543534545", "action": "servis evidentiran", "who": "hlisac", "details": {"rn": "0004/2025", "client": "Billy POS d.o.o."}}
+{"ts": "2025-09-24T01:49:48.328314", "serijski": "443534534", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-24T01:50:03.962990", "serijski": "test216", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-24T22:18:14.239554", "serijski": "345345435435345", "action": "servis evidentiran", "who": "hlisac", "details": {"rn": "0005/2025", "client": "Etranet grupa d.o.o."}}
+{"ts": "2025-09-24T22:24:49.121721", "serijski": "66666", "action": "servis evidentiran", "who": "hlisac", "details": {"rn": "0006/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-24T22:49:24.630989", "serijski": "345435435345", "action": "servis evidentiran", "who": "hlisac", "details": {"rn": "0007/2025", "client": "Billy POS d.o.o."}}
+{"ts": "2025-09-24T22:50:27.962765", "serijski": "66666", "action": "zadužen tehničaru", "who": "Luka", "details": {}}
+{"ts": "2025-09-24T22:54:36.142189", "serijski": "test214", "action": "servis evidentiran", "who": "hlisac", "details": {"rn": "0008/2025", "client": "Domaća radinost, vl Mirka Mirkić"}}
+{"ts": "2025-09-24T22:56:51.927383", "serijski": "345435435345", "action": "zadužen tehničaru", "who": "Luka", "details": {}}

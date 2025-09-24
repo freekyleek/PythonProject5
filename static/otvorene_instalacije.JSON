@@ -1,0 +1,16 @@
+[
+  {
+    "zahtjev_image": "zapisnici/Zahtjev/0005_2025_20250923_221731.pdf",
+    "type": "instalacija",
+    "client": "Etranet grupa d.o.o.",
+    "file": "nalozi/etranet-grupa-d-o-o/INSTALL RN 0005-2025 Etranet grupa d.o.o.,Radnička cesta 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T22:17:31.617519",
+    "nacin": "Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0005/2025",
+    "status": "nezadužen",
+    "assigned_to": "-"
+  }
+]

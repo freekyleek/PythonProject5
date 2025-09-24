@@ -1,83 +1,729 @@
-{% extends "base.html" %}
-{% block title %}{{ title or ('Profil klijenta - ' ~ (klijent.name if klijent else '')) }}{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Profil klijenta{% endblock %}
 {% block content %}
-<h1>Profil klijenta — {{ klijent.name }}</h1>
+  <div style="display:flex; align-items:center; justify-content:space-between;">
+<h1 style="display:flex; align-items:center; gap:10px;">
+<span class="client-status-dot" style="display:inline-block; width:12px; height:12px; border-radius:50%; background:{{ '#2ecc71' if client_active else '#e74c3c' }};" title="{{ 'Aktivan' if client_active else 'Neaktivan' }}"></span>
+      {{ klijent.name }}
+    </h1>
+<a class="btn" href="{{ url_for('kreiraj_nalog', name=klijent.name) }}" style="white-space:nowrap;">🧾 Kreiraj nalog</a>
+</div>
+<div class="box" style="position:relative"><style>
+/* GRID: Osnovni podaci */
+#basic-info-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:12px;
+}
+#basic-info-grid p{
+  margin:0;
+  padding:8px 10px;
+  color:#ffffff;           /* bijeli tekst kao u boxu Uređaji i SIM */
+  background:transparent;  /* bez plave pozadine */
+  border:none;
+}
+@media (max-width: 900px){
+  #basic-info-grid{ grid-template-columns:1fr; }
+}
 
-  <div class="box">
-    <h2>Nalozi</h2>
-    {% if nalozi %}
-      <ul>
-        {% for n in nalozi %}
-          <li><strong>{{ n.type|capitalize }}</strong> — RN {{ n.rn }} — <span class="muted">{{ n.status or 'nezadužen' }}</span></li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">Nema naloga.</p>
-    {% endif %}
-  </div>
+/* Gumb za otvaranje kalendara */
+.open-reminder{
+  position:absolute; top:10px; right:12px;
+  background:#1f4aff; color:#fff; border:none; border-radius:10px; padding:8px 12px; cursor:pointer;
+}
 
-  <div class="box">
-    <h2>Uređaji</h2>
-    {% if aktivni_uredjaji %}
-      <ul>
-        {% for d in aktivni_uredjaji %}
-          <li>
-            <strong>{{ d.model }}</strong> — {{ d.serijski }}
-            <button class="btn razduzi-uredjaj" data-serijski="{{ d.serijski }}">Razduži</button>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">Nema aktivnih uređaja za ovog klijenta.</p>
-    {% endif %}
-  </div>
+/* Kalendar (popup, skriven do klika) */
+.reminder-widget{
+  position:absolute; top:48px; right:12px; z-index:50;
+  width:260px;
+  background:#0f1115;
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+  border-radius:12px;
+  padding:8px;
+  color:#e7eaf0;
+  font-size:14px;
+}
+.reminder-widget .cal-header{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:6px; }
+.reminder-widget .nav-btn{ border:none; background:#151922; padding:6px 8px; border-radius:8px; cursor:pointer; color:#e7eaf0; }
+.reminder-widget .cal-title select{ background:#151922; color:#e7eaf0; border:1px solid rgba(255,255,255,.15); padding:6px 8px; border-radius:8px; margin:0 3px; }
+.reminder-widget .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; padding:4px; }
+.reminder-widget .day, .reminder-widget .dow{ text-align:center; padding:6px 0; border-radius:8px; }
+.reminder-widget .dow{ opacity:.75; font-size:12px; }
+.reminder-widget .day{ background:#121722; cursor:pointer; user-select:none; }
+.reminder-widget .day.out{ opacity:.3; cursor:default; }
+.reminder-widget .day:hover{ outline:1px solid rgba(255,255,255,.2); }
+.reminder-widget .day.sel{ background:#1f4aff; color:#fff; }
+.reminder-widget .time-row{ display:flex; gap:6px; align-items:center; margin-top:8px; justify-content:space-between; }
+.reminder-widget .time-row input[type=time]{ flex:1; background:#151922; color:#e7eaf0; border:1px solid rgba(255,255,255,.15); padding:6px 8px; border-radius:8px; }
+.reminder-widget .btn{ padding:8px 10px; border-radius:10px; background:#1f4aff; color:#fff; border:none; cursor:pointer; }
 
-  <div class="box">
-    <h2>SIM</h2>
-    {% if aktivni_sim %}
-      <ul>
-        {% for s in aktivni_sim %}
-          <li>
-            <strong>{{ s.provider }}</strong> — {{ s.serijski }}
-            <button class="btn razduzi-sim" data-serijski="{{ s.serijski }}">Razduži</button>
-          </li>
-        {% endfor %}
-      </ul>
-    {% else %}
-      <p class="muted">Nema aktivnih SIM-ova za ovog klijenta.</p>
-    {% endif %}
-  </div>
+@media (max-width: 900px){
+  .open-reminder{ position:static; margin:8px 0; }
+  .reminder-widget{ position:static; width:100%; }
+}
+</style>
+<h2>Osnovni podaci</h2><button class="btn open-reminder" id="openReminderBtn" type="button">Kreiraj podsjetnik</button>
+<div class="reminder-widget" id="reminder-widget" style="display:none">
+<div class="cal-header">
+<button aria-label="Prethodni mjesec" class="nav-btn" id="calPrev">◀</button>
+<div class="cal-title">
+<select id="calMonth"></select>
+<select id="calYear"></select>
+</div>
+<button aria-label="Sljedeći mjesec" class="nav-btn" id="calNext">▶</button>
+</div>
+<div class="cal-grid" id="calGrid"></div>
+<div class="time-row" id="timeRow" style="display:none">
+<input id="timeInput" step="60" type="time"/>
+<button class="btn" id="createReminderBtn">Kreiraj podsjetnik</button>
+</div>
+</div>
+<!-- Prikaz (readonly) -->
+<div id="client-view"><div id="basic-info-grid"><p><strong>Naziv:</strong> {{ klijent.name }}</p><p><strong>OIB:</strong> {{ klijent.oib }}</p><p><strong>Adresa sjedišta:</strong> {{ klijent.headquarters }}</p><p><strong>Adresa isporuke:</strong> {{ klijent.shipping }}</p><p><strong>E-mail:</strong> {{ klijent.email }}</p><p><strong>Kontakt broj:</strong> {{ klijent.phone }}</p><p><strong>Kreirano:</strong> {{ klijent.created_at }}</p></div></div>
 
-  <div class="box">
-    <h2>Zapisnici</h2>
-    {% if zapisnici %}
-      <div class="thumbs">
-        {% for img in zapisnici %}
-          <a href="{{ url_for('static', filename=img.split('static/')[-1]) }}" target="_blank">
-            <img src="{{ url_for('static', filename=img.split('static/')[-1]) }}" alt="zapisnik" />
-          </a>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="muted">Nema učitanih zapisnika.</p>
-    {% endif %}
-  </div>
-
-  <script>
-    document.addEventListener('click', async (e) => {
-      const name = {{ (klijent.name | tojson) if klijent else '""' }};
-      if (e.target.matches('.razduzi-uredjaj')) {
-        const s = e.target.dataset.serijski;
-        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-uredjaj/${encodeURIComponent(s)}`, {method:'POST'});
-        const j = await res.json();
-        if (j.ok) location.reload(); else alert(j.error||'Greška');
+    {% if has_role('superadmin','admin','prodaja') %}
+    <!-- Uređivanje -->
+<style>
+      /* Osnovni podaci – uređivanje: vertikalni raspored i uska širina da ne gura desni sidebox */
+      #client-edit-form{
+        display:flex; flex-direction:column; gap:10px;
+        max-width:560px; width:100%; box-sizing:border-box;
       }
-      if (e.target.matches('.razduzi-sim')) {
-        const s = e.target.dataset.serijski;
-        const res = await fetch(`/api/klijent/${encodeURIComponent(name)}/razduzi-sim/${encodeURIComponent(s)}`, {method:'POST'});
+      #client-edit-form label{ display:flex; flex-direction:column; margin:0; font-weight:600; }
+      #client-edit-form input, #client-edit-form select, #client-edit-form textarea{
+        display:block; width:100%; max-width:560px; box-sizing:border-box; padding:8px; margin-top:6px;
+      }
+      #client-edit-form .btn{ margin-top:12px; }
+      /* Općenito ograniči širinu boxeva unutar sadržaja kako ne bi utjecali na desni sidebox */
+      .box{ max-width:100%; }
+    </style>
+<form id="client-edit-form" style="display:none; margin-top:10px;">
+<label>Naziv klijenta
+        <input name="name" required="" value="{{ klijent.name }}"/>
+</label>
+<label>OIB
+        <input name="oib" pattern="\d{11}" required="" title="Točno 11 znamenki" value="{{ klijent.oib }}"/>
+</label>
+<label>Adresa sjedišta
+        <input name="headquarters" required="" value="{{ klijent.headquarters }}"/>
+</label>
+<label>Adresa isporuke
+        <input name="shipping" value="{{ klijent.shipping }}"/>
+</label>
+<label>E-mail
+        <input name="email" required="" type="email" value="{{ klijent.email }}"/>
+</label>
+<label>Kontakt broj
+        <input name="phone" required="" value="{{ klijent.phone }}"/>
+</label>
+<p><strong>Kreirano:</strong> {{ klijent.created_at }}</p>
+<div style="margin-top:8px;">
+<button class="btn" type="submit">Spremi</button>
+<button class="btn secondary" id="cancelEdit" type="button">Odustani</button>
+</div>
+</form>
+    {% endif %}
+  <script>
+(function(){
+  const btn = document.getElementById('createReminderBtn');
+  const dt = document.getElementById('reminderDT');
+  if(btn && dt){
+    btn.addEventListener('click', async function(){
+      const v = dt.value;
+      if(!v){ alert('Odaberite datum i vrijeme.'); return; }
+      try{
+        const res = await fetch('/api/reminders', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ when: v, client: {{ klijent.name|tojson }} })
+        });
         const j = await res.json();
-        if (j.ok) location.reload(); else alert(j.error||'Greška');
+        if(!res.ok || !j.ok){ alert(j.error || 'Greška pri kreiranju podsjetnika.'); return; }
+        alert('Podsjetnik kreiran.');
+        dt.value='';
+      }catch(e){ alert('Greška mreže.'); }
+    });
+  }
+})();
+</script><script>
+(function(){
+  // Place all p items in grid already done server-side; add blue-pill to email/kontakt
+  try {
+    var grid = document.getElementById('basic-info-grid');
+    if(grid){
+      Array.from(grid.querySelectorAll('p')).forEach(function(p){
+        var t = (p.textContent || '').toLowerCase();
+        if(t.includes('e-mail') || t.includes('email') || t.includes('kontakt') || t.includes('broj') || t.includes('telefon') || t.includes('mobile')){
+          p.classList.add('blue-pill');
+        }
+      });
+    }
+  } catch(e){}
+
+  // Calendar
+  const monthNames = ['Siječanj','Veljača','Ožujak','Travanj','Svibanj','Lipanj','Srpanj','Kolovoz','Rujan','Listopad','Studeni','Prosinac'];
+  const dowNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const calGrid = document.getElementById('calGrid');
+  const mSel = document.getElementById('calMonth');
+  const ySel = document.getElementById('calYear');
+  const prev = document.getElementById('calPrev');
+  const next = document.getElementById('calNext');
+  const timeRow = document.getElementById('timeRow');
+  const timeInput = document.getElementById('timeInput');
+  const createBtn = document.getElementById('createReminderBtn');
+  let selDateISO = null;
+
+  // Fill month/year selects
+  for(let i=0;i<12;i++){ const o=document.createElement('option'); o.value=i; o.textContent=monthNames[i]; mSel.appendChild(o); }
+  const yearNow = new Date().getFullYear();
+  for(let y=yearNow-70; y<=yearNow+10; y++){ const o=document.createElement('option'); o.value=y; o.textContent=y; ySel.appendChild(o); }
+
+  function startOfCalendar(year, month){
+    // first day of month (Mon-Sun)
+    const d0 = new Date(year, month, 1);
+    let day = d0.getDay(); // Sun=0..Sat=6
+    day = (day===0?7:day); // Sun->7
+    const delta = day-1; // number of days to go back to Monday
+    const start = new Date(year, month, 1 - delta);
+    return start;
+  }
+  function build(year, month){
+    calGrid.innerHTML='';
+    // DOW header
+    dowNames.forEach(function(n){ const el=document.createElement('div'); el.className='dow'; el.textContent=n; calGrid.appendChild(el); });
+    const start = startOfCalendar(year, month);
+    const today = new Date(); today.setHours(0,0,0,0);
+    for(let i=0;i<42;i++){
+      const d = new Date(start); d.setDate(start.getDate()+i);
+      const div = document.createElement('div');
+      div.className = 'day';
+      div.textContent = String(d.getDate()).padStart(2,'0');
+      if(d.getMonth()!==month){ div.classList.add('out'); }
+      if(d.getTime()===today.getTime()) { div.style.outline='1px dashed rgba(255,255,255,.25)'; }
+      div.addEventListener('click', function(){
+        if(div.classList.contains('out')) return;
+        Array.from(calGrid.querySelectorAll('.day')).forEach(x=>x.classList.remove('sel'));
+        div.classList.add('sel');
+        // ask for time
+        timeRow.style.display='flex';
+        // store selected date ISO yyyy-mm-dd
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth()+1).padStart(2,'0');
+        const dd = String(d.getDate()).padStart(2,'0');
+        selDateISO = yyyy + '-' + mm + '-' + dd;
+      });
+      calGrid.appendChild(div);
+    }
+    mSel.value = month;
+    ySel.value = year;
+  }
+
+  const now = new Date();
+  build(now.getFullYear(), now.getMonth());
+
+  prev.addEventListener('click', function(){
+    let y = parseInt(ySel.value,10), m = parseInt(mSel.value,10);
+    m--; if(m<0){ m=11; y--; } build(y,m);
+  });
+  next.addEventListener('click', function(){
+    let y = parseInt(ySel.value,10), m = parseInt(mSel.value,10);
+    m++; if(m>11){ m=0; y++; } build(y,m);
+  });
+  mSel.addEventListener('change', function(){ build(parseInt(ySel.value,10), parseInt(mSel.value,10)); });
+  ySel.addEventListener('change', function(){ build(parseInt(ySel.value,10), parseInt(mSel.value,10)); });
+
+  createBtn.addEventListener('click', async function(){
+    if(!selDateISO){ alert('Odaberite datum.'); return; }
+    const t = (timeInput.value||'').trim();
+    if(!t){ alert('Unesite vrijeme.'); return; }
+    const when = selDateISO + 'T' + t;
+    try{
+      const res = await fetch('/api/reminders', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ when: when, client: {{ klijent.name|tojson }} })
+      });
+      const j = await res.json();
+      if(!res.ok || !j.ok){ alert(j.error || 'Greška pri kreiranju podsjetnika.'); return; }
+      alert('Podsjetnik kreiran.');
+      timeInput.value=''; selDateISO=null; timeRow.style.display='none';
+      Array.from(calGrid.querySelectorAll('.day')).forEach(x=>x.classList.remove('sel'));
+    }catch(e){ alert('Greška mreže.'); }
+  });
+})();
+</script><script>
+(function(){
+  var openBtn = document.getElementById('openReminderBtn');
+  var widget = document.getElementById('reminder-widget');
+  if(openBtn && widget){
+    openBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var show = (widget.style.display === 'none' || !widget.style.display);
+      widget.style.display = show ? 'block' : 'none';
+    });
+    document.addEventListener('click', function(ev){
+      if(widget.style.display !== 'none' && !widget.contains(ev.target) && ev.target !== openBtn){
+        widget.style.display = 'none';
       }
     });
+  }
+})();</script></div>
+
+  {% block extra_scripts %}
+  {{ super() }}{% block client_edit_script %}
+  <script>
+  (function(){
+    const editBtn = document.getElementById('editClientBtn');
+    const viewBox = document.getElementById('client-view');
+    const form = document.getElementById('client-edit-form');
+    const cancel = document.getElementById('cancelEdit');
+    if(editBtn && form && viewBox){
+      editBtn.addEventListener('click', function(){
+        viewBox.style.display = 'none';
+        form.style.display = 'block';
+      });
+    }
+    if(cancel && form && viewBox){
+      cancel.addEventListener('click', function(){
+        form.style.display = 'none';
+        viewBox.style.display = 'block';
+      });
+    }
+    if(form){
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(form).entries());
+        try{
+          const res = await fetch('{{ url_for('api_klijent_update', name=klijent.name) }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const j = await res.json();
+          if(!res.ok || !j.ok){
+            alert(j.error || 'Greška pri spremanju.');
+            return;
+          }
+          if(data.name && data.name !== '{{ klijent.name }}'){
+            window.location.href = '{{ url_for('klijent_profil', name="__PLACEHOLDER__") }}'.replace('__PLACEHOLDER__', encodeURIComponent(data.name));
+          }else{
+            window.location.reload();
+          }
+        }catch(err){
+          alert('Greška mreže.');
+        }
+      });
+    }
+  })();
   </script>
+  {% endblock %}{% endblock %}
+
+  <div class="box" style="margin-top:20px;">
+<h2>Uređaji</h2>
+    {% if uredjaji_klijenta %}
+    <table class="tbl">
+<thead><tr><th>Model</th><th>Serijski broj</th><th>Namjena</th><th>Status</th><th>Dodijeljen</th><th></th></tr></thead>
+<tbody>
+        {% for d in uredjaji_klijenta %}
+        <tr>
+<td>{{ d.model or '-' }}</td>
+<td><a href="{{ url_for('uredjaj_detalj', serijski=d.serijski) }}">{{ d.serijski }}</a></td>
+<td>{{ (d.namjena or '').strip() or '-' }}</td>
+<td><span class="status-dot" data-color="{{ d.status_color or 'green' }}" title="{{ d.status_label or '' }}"></span> {{ d.status_label or '' }}</td>
+<td>{{ d.assigned_at[:19] if d.assigned_at }}</td>
+<td>
+            {% if current_user.is_superadmin %}
+            <button class="btn-razduzi-klijent" data-serial="{{ d.serijski }}">Razduži</button>
+            {% endif %}
+          </td>
+</tr>
+        {% endfor %}
+      </tbody>
+</table>
+    {% else %}
+      <p>Nema aktivnih uređaja za ovog klijenta.</p>
+    {% endif %}
+  </div>
+<div class="box" style="margin-top:20px;">
+<h2>SIM</h2>
+    {% if simovi_klijenta %}
+    <table class="tbl">
+<thead><tr><th>Provider</th><th>Serijski broj</th><th>Status</th><th>Dodijeljen</th><th></th></tr></thead>
+<tbody>
+        {% for s in simovi_klijenta %}
+        <tr>
+<td>{{ s.provider or '-' }}</td>
+<td><a href="{{ url_for('sim_detail', serijski=s.serijski) }}">{{ s.serijski }}</a></td>
+<td>{{ s.status_label or 'Aktivan' }}</td>
+<td>{{ s.assigned_at[:19] if s.assigned_at }}</td>
+<td>
+            {% if current_user.is_superadmin %}
+            <button class="btn-razduzi-sim-klijent" data-serial="{{ s.serijski }}">Razduži</button>
+            {% endif %}
+          </td>
+</tr>
+        {% endfor %}
+      </tbody>
+</table>
+    {% else %}
+      <p>Nema aktivnih SIM kartica za ovog klijenta.</p>
+    {% endif %}
+  </div>
+<style>
+    .tbl{ width:100%; border-collapse:collapse; }
+    .tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,.15); padding:8px; text-align:left; }
+    .btn-razduzi-klijent{ padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer;}
+    .btn-razduzi-klijent:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+    .btn-razduzi-sim-klijent{ padding:6px 10px; border-radius:6px; border:1px solid rgba(255,255,255,.3); background:transparent; color:#fff; cursor:pointer;}
+    .btn-razduzi-sim-klijent:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+  </style>
+<script>
+    document.addEventListener('click', async (e)=>{
+      const b = e.target.closest('.btn-razduzi-klijent');
+      if(!b) return;
+      const s = b.getAttribute('data-serial');
+      if(!confirm(`Razdužiti uređaj ${s}?`)) return;
+      const res = await fetch(`/api/klijent/uredjaj/${encodeURIComponent(s)}/razduzi`, {method:'POST'});
+      const data = await res.json().catch(()=>({}));
+      if(data.ok){ location.reload(); } else { alert(data.error || 'Greška.'); }
+    });
+    document.addEventListener('click', async (e)=>{
+      const b2 = e.target.closest('.btn-razduzi-sim-klijent');
+      if(!b2) return;
+      const s = b2.getAttribute('data-serial');
+      if(!confirm(`Razdužiti SIM ${s}?`)) return;
+      const res = await fetch(`/api/klijent/sim/${encodeURIComponent(s)}/razduzi`, {method:'POST'});
+      const data = await res.json().catch(()=>({}));
+      if(data.ok){ location.reload(); } else { alert(data.error || 'Greška.'); }
+    });
+    document.addEventListener('click', function(ev){
+      const dbtn = ev.target.closest('.delete-icon');
+      if(dbtn){ ev.stopPropagation(); }
+    }, true);
+  </script>
+<!-- NOVO: Box "Zahtjev i zapisnici" -->
+<div class="box" style="margin-top:20px;">
+<h2>Zahtjev i zapisnici</h2>
+<div class="subbox">
+<h3>Zahtjev</h3>
+      {% if zahtjevi %}
+        <div class="zapisnik-grid">
+          {% for it in zahtjevi %}
+            <div class="zapisnik-item">
+              {% set _lower = (it.src|lower) %}
+              {% if _lower[-4:] == '.pdf' %}
+                <a class="pdf-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi zahtjev (PDF)"><svg aria-hidden="true" class="pdf-svg" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect height="56" rx="6" ry="6" width="40" x="8" y="4"></rect><polyline fill="none" points="40,4 56,20 56,60 16,60" stroke-linejoin="round"></polyline><text class="pdf-text" dominant-baseline="middle" text-anchor="middle" x="50%" y="54%">PDF</text></svg></a>
+              {% else %}
+                <img alt="Zahtjev {{ it.rn or '' }}" class="zapisnik-thumb" data-full="{{ url_for('static', filename=it.src) }}" src="{{ url_for('static', filename=it.src) }}"/>
+              {% endif %}
+              {% set _lbl = ("Deinstalacija" if (it.kind or "") == "deinstalacija" else "Instalacija") %}
+              <div class="zapisnik-caption">{{ _lbl }}</div>
+<a class="download-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi">⬇</a>
+<form action="{{ url_for('delete_zahtjev') }}" class="delete-form" method="post" style="margin-top:6px; text-align:center;">
+<input name="rn" type="hidden" value="{{ it.rn }}"/>
+<input name="src" type="hidden" value="{{ it.src }}"/>
+<input name="client" type="hidden" value="{{ klijent.name }}"/>
+{% if has_role('superadmin','admin') %}<button class='\"delete-icon\"' sliku\"="" style='\"display:none\"' title='\"Obriši' type='\"submit\"'>🗑️</button>{% endif %}
+</form>
+</div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>Nema priloženih Zahtjeva.</p>
+      {% endif %}
+    </div>
+<div class="subbox">
+<h3>Instalacijski zapisnik</h3>
+      {% if inst_zapisnici %}
+        <div class="zapisnik-grid">
+          {% for it in inst_zapisnici %}
+            <div class="zapisnik-item">
+              {% set _lower = (it.src|lower) %}
+              {% if _lower[-4:] == '.pdf' %}
+                <a class="pdf-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi zahtjev (PDF)"><svg aria-hidden="true" class="pdf-svg" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect height="56" rx="6" ry="6" width="40" x="8" y="4"></rect><polyline fill="none" points="40,4 56,20 56,60 16,60" stroke-linejoin="round"></polyline><text class="pdf-text" dominant-baseline="middle" text-anchor="middle" x="50%" y="54%">PDF</text></svg></a>
+              {% else %}
+                <img alt="Instalacijski zapisnik {{ it.rn or '' }}" class="zapisnik-thumb" data-full="{{ url_for('static', filename=it.src) }}" src="{{ url_for('static', filename=it.src) }}"/>
+              {% endif %}
+              <a class="download-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi">⬇</a>
+<form action="{{ url_for('delete_zahtjev') }}" class="delete-form" method="post" style="margin-top:6px; text-align:center;">
+<input name="rn" type="hidden" value="{{ it.rn }}"/>
+<input name="src" type="hidden" value="{{ it.src }}"/>
+<input name="client" type="hidden" value="{{ klijent.name }}"/>
+{% if has_role('superadmin','admin') %}<button class='\"delete-icon\"' sliku\"="" style='\"display:none\"' title='\"Obriši' type='\"submit\"'>🗑️</button>{% endif %}
+</form>
+</div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>Nema instalacijskih zapisnika.</p>
+      {% endif %}
+    </div>
+<div class="subbox" style="margin-top:14px;">
+<h3>Deinstalacijski zapisnik</h3>
+      {% if deinst_zapisnici %}
+        <div class="zapisnik-grid">
+          {% for it in deinst_zapisnici %}
+            <div class="zapisnik-item">
+              {% set _lower = (it.src|lower) %}
+              {% if _lower[-4:] == '.pdf' %}
+                <a class="pdf-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi zahtjev (PDF)"><svg aria-hidden="true" class="pdf-svg" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect height="56" rx="6" ry="6" width="40" x="8" y="4"></rect><polyline fill="none" points="40,4 56,20 56,60 16,60" stroke-linejoin="round"></polyline><text class="pdf-text" dominant-baseline="middle" text-anchor="middle" x="50%" y="54%">PDF</text></svg></a>
+              {% else %}
+                <img alt="Deinstalacijski zapisnik {{ it.rn or '' }}" class="zapisnik-thumb" data-full="{{ url_for('static', filename=it.src) }}" src="{{ url_for('static', filename=it.src) }}"/>
+              {% endif %}
+              <a class="download-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi">⬇</a>
+<form action="{{ url_for('delete_zahtjev') }}" class="delete-form" method="post" style="margin-top:6px; text-align:center;">
+<input name="rn" type="hidden" value="{{ it.rn }}"/>
+<input name="src" type="hidden" value="{{ it.src }}"/>
+<input name="client" type="hidden" value="{{ klijent.name }}"/>
+{% if has_role('superadmin','admin') %}<button class='\"delete-icon\"' sliku\"="" style='\"display:none\"' title='\"Obriši' type='\"submit\"'>🗑️</button>{% endif %}
+</form>
+</div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>Nema deinstalacijskih zapisnika.</p>
+      {% endif %}
+    </div>
+<div class="subbox" style="margin-top:14px;">
+<h3>Servisni zapisnici</h3>
+      {% if servis_zapisnici %}
+        <div class="zapisnik-grid">
+          {% for it in servis_zapisnici %}
+            <div class="zapisnik-item">
+              {% set _lower = (it.src|lower) %}
+              {% if _lower[-4:] == '.pdf' %}
+                <a class="pdf-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi zahtjev (PDF)"><svg aria-hidden="true" class="pdf-svg" viewbox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect height="56" rx="6" ry="6" width="40" x="8" y="4"></rect><polyline fill="none" points="40,4 56,20 56,60 16,60" stroke-linejoin="round"></polyline><text class="pdf-text" dominant-baseline="middle" text-anchor="middle" x="50%" y="54%">PDF</text></svg></a>
+              {% else %}
+                <img alt="Servisni zapisnik {{ it.rn or '' }}" class="zapisnik-thumb" data-full="{{ url_for('static', filename=it.src) }}" src="{{ url_for('static', filename=it.src) }}"/>
+              {% endif %}
+              <a class="download-icon" download="" href="{{ url_for('static', filename=it.src) }}" title="Preuzmi">⬇</a>
+<form action="{{ url_for('delete_zahtjev') }}" class="delete-form" method="post" style="margin-top:6px; text-align:center;">
+<input name="rn" type="hidden" value="{{ it.rn }}"/>
+<input name="src" type="hidden" value="{{ it.src }}"/>
+<input name="client" type="hidden" value="{{ klijent.name }}"/>
+{% if has_role('superadmin','admin') %}<button class='\"delete-icon\"' sliku\"="" style='\"display:none\"' title='\"Obriši' type='\"submit\"'>🗑️</button>{% endif %}
+</form>
+</div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>Nema servisnih zapisnika.</p>
+      {% endif %}
+    </div>
+</div>
+<style>
+    /* NOVO: stilovi za zapisnike i modal */
+    .delete-form { display:block; }
+    .delete-icon{
+      display:inline-block; width:28px; height:28px; line-height:26px; text-align:center;
+      border-radius:50%; border:1px solid rgba(0,0,0,.25); background:#fff; cursor:pointer;
+      font-weight:bold;
+    }
+    .delete-icon:hover{ background:#f6d6d6; border-color:#d22727; color:#b51f1f; }
+
+    .zapisnik-grid{ display:flex; flex-wrap:wrap; gap:12px; }
+    .zapisnik-item{ position:relative; width:160px; }
+    .zapisnik-thumb{ width:160px; height:auto; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.25); cursor:zoom-in; }
+    .pdf-thumb{display:inline-flex;align-items:center;justify-content:center;width:160px;height:120px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.25);background:#2b2b2b;color:#fff;font-weight:700;text-decoration:none;}
+    .pdf-icon{display:inline-block;width:100px;height:100px;}
+    .pdf-svg{width:100%;height:100%;fill:none;stroke:#fff;stroke-width:2;}
+    .pdf-text{font: 700 16px sans-serif; fill:#fff;}
+    .zapisnik-caption{margin-top:6px;text-align:center;font-weight:600;}
+
+    .download-icon{
+      position:absolute; top:8px; right:8px; font-size:20px; text-decoration:none;
+      background:rgba(0,0,0,0.55); color:#fff; padding:4px 8px; border-radius:8px; border:1px solid rgba(255,255,255,.2);
+    }
+    .download-icon:hover{ background:rgba(0,0,0,0.75); }
+
+    /* Modal */
+    .z-modal{ display:none; position:fixed; inset:0; z-index:1000; }
+    .z-modal.show{ display:block; }
+    .z-modal-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.7); }
+    .z-modal-content{
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      max-width:1100px; width:90%; box-sizing:border-box;
+    }
+    .z-modal-content img{ width:1100px; max-width:100%; height:auto; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.45); }
+    .z-modal-close{
+      position:absolute; top:-14px; right:-14px; width:40px; height:40px; border-radius:50%;
+      border:none; background:#d22727; color:#fff; font-size:24px; line-height:40px; cursor:pointer; box-shadow:0 3px 12px rgba(0,0,0,.3);
+    }
+    .z-modal-close:hover{ background:#b51f1f; }
+  </style>
+<!-- Modal element -->
+<div aria-hidden="true" class="z-modal" id="zapisnikModal">
+<div class="z-modal-backdrop"></div>
+<div class="z-modal-content">
+<button aria-label="Zatvori" class="z-modal-close">×</button>
+<img alt="Zapisnik" id="zModalImg" src=""/>
+</div>
+</div>
+<script>
+    // NOVO: otvori veliki prikaz (1100 px) klikom na sliku; zatvaranje s X ili klikom na pozadinu
+    document.addEventListener('click', function(ev){
+      const thumb = ev.target.closest('.zapisnik-thumb');
+      if(thumb){
+        const modal = document.getElementById('zapisnikModal');
+        const img = document.getElementById('zModalImg');
+        img.src = thumb.getAttribute('data-full') || thumb.src;
+        modal.classList.add('show');
+      }
+      if(ev.target.closest('.z-modal-close') || ev.target.closest('.z-modal-backdrop')){
+        document.getElementById('zapisnikModal').classList.remove('show');
+      }
+    });
+    document.addEventListener('click', function(ev){
+      const dbtn = ev.target.closest('.delete-icon');
+      if(dbtn){ ev.stopPropagation(); }
+    }, true);
+  </script>
+<!-- NOVO: Napomene (8 redova + custom scroll, input traka iste širine, ikona iz priloga) -->
+<div class="box" style="margin-top:20px;">
+<h2>Napomene</h2>
+<!-- Input traka iste širine kao i log-box -->
+<div id="napomena-input-wrap" style="position:relative; max-width:920px; width:100%;">
+<input autocomplete="off" id="napomenaInput" placeholder="Upiši napomenu i pritisni Enter…" style="width:86%; padding:12px 48px 12px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.3); background:#111; color:#fff;" type="text"/>
+<button id="napomenaSend" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); width:36px; height:36px; border-radius:10px; border:1px solid rgba(255,255,255,.25); background:#1a1b22; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="Pošalji">
+<img alt="Pošalji" src="{{ url_for('static', filename='icons/send.png') }}" style="width:18px; height:18px; display:block;"/>
+</button>
+</div>
+<!-- Log box: 8 redova + custom scroll -->
+<div id="napomeneLog" style="margin-top:10px;">
+<div class="empty">Nema napomena još. Dodaj prvu ispod…</div>
+</div>
+<style>
+      /* Napomene — 8 redova + custom scroll i uglađeni izgled */
+      #napomeneLog{
+        line-height:18px !important;
+        height: calc(18px * 8 + 20px) !important;   /* 8 redova + padding 10+10 */
+        max-height: calc(18px * 8 + 20px) !important;
+        overflow-y: auto !important;
+        background:#000;
+        border:1px solid rgba(255,255,255,.2);
+        border-radius:12px;
+        padding:10px;
+        max-width:920px;
+        font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono','Courier New', monospace;
+        font-size:14px;
+        position:relative;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.03) inset, 0 8px 30px rgba(0,0,0,.35);
+      }
+      /* WebKit scrollbar */
+      #napomeneLog::-webkit-scrollbar{ width:10px; }
+      #napomeneLog::-webkit-scrollbar-track{
+        background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+        border-radius:10px;
+      }
+      #napomeneLog::-webkit-scrollbar-thumb{
+        background:linear-gradient(180deg, rgba(255,255,255,.35), rgba(255,255,255,.2));
+        border:1px solid rgba(255,255,255,.25);
+        border-radius:10px;
+      }
+      #napomeneLog::-webkit-scrollbar-thumb:hover{
+        background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.3));
+      }
+      /* Firefox scrollbar */
+      #napomeneLog{ scrollbar-color: rgba(255,255,255,.35) rgba(255,255,255,.06); scrollbar-width: thin; }
+
+      /* redak napomene */
+      .note-row{ display:flex; gap:8px; align-items:flex-start; white-space:pre-wrap; word-break:break-word; padding:2px 0; }
+      .note-prefix{ flex:0 0 auto; opacity:.85; color:rgba(255,255,255,.8); }
+      .note-user{ flex:0 0 auto; font-weight:600; }
+      .note-text{ flex:1 1 auto; }
+    </style>
+<script>
+      (function(){
+        const log = document.getElementById('napomeneLog');
+        const input = document.getElementById('napomenaInput');
+        const sendBtn = document.getElementById('napomenaSend');
+        const clientName = {{ klijent.name|tojson }};
+
+        function escapeHtml(str){
+          return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+        }
+        function fmt(ts){
+          const d = new Date(ts || Date.now());
+          const dd = String(d.getDate()).padStart(2,'0');
+          const mm = String(d.getMonth()+1).padStart(2,'0');
+          const yyyy = d.getFullYear();
+          const hh = String(d.getHours()).padStart(2,'0');
+          const mi = String(d.getMinutes()).padStart(2,'0');
+          return `[${dd}.${mm}.${yyyy}. ${hh}:${mi}]`;
+        }
+        function colorForUser(u){
+          const palette = ['#64b5f6','#ff8a65','#4db6ac','#ba68c8','#9575cd','#81c784','#f06292','#ffb74d','#e57373','#aed581','#90caf9','#ce93d8'];
+          let h=0; for(let i=0;i<u.length;i++){ h=((h<<5)-h)+u.charCodeAt(i); h|=0; } h=Math.abs(h);
+          return palette[h % palette.length];
+        }
+        function makeRow({operator='', ts_iso='', text=''}){
+          const row = document.createElement('div'); row.className='note-row';
+          const ts = document.createElement('span'); ts.className='note-prefix'; ts.textContent = fmt(ts_iso);
+          const user = document.createElement('span'); user.className='note-user'; user.textContent = operator; user.style.color = colorForUser(operator);
+          const sep = document.createElement('span'); sep.textContent=' - '; sep.style.opacity='.6';
+          const body = document.createElement('span'); body.className='note-text'; body.innerHTML = escapeHtml(text);
+          row.append(ts, user, sep, body);
+          return row;
+        }
+
+        async function loadNotes(){
+          try{
+            const res = await fetch(`/api/klijent/${encodeURIComponent(clientName)}/napomene`);
+            const j = await res.json();
+            if(!j.ok) return;
+            log.innerHTML = '';
+            const items = j.items || [];
+            if(items.length === 0){
+              log.innerHTML = '<div class="empty">Nema napomena još. Dodaj prvu ispod…</div>';
+              return;
+            }
+            for(const it of items){ log.appendChild(makeRow(it)); }
+            log.scrollTop = log.scrollHeight;
+          }catch(e){ /* ignore */ }
+        }
+
+        async function sendNote(){
+          const t = (input.value||'').trim();
+          if(!t) return;
+          try{
+            const res = await fetch(`/api/klijent/${encodeURIComponent(clientName)}/napomene`, {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({text: t})
+            });
+            const j = await res.json();
+            if(!j.ok){ alert(j.error||'Greška.'); return; }
+            if(j.created){ log.appendChild(makeRow(j.created)); log.scrollTop = log.scrollHeight; }
+            input.value=''; input.focus();
+          }catch(e){ alert('Greška mreže.'); }
+        }
+
+        if(sendBtn) sendBtn.addEventListener('click', sendNote);
+        if(input) input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendNote(); } });
+
+        loadNotes();
+      })();
+    </script>
+</div>
+<div class="box" style="margin-top:20px;">
+<h2>Log promjena</h2>
+    {% if client_log %}
+    <table class="tbl">
+<thead><tr><th>Vrijeme</th><th>Vrsta</th><th>Opis</th><th>Operater</th></tr></thead>
+<tbody>
+        {% for e in client_log %}
+        <tr>
+<td>{{ e.ts }}</td>
+<td>{{ e.type }}</td>
+<td>{{ e.desc }}</td>
+<td>{{ e.operator }}</td>
+</tr>
+        {% endfor %}
+      </tbody>
+</table>
+    {% else %}
+      <p>Nema zabilježenih promjena za ovog korisnika.</p>
+    {% endif %}
+  </div>
 {% endblock %}

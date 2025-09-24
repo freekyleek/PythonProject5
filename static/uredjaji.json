@@ -1,12 +1,86 @@
 [
   {
-    "model": "Billy Easy PRO",
-    "serijski": "V233232323",
-    "created_at": "2025-09-11T08:23:25.509016"
+    "model": "Billy the POS",
+    "serijski": "345345345345",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T00:29:10.598637"
   },
   {
     "model": "Billy Black",
-    "serijski": "31323123231",
-    "created_at": "2025-09-11T08:25:31.962964"
+    "serijski": "345345435435345",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T00:29:31.964098"
+  },
+  {
+    "model": "Billy Easy",
+    "serijski": "BBB6666",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T09:35:18.644054"
+  },
+  {
+    "model": "Billy Easy",
+    "serijski": "111111",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T21:25:36.708501"
+  },
+  {
+    "model": "Billy Easy",
+    "serijski": "22222",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T21:25:36.711026"
+  },
+  {
+    "model": "Billy Easy",
+    "serijski": "44444",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T21:25:36.711327"
+  },
+  {
+    "model": "Billy Easy",
+    "serijski": "55555",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T21:25:36.711551"
+  },
+  {
+    "model": "Billy Easy",
+    "serijski": "333333",
+    "created_at": "2025-09-23T21:43:15.683129"
+  },
+  {
+    "model": "Billy Desk mini",
+    "serijski": "test213",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T23:08:25.722868"
+  },
+  {
+    "model": "Billy Desk mini",
+    "serijski": "test215",
+    "namjena": "Kupnja",
+    "created_at": "2025-09-23T23:08:25.722936"
+  },
+  {
+    "model": "Billy Mobile 3",
+    "serijski": "443534534",
+    "created_at": "2025-09-24T01:49:35.594261"
+  },
+  {
+    "model": "Billy Desk mini",
+    "serijski": "test216",
+    "created_at": "2025-09-24T01:49:37.410412"
+  },
+  {
+    "model": "Billy Black",
+    "serijski": "34543534545",
+    "created_at": "2025-09-24T22:50:14.868916"
+  },
+  {
+    "model": "Billy Easy",
+    "serijski": "66666",
+    "created_at": "2025-09-24T22:50:17.167098"
+  },
+  {
+    "model": "Billy Desk mini",
+    "serijski": "345435435345",
+    "created_at": "2025-09-24T22:56:35.854066"
   }
 ]

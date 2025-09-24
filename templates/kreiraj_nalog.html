@@ -4,9 +4,9 @@
   <h1>Kreiraj nalog — {{ klijent.name }}</h1>
 
   <div class="actions" style="display:flex; gap:10px; flex-wrap:wrap; margin: 10px 0 20px;">
-    <a href="{{ url_for('instalacija', name=klijent.name) }}" class="btn">🔧 Instalacija</a>
-    <a href="{{ url_for('deinstalacija', name=klijent.name) }}" class="btn">🧹 Deinstalacija</a>
-    <a href="{{ url_for('servis', name=klijent.name) }}" class="btn">🛠️ Servis</a>
+    {% if has_role('superadmin','admin','prodaja') %}<a href="{{ url_for('instalacija', name=klijent.name) }}" class="btn">🔧 Instalacija</a>{% endif %}
+    {% if has_role('superadmin','admin','prodaja') %}<a href="{{ url_for('deinstalacija', name=klijent.name) }}" class="btn">🧹 Deinstalacija</a>{% endif %}
+    {% if has_role('superadmin','admin','podrska','podrška') %}<a href="{{ url_for('servis', name=klijent.name) }}" class="btn">🛠️ Servis</a>{% endif %}
     <a href="{{ url_for('klijent_profil', name=klijent.name) }}" class="btn">← Natrag na profil</a>
   </div>
 

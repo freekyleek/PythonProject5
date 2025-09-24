@@ -1,9 +1,96 @@
-{% extends 'base.html' %}
-{% block title %}Servis{% endblock %}
+{% extends "base.html" %}
 {% block content %}
-  <h1>Servis — {{ klijent.name }}</h1>
-  <p>Ovdje možete definirati korake ili podatke za servis.</p>
-  <div style="margin-top:20px;">
-    <a href="{{ url_for('kreiraj_nalog', name=klijent.name) }}" class="btn">← Natrag na „Kreiraj nalog”</a>
-  </div>
+<div class="container my-4">
+  <h1 class="h3 mb-3">Kreiraj servisni nalog — {{ klijent.name }}</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">Uređaji kod klijenta</div>
+          <div class="card-body">
+            {% if uredjaji_klijent %}
+              <ul class="list-group mb-3">
+                {% for u in uredjaji_klijent %}
+                  <li class="list-group-item d-flex align-items-center">
+                    <input class="form-check-input me-2" type="checkbox" name="odabrani_uredjaji" value="{{ u.serijski }}" id="u{{ loop.index }}">
+                    <label class="form-check-label" for="u{{ loop.index }}">
+                      {{ u.model or '-' }} — SN {{ u.serijski }}
+                    </label>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">Nema evidentiranih uređaja kod klijenta.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header fw-semibold">SIM kartice kod klijenta</div>
+          <div class="card-body">
+            {% if sims_klijent %}
+              <ul class="list-group mb-3">
+                {% for s in sims_klijent %}
+                  <li class="list-group-item d-flex align-items-center">
+                    <input class="form-check-input me-2" type="checkbox" name="odabrani_simovi" value="{{ s.serijski }}" id="s{{ loop.index }}">
+                    <label class="form-check-label" for="s{{ loop.index }}">
+                      {{ s.provider or '-' }} — SN {{ s.serijski }}
+                    </label>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">Nema evidentiranih SIM kartica kod klijenta.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header fw-semibold">Postavke</div>
+          <div class="card-body">
+            <div class="row g-3 align-items-center">
+              <div class="col-sm-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="naplativ" name="naplativ" value="1">
+                  <label class="form-check-label" for="naplativ">Naplativ servis</label>
+                </div>
+              </div>
+              <div class="col-sm-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="hitno" name="hitno" value="1">
+                  <label class="form-check-label" for="hitno">Hitno</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <label for="napomena" class="form-label">Napomena</label>
+              <textarea id="napomena" name="napomena" class="form-control" rows="3" placeholder="Upišite napomenu koja će se ispisati na radnom nalogu umjesto {{'{{NAPOMENA}}'}}."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary px-4">Kreiraj servisni nalog</button>
+      </div>
+    </div>
+  </form>
+</div>
 {% endblock %}

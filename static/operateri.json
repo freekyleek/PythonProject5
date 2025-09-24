@@ -1,10 +1,77 @@
 [
   {
-    "first_name": "Pero",
-    "last_name": "Pero",
-    "username": "Pero",
-    "email": "asdasd@asdasd",
+    "first_name": "Luka",
+    "last_name": "S",
+    "username": "Luka",
+    "email": "webtest806@gmail.com",
     "phone": "0321312",
+    "role": "Tehničar",
+    "signature": "signatures/Luka.png"
+  },
+  {
+    "first_name": "Hrvoje",
+    "last_name": "L",
+    "username": "hlisac",
+    "email": "freekyleek1@gmail.com",
+    "phone": "",
+    "role": "superadmin",
+    "signature": "signatures/hlisac.png"
+  },
+  {
+    "first_name": "Igor",
+    "last_name": "P",
+    "username": "Igor",
+    "email": "asdas@asdasd",
+    "phone": "33123123",
+    "role": "Admin"
+  },
+  {
+    "first_name": "Mario",
+    "last_name": "H",
+    "username": "Mario",
+    "email": "sdaasdasd@sdadasd",
+    "phone": "1321321312",
+    "role": "Podrška"
+  },
+  {
+    "first_name": "Leon",
+    "last_name": "L",
+    "username": "Leon",
+    "email": "asdasdsad@dasda",
+    "phone": "3213123123",
+    "role": "Serviser",
+    "avatar": "avatars/Leon.png"
+  },
+  {
+    "first_name": "Saša",
+    "last_name": "P",
+    "username": "Saša",
+    "email": "dsasdasd",
+    "phone": "321321312",
+    "role": "Voditelj"
+  },
+  {
+    "first_name": "Fran",
+    "last_name": "G",
+    "username": "Fran",
+    "email": "sdasd@asdsad",
+    "phone": "231231231",
     "role": "Tehničar"
+  },
+  {
+    "first_name": "Paola",
+    "last_name": "1",
+    "username": "Paola",
+    "email": "dda@sa",
+    "phone": "3231",
+    "role": "Prodaja"
+  },
+  {
+    "first_name": "Barbara",
+    "last_name": "1",
+    "username": "Barbara",
+    "email": "asasd@sadasd",
+    "phone": "32213213123",
+    "role": "Prodaja"
   }
 ]

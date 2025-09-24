@@ -2,7 +2,15 @@
 {% block title %}Kreiraj operatera{% endblock %}
 {% block content %}
   <h1>Kreiraj operatera</h1>
-  <form method="POST" action="{{ url_for('kreiraj_profil') }}" class="form-grid" novalidate>
+  
+<style>
+  .form-vertical label { display:block; margin:10px 0; font-weight:600; }
+  .form-vertical label input,
+  .form-vertical label select { display:block; width:100%; max-width:480px; padding:8px; margin-top:6px; }
+  .form-vertical button.btn { margin-top:12px; }
+</style>
+
+  <form method="POST" action="{{ url_for('kreiraj_profil') }}" class="form-vertical" novalidate>
     <label>Ime<input type="text" name="first_name" required></label>
     <label>Prezime<input type="text" name="last_name" required></label>
     <label>Korisničko ime<input type="text" name="username" required></label>
@@ -11,6 +19,7 @@
     <label>Kontakt broj<input type="tel" name="phone" required></label>
     <label>Uloga<select name="role" required>
       <option value="">-- odaberi --</option>
+      <option>Admin</option>
       <option>Prodaja</option>
       <option>Podrška</option>
       <option>Voditelj</option>

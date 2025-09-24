@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Gotovi servisi{% endblock %}
+{% block content %}
+<h1>Gotovi servisi</h1>
+{% if servisi %}
+  <ul class="orders">
+    {% for n in servisi %}
+      <li class="order-item">
+        <span class="order-title">RN {{ n.rn }} — {{ n.client }}</span>
+        <span class="order-status">Status: {{ n.status or 'zaključen' }}</span>
+        <span class="order-date">Zatvoreno: {{ n.closed_at or '-' }}</span>
+        {% if n.napomena %}<div class="note">{{ n.napomena }}</div>{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Nema gotovih servisa.</p>
+{% endif %}
+<div style="margin-top:18px;text-align:right;">
+  <a class="btn" href="{{ url_for('nalozi') }}">← Natrag na naloge</a>
+</div>
+{% endblock %}

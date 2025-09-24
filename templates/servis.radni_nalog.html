@@ -1,0 +1,111 @@
+
+{% extends 'base.html' %}
+{% block title %}{{ title or 'Servis — radni nalog' }}{% endblock %}
+{% block content %}
+<h1>{{ title or 'Servis — radni nalog' }}</h1>
+
+<form method="post" enctype="multipart/form-data">
+  {{ csrf_token() if csrf_token is defined }}
+  <input type="hidden" name="servis_action" value="zakljuci" />
+
+  <div class="box">
+    <h2>Uređaj u kvaru</h2>
+    {% if faulty_devs and faulty_devs|length %}
+      <div class="form-row">
+        <label>Uređaj</label>
+        <select name="faulty_device">
+          <option value="">— odaberi —</option>
+          {% for d in faulty_devs[:1] %}
+            <option value="{{ d.serijski }}">{{ d.model or '-' }} — SN: {{ d.serijski }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if faulty_devs|length > 1 %}
+        {% for d in faulty_devs[1:] %}
+          <div class="form-row" style="margin-top:8px;">
+            <label>Dodatni uređaj</label>
+            <select name="faulty_device">
+              <option value="">— odaberi —</option>
+              <option value="{{ d.serijski }}">{{ d.model or '-' }} — SN: {{ d.serijski }}</option>
+            </select>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% else %}
+      <p>Nema označenih uređaja za ovaj servisni nalog.</p>
+    {% endif %}
+
+    <div class="form-row" style="margin-top:12px;">
+      <label>SIM</label>
+      {% if faulty_sims and faulty_sims|length %}
+        <select name="faulty_sim">
+          <option value="">— odaberi —</option>
+          {% for s in faulty_sims[:1] %}
+            <option value="{{ s.serijski }}">SIM: {{ s.serijski }}{% if s.provider %} ({{ s.provider }}){% endif %}</option>
+          {% endfor %}
+        </select>
+        {% if faulty_sims|length > 1 %}
+          {% for s in faulty_sims[1:] %}
+            <div class="form-row" style="margin-top:8px;">
+              <label>Dodatni SIM</label>
+              <select name="faulty_sim">
+                <option value="">— odaberi —</option>
+                <option value="{{ s.serijski }}">SIM: {{ s.serijski }}{% if s.provider %} ({{ s.provider }}){% endif %}</option>
+              </select>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% else %}
+        <p>Nema označenih SIM-ova za ovaj servisni nalog.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Zamjenski uređaj</h2>
+    <div class="form-row">
+      <label>Zamjenski uređaj</label>
+      <select name="zamjenski_uredjaj">
+        <option value="">— odaberi —</option>
+        {% for d in zamjenski_uredjaji %}
+          <option value="{{ d.serijski }}">{{ d.model or '-' }} — SN: {{ d.serijski }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-row" style="margin-top:8px;">
+      <label>Zamjenski SIM</label>
+      <select name="zamjenski_sim">
+        <option value="">— odaberi —</option>
+        {% for s in zamjenski_simovi %}
+          <option value="{{ s.serijski }}">SIM: {{ s.serijski }}{% if s.provider %} ({{ s.provider }}){% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>Zapisnik</h2>
+    <label>Slika servisnog zapisnika <span class="req">*</span></label>
+    <input type="file" name="zapisnik_img" accept=".jpg,.jpeg,.png" required />
+  </div>
+
+  <div class="box">
+    <h2>Napomena</h2>
+    <textarea name="napomena" rows="5" style="width:100%;" placeholder="Unesi napomenu..."></textarea>
+  </div>
+
+  <div class="form-row">
+    <button type="submit" class="btn btn-primary btn-small">Zaključi nalog</button>
+    <a href="{{ url_for('operater_profil', username=(nalog.assigned_to or '')) }}" class="btn">Natrag</a>
+  </div>
+</form>
+
+<style>
+.box { margin: 18px 0; padding: 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; }
+.form-row { display:flex; flex-direction: column; gap:6px; }
+.btn{display:inline-block;padding:8px 14px;border-radius:8px;background:#0b5ed7;color:#fff;text-decoration:none;}
+.btn-primary{background:#0b5ed7;}
+.btn-small{padding:6px 10px; font-size:.95em;}
+</style>
+{% endblock %}

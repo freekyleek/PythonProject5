@@ -1,24 +1,60 @@
 {% extends 'base.html' %}
-{% block title %}SIM{% endblock %}
+{% block title %}SIM
+{% endblock %}
 {% block content %}
-<h1>SIM</h1>
+<div class="page-head">
+  <h1>SIM</h1>
+  <div class="counters-top-right">
+    <div class="counter-item"><span class="counter-dot green"></span><span class="counter-label">Aktivni:</span> {{ aktivni_count or 0 }}</div>
+    <div class="counter-item"><span class="counter-dot yellow"></span><span class="counter-label">Zaduženi:</span> {{ zaduzeni_count or 0 }}</div>
+    <div class="counter-item"><span class="counter-dot red"></span><span class="counter-label">Neaktivni:</span> {{ neaktivni_count or 0 }}</div>
+    <div class="counter-item"><span class="counter-dot" style="background:#f97316"></span><span class="counter-label">Privremeno isključen:</span> {{ privremeni_count or 0 }}</div>
+  </div>
+</div>
+<div class="box box-sim"><div class="box-body">
 <div class="toolbar">
-  <a class="btn" href="{{ url_for('dodaj_sim') }}">Dodaj</a>
-  <a class="btn" href="{{ url_for('zaduzi_sim') }}" style="margin-left:8px; background:#198754;">Zaduži</a>
+  
+
+
+  {% if has_role('superadmin','admin','voditelj','podrška','podrska') %}<a class="btn" href="{{ url_for('zaduzi_sim') }}" style="margin-left:8px; background:#198754;">Zaduži</a>{% endif %}
+</div>
+
 </div>
 
 {% if sims %}
+<div class="container my-2">
+  <div class="row">
+    <div class="col-12 col-md-6">
+      <input id="deviceSearch" class="form-control" type="text" placeholder="Pretraži po serijskom broju ili klijentu..." />
+    </div>
+  </div>
+</div>
 <table class="tbl">
-  <thead><tr><th>Provider</th><th>Serijski broj</th><th>Dodano</th><th></th></tr></thead>
+  <thead><tr><th style="width:28px"></th><th>Provider</th><th>Serijski broj</th><th>Zadužio</th><th>Klijent</th><th>Status</th><th>Dodano</th><th></th></tr></thead>
   <tbody>
     {% for s in sims %}
     <tr>
+      <td><span class="status-dot" data-color="{{ s.status_color or 'yellow' }}"></span></td>
       <td>{{ s.provider }}</td>
-      <td>{{ s.serijski }}</td>
+      <td><a href="{{ url_for('sim_detail', serijski=s.serijski) }}">{{ s.serijski }}</a></td>
+      <td>{{ s.assigned_to or '-' }}</td>
+      <td>{% if s.client_name %}<a href="{{ url_for('klijent_profil', name=s.client_name) }}">{{ s.client_name }}</a>{% else %}-{% endif %}
+
+<style>
+.box-footer{ position:relative; margin-top:16px; min-height:56px; }
+.box-footer .center{ text-align:center; }
+.excel-icons{ position:absolute; right:10px; bottom:0; display:flex; gap:10px; }
+.excel-btn{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:6px; text-decoration:none; }
+.excel-btn.red{ background:#dc3545; }
+.excel-btn img{ pointer-events:none; }
+</style>
+
+</div></div></td>
+      <td>{{ (s.status or ( 'privremeno isključen' if (s.status_color=='orange' and s.client_name) else ( 'zadužen' if s.assigned_to else ( 'aktivan' if s.client_name else 'neaktivan')) ) )|capitalize }}</td>
       <td>{{ s.created_at[:19] if s.created_at }}</td>
       <td>
-        {% if current_user.is_superadmin %}
-          <button class="delete-x" title="Obriši SIM" data-serial="{{ s.serijski }}">×</button>
+        {% if has_role('superadmin','admin','serviser') %}
+          <button class="delete-x" title="Obriši SIM" data-serial="{{ s.serijski }}"><svg aria-hidden='true' focusable='false' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' style='background:none'><line x1='4' y1='4' x2='20' y2='20' stroke='red' stroke-width='2' stroke-linecap='round' fill='none'/><line x1='20' y1='4' x2='4' y2='20' stroke='red' stroke-width='2' stroke-linecap='round' fill='none'/></svg></button>
         {% endif %}
       </td>
     </tr>
@@ -34,8 +70,27 @@
 .btn{ display:inline-block; padding:8px 14px; border-radius:8px; background:#0b5ed7; color:#fff; text-decoration:none; }
 .tbl{ width:100%; border-collapse:collapse; }
 .tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,.15); padding:8px; text-align:left; }
-.delete-x{ background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 18px; line-height: 1; }
-.delete-x:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
+.delete-x{ background:none; border:none; cursor:pointer; padding:4px; line-height:1; }
+.delete-x svg{ display:inline-block; vertical-align:middle; background:none; }
+.delete-x svg{ display:inline-block; vertical-align:middle; }
+
+.status-dot{ display:inline-block; width:12px; height:12px; border-radius:50%; border:1px solid rgba(255,255,255,.35); vertical-align:middle; }
+.status-dot[data-color="green"]{ background:#22c55e; }
+.status-dot[data-color="yellow"]{ background:#eab308; }
+.status-dot{ display:inline-block; width:12px; height:12px; border-radius:50%; border:1px solid rgba(255,255,255,.35); vertical-align:middle; }
+.status-dot[data-color="green"]{ background:#22c55e; }
+.status-dot[data-color="yellow"]{ background:#eab308; }
+.status-dot[data-color="red"]{ background:#ef4444; }
+.status-dot[data-color="orange"]{ background:#f97316; }
+/* --- SIM Counters (top-right) --- */
+.page-head{ position: relative; }
+.counters-top-right{ position:absolute; top:0; right:0; display:flex; gap:12px; align-items:center; font-size:14px; }
+.counter-item{ display:flex; align-items:center; gap:6px; background: rgba(255,255,255,0.06); padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,0.15); }
+.counter-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; box-shadow:0 0 8px currentColor; }
+.counter-dot.green{ background:#22c55e; color:#22c55e; }
+.counter-dot.yellow{ background:#eab308; color:#eab308; }
+.counter-dot.red{ background:#ef4444; color:#ef4444; }
+.counter-label{ opacity:.9; }
 </style>
 <script>
 document.addEventListener('click', async (e)=>{
@@ -49,4 +104,145 @@ document.addEventListener('click', async (e)=>{
   else{ alert(data.error || 'Greška pri brisanju.'); }
 });
 </script>
+
+{% if has_role('superadmin','admin','serviser') %}
+<div class="box-footer">
+  <div class="center"></div>
+  <div class="excel-icons" title="Excel akcije">
+  <a class="excel-icon" href="#" id="uploadTriggerSIM" title="Excel (import)">
+    <img src="{{ url_for('static', filename='icons/excelupload.png') }}" alt="Excel import" width="24" height="24" style="display:block;">
+  </a>
+  <a class="excel-icon" href="{{ url_for('export_sim_xlsx') }}" title="Excel (export)">
+    <img src="{{ url_for('static', filename='icons/exceldownload.png') }}" alt="Excel export" width="24" height="24" style="display:block;">
+  </a>
+</div>
+
+
+<form id="uploadFormSIM" action="/sim/import" method="post" enctype="multipart/form-data" style="display:none;">
+  <input type="file" name="file" accept=".xlsx" id="uploadInputSIM">
+</form></div>
+
+
+
+<style>
+.box-footer{ position:relative; margin-top:16px; min-height:56px; }
+.box-footer .center{ text-align:center; }
+.excel-icons{ position:absolute; right:10px; bottom:0; display:flex; gap:10px; }
+.excel-icon{ display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:5px; background:#198754; text-decoration:none; }
+</style>
+
+{% endif %}
+
+
 {% endblock %}
+
+
+<!-- Local additions for /sim (no block overrides to avoid duplicates) -->
+<style>
+/* chatbox alignment on /sim to match other pages (right-side) */
+.chatbox, .chat-box, #chatbox, .chatbot, .chat-widget{
+  left:auto !important;
+  right:16px !important;
+}
+@media (min-width: 721px){
+  .chatbox, .chat-box, #chatbox, .chatbot, .chat-widget{ right:24px !important; }
+}
+</style>
+
+<script>
+// Excel upload trigger for /sim
+(function(){
+  var btn = document.getElementById('uploadTriggerSIM');
+  var inp = document.getElementById('uploadInputSIM');
+  var form = document.getElementById('uploadFormSIM');
+  if(btn && inp && form){
+    btn.addEventListener('click', function(e){ e.preventDefault(); inp.click(); });
+    inp.addEventListener('change', function(){ if(inp.files && inp.files.length){ form.submit(); }});
+  }
+})();
+</script>
+
+
+{% block extra_head %}
+<style>
+/* chatbox alignment on /sim to match other pages (right-side) */
+.chatbox, .chat-box, #chatbox, .chatbot, .chat-widget{
+  left:auto !important;
+  right:16px !important;
+}
+@media (min-width: 721px){
+  .chatbox, .chat-box, #chatbox, .chatbot, .chat-widget{ right:24px !important; }
+}
+</style>
+{{ super() }}
+{% endblock %}
+
+
+
+
+<style>
+.box.box-sim{ position:relative; padding-bottom:72px; } /* room for footer icons at bottom */
+.box.box-sim .box-body{ position:relative; }
+</style>
+
+
+
+{% block extra_scripts %}
+<script>
+(function(){
+  function norm(s){
+    try{
+      return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+    }catch(e){
+      return (s||'').toUpperCase().trim();
+    }
+  }
+  var input = document.getElementById('deviceSearch');
+  if(!input) return;
+  var table = document.querySelector('.tbl');
+  if(!table) return;
+  var thead = table.querySelector('thead');
+  var tbody = table.querySelector('tbody') || table;
+
+  var idxSer=-1, idxKlijent=-1;
+  (function scanHeads(){
+    if(!thead) return;
+    var heads = Array.prototype.map.call(thead.querySelectorAll('th'), function(th){ return norm(th.textContent); });
+    for (var i=0;i<heads.length;i++){
+      var t = heads[i];
+      if(t.indexOf('SERIJSKI')!==-1) idxSer=i;
+      if(t.indexOf('KLIJENT')!==-1) idxKlijent=i;
+    }
+  })();
+
+  var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+  if (rows.length && rows[0].querySelector && rows[0].querySelector('th')) rows.shift();
+
+  function applyFilter(q){
+    var qq = norm(q);
+    rows.forEach(function(r){
+      if(!qq){ r.style.display=''; return; }
+      var cells = r.children || [];
+      var ser = (idxSer>=0 && cells[idxSer]) ? norm(cells[idxSer].textContent) : '';
+      var kli = (idxKlijent>=0 && cells[idxKlijent]) ? norm(cells[idxKlijent].textContent) : '';
+      var match = (ser.indexOf(qq)!==-1) || (kli.indexOf(qq)!==-1);
+      r.style.display = match ? '' : 'none';
+    });
+  }
+
+  input.addEventListener('input', function(e){ applyFilter(e.target.value); });
+  applyFilter(input.value || '');
+})();
+</script>
+{% endblock %}
+
+<style>
+/* Enhanced left search bar below "Zaduži" */
+#deviceSearch {
+  padding: 12px 16px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.25);
+  outline: none;
+}
+</style>

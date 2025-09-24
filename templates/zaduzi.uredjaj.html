@@ -3,12 +3,29 @@
 {% block content %}
 <h1>Zaduži uređaj</h1>
 <form method="post" class="frm">
-  <label for="tehnicar">Tehničar<span class="req">*</span></label>
+  <label for="tehnicar">Zaduži na<span class="req">*</span></label>
   <select id="tehnicar" name="tehnicar" required>
     <option value="">-- Odaberite --</option>
-    {% for t in tehnicari %}
-      <option value="{{ t.username }}">{{ t.first_name }} {{ t.last_name }} ({{ t.username }})</option>
-    {% endfor %}
+
+    {% if podrska_ops and podrska_ops|length %}
+    <optgroup label="Podrška">
+      {% for p in podrska_ops %}
+        {% set valp = p.username or p.user or p.email or p.name %}
+        {% set txtp = (p.name or p.full_name or p.username or p.email or valp) ~ ' (Podrška)' %}
+        <option value="{{ valp }}">{{ txtp }}</option>
+      {% endfor %}
+    </optgroup>
+    {% endif %}
+
+    {% if tehnicari and tehnicari|length %}
+    <optgroup label="Tehničar">
+      {% for t in tehnicari %}
+        {% set val = t.username or t.user or t.email or t.name %}
+        {% set txt = t.name or t.full_name or t.username or t.email or val %}
+        <option value="{{ val }}">{{ txt }}</option>
+      {% endfor %}
+    </optgroup>
+    {% endif %}
   </select>
 
   <label for="uredjaj">Uređaj<span class="req">*</span></label>

@@ -1,8 +1,151 @@
 [
   {
-    "model": "Billy Mobile 2",
-    "serijski": "V233231231231231",
-    "client": "Obrt Hrvoje, vl. Hrvoje Lisac",
-    "assigned_at": "2025-09-11T13:46:05.545464"
+    "serijski": "345345345345",
+    "model": "Billy the POS",
+    "client": "Billy POS d.o.o.",
+    "oib": "73737373872",
+    "active": false,
+    "assigned_at": "2025-09-23T00:33:09.205197",
+    "namjena": "Kupnja",
+    "unassigned_at": "2025-09-23T00:35:50.651519"
+  },
+  {
+    "serijski": "345345435435345",
+    "model": "Billy Black",
+    "client": "Billy POS d.o.o.",
+    "oib": "73737373872",
+    "active": false,
+    "assigned_at": "2025-09-23T00:33:09.205197",
+    "namjena": "Kupnja",
+    "unassigned_at": "2025-09-23T08:20:44.751525"
+  },
+  {
+    "serijski": "345345345345",
+    "model": "Billy the POS",
+    "client": "Billy POS d.o.o.",
+    "oib": "73737373872",
+    "active": true,
+    "assigned_at": "2025-09-23T00:46:04.295356",
+    "namjena": "Kupnja"
+  },
+  {
+    "serijski": "345345435435345",
+    "model": "Billy Black",
+    "client": "Etranet grupa d.o.o.",
+    "oib": "34567898765",
+    "active": true,
+    "assigned_at": "2025-09-23T12:29:00.832418",
+    "namjena": "Kupnja"
+  },
+  {
+    "serijski": "BBB6666",
+    "model": "Billy Easy",
+    "client": "Etranet grupa d.o.o.",
+    "oib": "34567898765",
+    "active": true,
+    "assigned_at": "2025-09-23T12:29:00.832418",
+    "namjena": "Kupnja"
+  },
+  {
+    "serijski": "22222",
+    "model": "Billy Easy",
+    "client": "Tvrtka d.o.o.",
+    "oib": "76276726152",
+    "active": false,
+    "assigned_at": "2025-09-23T21:33:59.102753",
+    "namjena": "Kupnja",
+    "unassigned_at": "2025-09-23T21:46:19.097821"
+  },
+  {
+    "serijski": "22222",
+    "model": "Billy Easy",
+    "client": "Obrt, vl Pero Perić",
+    "oib": "73555415212",
+    "active": true,
+    "assigned_at": "2025-09-23T22:39:34.968170",
+    "namjena": "Kupnja"
+  },
+  {
+    "serijski": "111111",
+    "model": "Billy Easy",
+    "client": "Obrt, vl Pero Perić",
+    "oib": "73555415212",
+    "active": true,
+    "assigned_at": "2025-09-23T22:39:34.968170",
+    "namjena": "Kupnja"
+  },
+  {
+    "serijski": "55555",
+    "model": "Billy Easy",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "oib": "22123432123",
+    "active": false,
+    "assigned_at": "2025-09-23T23:12:18.125231",
+    "namjena": "Kupnja",
+    "unassigned_at": "2025-09-23T23:46:01.529496"
+  },
+  {
+    "serijski": "test213",
+    "model": "Billy Desk mini",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "oib": "22123432123",
+    "active": false,
+    "assigned_at": "2025-09-23T23:12:18.125231",
+    "namjena": "Kupnja",
+    "unassigned_at": "2025-09-23T23:18:04.798185"
+  },
+  {
+    "serijski": "55555",
+    "model": "Billy Easy",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "oib": "22123432123",
+    "active": true,
+    "assigned_at": "2025-09-24T01:18:07.543433",
+    "namjena": "Kupnja"
+  },
+  {
+    "serijski": "test213",
+    "model": "Billy Desk mini",
+    "client": "Billy POS d.o.o.",
+    "oib": "73737373872",
+    "active": true,
+    "assigned_at": "2025-09-24T01:42:42.841972",
+    "namjena": "Kupnja"
+  },
+  {
+    "serijski": "443534534",
+    "model": "Billy Mobile 3",
+    "client": "Billy POS d.o.o.",
+    "oib": "73737373872",
+    "active": true,
+    "assigned_at": "2025-09-24T01:51:10.334071",
+    "namjena": ""
+  },
+  {
+    "serijski": "test216",
+    "model": "Billy Desk mini",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "oib": "22123432123",
+    "active": true,
+    "assigned_at": "2025-09-24T22:48:04.931785",
+    "namjena": ""
+  },
+  {
+    "serijski": "66666",
+    "model": "Billy Easy",
+    "client": "Billy POS d.o.o.",
+    "oib": "73737373872",
+    "active": true,
+    "assigned_at": "2025-09-24T22:51:40.307525",
+    "namjena": ""
+  },
+  {
+    "serijski": "345435435345",
+    "model": "Billy Desk mini",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "oib": "22123432123",
+    "active": true,
+    "assigned_at": "2025-09-24T22:59:54.288163",
+    "namjena": ""
   }
 ]

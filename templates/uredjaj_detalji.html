@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Uređaj {{ uredjaj.serijski }}{% endblock %}
+{% block content %}
+<h1>Uređaj {{ uredjaj.serijski }}</h1>
+
+<p>
+  <span class="status-dot" data-color="{{ uredjaj.status_color or 'yellow' }}"></span>
+  <strong>Status:</strong> <span id="statusLabel">{{ uredjaj.status_label or '-' }}</span>
+</p>
+
+<table class="tbl">
+  <tbody>
+    <tr><th>Model</th><td>{{ uredjaj.model }}</td></tr>
+    <tr><th>Serijski broj</th><td>{{ uredjaj.serijski }}</td></tr>
+    <tr><th>Namjena</th><td id="currentNamjena">{{ uredjaj.namjena or '-' }}</td></tr>
+    <tr>
+      <th>Zadužio</th>
+      <td>
+        {% if uredjaj.assigned_to %}
+          <a href="{{ url_for('operater_profil', username=uredjaj.assigned_to) }}">{{ uredjaj.assigned_to }}</a>
+        {% else %}-{% endif %}
+      </td>
+    </tr>
+    <tr>
+      <th>Klijent</th>
+      <td>
+        {% if uredjaj.client_name %}
+          <a href="{{ url_for('klijent_profil', name=uredjaj.client_name) }}">{{ uredjaj.client_name }}</a>
+        {% else %}-{% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Promijeni status</h3>
+
+{# ---- STATUS UREĐAJA: vidljivo samo Prodaja/Podrška/Admin/Superadmin ---- #}
+{% if has_role('prodaja','podrška','admin','superadmin') %}
+<form id="statusForm" method="post" action="{{ url_for('api_set_uredjaj_status', serijski=uredjaj.serijski) }}" style="margin-bottom:12px;">
+  <label for="statusSelect">Status uređaja:</label>
+  <select id="statusSelect" name="status" class="form-control form-select" style="display:inline-block;width:auto;">
+    <option value="aktivan" {% if uredjaj.status_label != 'Privremeno isključen' %}selected{% endif %}>Aktivan</option>
+    <option value="privremeno" {% if uredjaj.status_label == 'Privremeno isključen' %}selected{% endif %}>Privremeno isključen</option>
+  </select>
+  <button type="submit" class="btn" style="margin-left:8px;">Spremi</button>
+</form>
+<p class="hint">Napomena: Privremeno isključen je dostupan samo za uređaje s namjenom <b>Kupnja</b>.</p>
+{% endif %}
+
+{# ---- NAMJENA UREĐAJA: vidljivo samo Podrška/Serviser/Admin/Superadmin ---- #}
+{% if has_role('podrška','serviser','admin','superadmin') %}
+<form id="namjenaForm" method="post" action="{{ url_for('api_set_uredjaj_namjena', serijski=uredjaj.serijski) }}">
+  <label for="namjenaSelect">Namjena uređaja:</label>
+  <select id="namjenaSelect" name="namjena" class="form-control form-select" style="display:inline-block;width:auto;">
+    <option value="Kupnja" {% if uredjaj.namjena == 'Kupnja' %}selected{% endif %}>Kupnja</option>
+    <option value="Najam" {% if uredjaj.namjena == 'Najam' %}selected{% endif %}>Najam</option>
+  </select>
+  <button type="submit" class="btn" style="margin-left:8px;">Spremi</button>
+</form>
+{% endif %}
+
+<hr>
+<h3>Dnevnik promjena</h3>
+<div style="border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:8px; background:rgba(255,255,255,0.04);">
+  <textarea readonly rows="10" style="width:100%; resize:vertical; overflow:auto; white-space:pre-wrap;">
+{% for e in logs %}[{{ e.ts[:19].replace('T',' ') }}] {{ e.action }}{% if e.who %} ({{ e.who }}){% endif %}{% if e.details %} — {{ e.details|tojson }}{% endif %}
+{% endfor %}
+  </textarea>
+</div>
+
+<style>
+.tbl{ width:100%; border-collapse:collapse; margin-top:8px; }
+.tbl th, .tbl td{ border-bottom:1px solid rgba(255,255,255,0.15); padding:8px; text-align:left; }
+.status-dot{ display:inline-block; width:12px; height:12px; border-radius:999px; margin-right:6px; border:1px solid rgba(255,255,255,.35); vertical-align:middle; }
+.status-dot[data-color="green"]{ background:#22c55e; }
+.status-dot[data-color="yellow"]{ background:#eab308; }
+.status-dot[data-color="red"]{ background:#ef4444; }
+.status-dot[data-color="orange"]{ background:#f97316; } /* orange */
+.hint{ opacity:.8; font-size:.92em; margin-top:6px; }
+</style>
+
+<script>
+(function(){
+  const statusForm = document.getElementById('statusForm');
+  if(statusForm){
+    statusForm.addEventListener('submit', async function(e){
+      e.preventDefault();
+      const form = e.target;
+      const res = await fetch(form.action, { method:'POST', body: new FormData(form) });
+      const data = await res.json().catch(()=>({}));
+      if(data && data.ok){
+        location.reload();
+      }else{
+        alert(data.error || 'Greška pri spremanju statusa.');
+      }
+    });
+  }
+  const namjenaForm = document.getElementById('namjenaForm');
+  if(namjenaForm){
+    namjenaForm.addEventListener('submit', async function(e){
+      e.preventDefault();
+      const form = e.target;
+      const res = await fetch(form.action, { method:'POST', body: new FormData(form) });
+      const data = await res.json().catch(()=>({}));
+      if(data && data.ok){
+        // ažuriraj prikaz namjene bez reloada, a i dalje radi i reload
+        const el = document.getElementById('currentNamjena');
+        if(el){ el.textContent = data.namjena || ''; }
+        location.reload();
+      }else{
+        alert(data.error || 'Greška pri spremanju namjene.');
+      }
+    });
+  }
+})();
+</script>
+{% endblock %}

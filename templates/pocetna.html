@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Analitika — Nadzorna ploča</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+  <style>
+    :root{ --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0; --accent:#60a5fa; --ok:#22c55e; --down:#ef4444; }
+    *{box-sizing:border-box;}
+    html, body{margin:0; padding:0; background:linear-gradient(-45deg,#0B2B9E,#CFC4FF,#0B2B9E); background-size:400% 400%; animation:bgGradient 28s ease infinite; color:var(--text); font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple Color Emoji','Segoe UI Emoji';}
+    a{color:inherit}
+    .container{max-width:1280px; margin:0 auto; padding:24px 18px 36px;}
+    header{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;}
+    .title{font-size:clamp(22px,2.6vw,34px); font-weight:800; letter-spacing:.3px;}
+    .controls{display:flex; flex-wrap:wrap; align-items:center; gap:10px;}
+    .pill{background:#0a1222; border:1px solid #1f2a44; color:var(--text); padding:8px 12px; border-radius:10px; cursor:pointer}
+    .pill.is-active{border-color:var(--accent); box-shadow:0 0 0 2px rgba(96,165,250,.25) inset;}
+    .grid{display:grid; grid-template-columns:repeat(12,1fr); gap:14px; align-items:stretch;}
+    .card{grid-column:span 3; background:var(--card); border:1px solid #1e293b; border-radius:14px; padding:14px 14px 12px; box-shadow:0 6px 25px rgba(2,8,23,.35); position:relative; overflow:hidden;}
+    .card h3{margin:0 0 2px; font-size:14px; font-weight:700; color:#9fb3d2; letter-spacing:.4px; text-transform:uppercase}
+    .big{font-size:32px; font-weight:800; line-height:1.2; margin:4px 0 6px;}
+    .delta{font-size:13px; color:var(--muted); display:flex; align-items:center; gap:6px}
+    .delta .up{color:var(--ok)} .delta .down{color:var(--down)}
+    .canvas-wrap{height:78px; position:relative;}
+    .wide{grid-column:span 6;}
+    .full{grid-column:span 12;}
+    .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+    .legend{display:flex; gap:12px; align-items:center; font-size:12px; color:#b6c2d3;}
+    .legend .dot{display:inline-block; width:10px; height:10px; border-radius:50%; background:#60a5fa; margin-right:6px;}
+    .bar{background:linear-gradient(90deg, rgba(96,165,250,.08), transparent); position:absolute; inset:auto 0 0 0; height:38px; pointer-events:none}
+    @media (max-width: 1100px){ .card{grid-column:span 6} .wide{grid-column:span 12} }
+    @media (max-width: 680px){ .card, .wide, .full{grid-column:span 12} }
+    .topnav{position:sticky; top:0; z-index:50; background:rgba(11,18,32,.85); backdrop-filter: blur(8px); border-bottom:1px solid #11203b;}
+    .topnav-inner{max-width:1280px; margin:0 auto; padding:10px 18px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+    .topnav a{padding:6px 10px; border:1px solid #1f2a44; border-radius:10px; text-decoration:none; color:#cfe0ff;}
+    .topnav a:hover{border-color:var(--accent);}
+  </style>
+</head>
+<body>
+  <div class="topnav">
+    <div class="topnav-inner">
+      <div class="row">
+        <a href="/naslovna"><i class="fa-solid fa-house"></i> Naslovna</a>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="title">Analitika sustava</div>
+      <div class="controls" id="range-controls">
+        {% set ranges = [('7d','7 dana'),('30d','30 dana'),('6m','6 mjeseci'),('1y','1 godina'),('all','Sva vremena')] %}
+        {% for key,label in ranges %}
+          <button class="pill {% if key == selected_range %}is-active{% endif %}" data-range="{{ key }}">{{ label }}</button>
+        {% endfor %}
+      </div>
+    </header>
+
+    <section class="grid">
+      {% for k,card in cards.items() %}
+        <article class="card{% if card.get('wide') %} wide{% endif %}{% if card.get('full') %} full{% endif %}" data-key="{{ k }}">
+          <h3>{{ card['title'] }}</h3>
+          <div class="big" id="num-{{ k }}">{{ card['value'] }}</div>
+          <div class="delta">
+            <span id="delta-{{ k }}"></span>
+            <span class="legend"><span class="dot"></span>{{ card.get('subtitle','') }}</span>
+          </div>
+          <div class="canvas-wrap"><canvas id="chart-{{ k }}"></canvas><div class="bar"></div></div>
+        </article>
+      {% endfor %}
+    </section>
+
+    <section class="grid" style="margin-top:16px;">
+      <article class="card full">
+        <h3>Aktivnost u zadnjih 12 mjeseci</h3>
+        <div class="canvas-wrap" style="height:260px;"><canvas id="chart-heat"></canvas></div>
+      </article>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    const DATA = {{ analytics_json|safe }};
+    const SELECTED = "{{ selected_range }}";
+    const fmt = new Intl.NumberFormat('hr-HR');
+
+    function pctDelta(curr, prev){
+      if (prev <= 0 && curr > 0) return {v: 100, cls:'up', sym:'▲'};
+      if (prev === 0 && curr === 0) return {v: 0, cls:'', sym:''};
+      const v = ((curr - prev) / Math.max(prev, 1)) * 100;
+      return {v: Math.round(v), cls: v >= 0 ? 'up' : 'down', sym: v >=0 ? '▲' : '▼'};
+    }
+
+    function applyRange(rkey){
+      const setActive = (key)=>{
+        document.querySelectorAll('#range-controls .pill').forEach(b=>b.classList.toggle('is-active', b.dataset.range===key));
+      }
+      setActive(rkey);
+      for (const k in DATA.cards){
+        const card = DATA.cards[k];
+        const conf = card.series[rkey] || {points:[], curr:0, prev:0};
+        const dv = pctDelta(conf.curr, conf.prev);
+        const numEl = document.getElementById('num-'+k);
+        const delEl = document.getElementById('delta-'+k);
+        if (numEl) numEl.textContent = fmt.format(conf.curr);
+        if (delEl) { delEl.innerHTML = `<span class="${dv.cls}">${dv.sym} ${Math.abs(dv.v)}%</span> vs. pr. razdoblje`; }
+        const ctx = document.getElementById('chart-'+k);
+        if (!ctx) continue;
+        if (!window._charts) window._charts = {};
+        if (window._charts[k]) { window._charts[k].destroy(); }
+        const labels = conf.points.map(p=>p.label);
+        const values = conf.points.map(p=>p.value);
+        window._charts[k] = new Chart(ctx, {
+          type:'line',
+          data:{ labels, datasets:[{ data: values, tension:.35, fill:true }]},
+          options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{ legend:{display:false}, tooltip:{mode:'index', intersect:false}},
+            scales:{ x:{display:false}, y:{display:false, beginAtZero:true}}
+          }
+        });
+      }
+    }
+
+    document.getElementById('range-controls').addEventListener('click', (e)=>{
+      const btn = e.target.closest('.pill');
+      if (!btn) return;
+      const key = btn.dataset.range;
+      applyRange(key);
+    });
+
+    (function(){
+      const ctx = document.getElementById('chart-heat');
+      const months = DATA.monthly.labels;
+      const ds = DATA.monthly.values;
+      new Chart(ctx, {
+        type:'bar',
+        data:{ labels: months, datasets:[{ label:'Ukupno događaja', data: ds }]},
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          plugins:{ legend:{display:false} },
+          scales:{ x:{ ticks:{ color:'#b6c2d3'} }, y:{ ticks:{ color:'#b6c2d3'}, beginAtZero:true } }
+        }
+      });
+    })();
+
+    applyRange(SELECTED);
+  </script>
+</body>
+</html>

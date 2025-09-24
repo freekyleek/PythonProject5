@@ -24,7 +24,7 @@
     <label>Uređaj <span class="req">*</span></label>
     <div id="dev-wrap">
       <div class="row">
-        <select name="uredjaj" required>
+        <select name="uredjaj">
           <option value="">-- Odaberite --</option>
           {% for d in uredjaji %}
             <option value="{{ d.serijski }}">{{ d.model }} — {{ d.serijski }}</option>
@@ -39,7 +39,7 @@
     <label>SIM <span class="req">*</span></label>
     <div id="sim-wrap">
       <div class="row">
-        <select name="sim" required>
+        <select name="sim">
           <option value="">-- Odaberite --</option>
           {% for s in sims %}
             <option value="{{ s.serijski }}">{{ s.provider }} — {{ s.serijski }}</option>
@@ -55,8 +55,18 @@
     <input type="file" name="zapisnik_img" accept=".jpg,.jpeg,.png" required />
   </div>
 
+  
+  <div class="allow-empty-wrap">
+    <label class="allow-empty">
+      <input type="checkbox" name="allow_empty" value="1" />
+      Zaključi bez uređaja/SIM (zapisnik obavezan)
+    </label>
+  </div>
+
   <div class="actions">
+    {% if has_role('superadmin','admin','podrska','prodaja','podrška') or current_user.username == nalog.assigned_to %}
     <button type="submit" class="btn">Zaključi nalog</button>
+    {% endif %}
     <a class="btn secondary" href="{{ url_for('operater_profil', username=nalog.assigned_to) }}">Odustani</a>
   </div>
 </form>
@@ -71,6 +81,9 @@ select{ padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,.3); b
 .btn{ display:inline-block; padding:8px 14px; border-radius:8px; background:#198754; color:#fff; text-decoration:none; border:none; cursor:pointer;}
 .btn.secondary{ background:#6c757d;}
 .icon-plus{ width:32px; height:32px; border-radius:50%; border:1px solid rgba(255,255,255,.4); background:transparent; color:#fff; font-size:20px; line-height:0; cursor:pointer; }
+.allow-empty-wrap{ display:flex; justify-content:flex-end; margin:10px 0 -4px; }
+.allow-empty{ font-size:13px; opacity:.9; }
+.allow-empty input{ vertical-align:middle; margin-right:6px; }
 </style>
 
 <script>

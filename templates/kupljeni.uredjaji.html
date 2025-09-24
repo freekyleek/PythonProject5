@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Kupljeni uređaji{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Kupljeni uređaji</h1>
+</div>
+<div class="toolbar">
+  <a class="btn" href="{{ url_for('uredjaji') }}">&larr; Natrag na Uređaje</a>
+</div>
+<main class="content">
+  {% if items and items|length > 0 %}
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          {% for col in (columns or []) %}
+          <th>{{ col }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          {% for col in (columns or []) %}
+          <td>{{ it.get(col, '') }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p>Nema zapisa u bazi kupljenih uređaja.</p>
+  {% endif %}
+</main>
+{% endblock %}

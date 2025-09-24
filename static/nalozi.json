@@ -1,175 +1,481 @@
 [
   {
-    "client": "Billy Pos d.oo",
-    "file": "nalozi/billy-pos-d-oo/RN_billy-pos-d-oo_20250911_001001.docx",
-    "created_at": "2025-09-11T00:10:01.208113",
-    "nacin": "Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)",
-    "podopc": []
-  },
-  {
-    "client": "Billy Pos d.oo",
-    "file": "nalozi/billy-pos-d-oo/RN_billy-pos-d-oo_20250911_001010.docx",
-    "created_at": "2025-09-11T00:10:10.173194",
-    "nacin": "Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)",
-    "podopc": []
-  },
-  {
-    "client": "Billy Pos d.oo",
-    "file": "nalozi/billy-pos-d-oo/RN_billy-pos-d-oo_20250911_001010.docx",
-    "created_at": "2025-09-11T00:10:10.969649",
-    "nacin": "Samo-instalacijski paket (Aktivacija usluge i dostava uređaja)",
-    "podopc": []
-  },
-  {
+    "zahtjev_image": "",
     "type": "instalacija",
-    "client": "Billy Pos d.oo",
-    "file": "nalozi/billy-pos-d-oo/INSTALL RN 0003-2025 Billy Pos d.oo,Radnička 177, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T00:49:56.495664",
-    "nacin": "Hitna instalacija (instalacija sljedeći radni dan)",
-    "podopc": [],
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/INSTALL RN 0001-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:32:16.375962",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0001/2025",
+    "status": "zaključen",
+    "assigned_to": "-",
+    "closed_at": "2025-09-23T21:41:01.327176",
+    "zapisnik_image": "static\\zapisnici\\Servis\\0001_2025_20250923_214054.jpeg"
+  },
+  {
+    "zahtjev_image": "",
+    "type": "instalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/INSTALL RN 0001-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:32:16.375962",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0001/2025",
+    "status": "zaključen",
+    "assigned_to": "Mario",
+    "assigned_at": "2025-09-23T00:32:31.062993",
+    "closed_at": "2025-09-23T00:33:09.197423",
+    "closed_by": "Mario",
+    "devices_used": [
+      "34543534545",
+      "345345345345",
+      "443534534",
+      "345345435435345",
+      "345435435345"
+    ],
+    "sims_used": [
+      "345435435345345",
+      "4324234234234",
+      "123245435345345",
+      "32432432424",
+      "545456546546456"
+    ],
+    "zapisnik_image": "static\\zapisnici\\Instalacija\\0001_2025_20250923_003309.jpeg"
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/DEINST RN 0001-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:33:49.073548",
+    "rn": "0001/2025",
+    "status": "nezadužen",
+    "deinstalirani sn uredjaja": "34543534545",
+    "deinstalirani sn SIM-a": ""
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/DEINST RN 0002-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:35:05.203645",
+    "rn": "0002/2025",
+    "status": "zaključen",
+    "deinstalirani sn uredjaja": "345345345345",
+    "deinstalirani sn SIM-a": "",
+    "closed_at": "2025-09-24T01:18:07.546495",
+    "zapisnik_image": "static\\zapisnici\\Servis\\0002_2025_20250924_011804.jpeg"
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/DEINST RN 0003-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:36:47.524205",
+    "rn": "0003/2025",
+    "status": "zaključen",
+    "deinstalirani sn uredjaja": "",
+    "deinstalirani sn SIM-a": "345435435345345",
+    "closed_at": "2025-09-24T01:42:44.425613",
+    "zapisnik_image": "static\\zapisnici\\Servis\\0003_2025_20250924_014230.jpeg"
+  },
+  {
+    "zahtjev_image": "",
+    "type": "instalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/INSTALL RN 0002-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:43:59.835017",
+    "nacin": "Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0002/2025",
+    "status": "nezadužen",
+    "assigned_to": "-"
+  },
+  {
+    "zahtjev_image": "",
+    "type": "instalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/INSTALL RN 0002-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:43:59.835017",
+    "nacin": "Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0002/2025",
+    "status": "zaključen",
+    "assigned_to": "Luka",
+    "assigned_at": "2025-09-23T00:44:39.384484",
+    "closed_at": "2025-09-23T00:46:04.291377",
+    "closed_by": "Luka",
+    "devices_used": [
+      "345345345345",
+      "34543534545"
+    ],
+    "sims_used": [],
+    "zapisnik_image": "static\\zapisnici\\Instalacija\\0002_2025_20250923_004604.jpeg"
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/DEINST RN 0004-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T00:51:56.295017",
+    "rn": "0004/2025",
+    "status": "zaključen",
+    "deinstalirani sn uredjaja": "",
+    "deinstalirani sn SIM-a": "4324234234234",
+    "closed_at": "2025-09-24T01:51:10.337467",
+    "zapisnik_image": "static\\zapisnici\\Servis\\0004_2025_20250924_015106.jpeg"
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/DEINST RN 0006-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T08:19:14.994262",
+    "rn": "0006/2025",
+    "status": "zaključen",
+    "deinstalirani sn uredjaja": "345345435435345",
+    "deinstalirani sn SIM-a": "",
+    "closed_at": "2025-09-24T22:48:04.935266",
+    "zapisnik_image": "static\\zapisnici\\Servis\\0006_2025_20250924_224801.jpeg"
+  },
+  {
+    "zahtjev_image": "",
+    "type": "instalacija",
+    "client": "Etranet grupa d.o.o.",
+    "file": "nalozi/etranet-grupa-d-o-o/INSTALL RN 0003-2025 Etranet grupa d.o.o.,Radnička cesta 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T12:26:13.286822",
+    "nacin": "Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
     "rn": "0003/2025",
     "status": "nezadužen",
     "assigned_to": "-"
   },
   {
+    "zahtjev_image": "",
     "type": "instalacija",
     "client": "Etranet grupa d.o.o.",
-    "file": "nalozi/etranet-grupa-d-o-o/INSTALL RN 0004-2025 Etranet grupa d.o.o.,Folnegovićevo naselje 1b, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T01:22:57.449783",
-    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
-    "podopc": [],
+    "file": "nalozi/etranet-grupa-d-o-o/INSTALL RN 0003-2025 Etranet grupa d.o.o.,Radnička cesta 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-23T12:26:13.286822",
+    "nacin": "Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0003/2025",
+    "status": "zaključen",
+    "assigned_to": "Mario",
+    "assigned_at": "2025-09-23T12:26:46.800995",
+    "closed_at": "2025-09-23T12:29:00.827697",
+    "closed_by": "Mario",
+    "devices_used": [
+      "345345435435345",
+      "BBB6666"
+    ],
+    "sims_used": [
+      "345435435345345"
+    ],
+    "zapisnik_image": "static\\zapisnici\\Instalacija\\0003_2025_20250923_122900.jpeg"
+  },
+  {
+    "zahtjev_image": "",
+    "type": "instalacija",
+    "client": "Tvrtka d.o.o.",
+    "file": "nalozi/tvrtka-d-o-o/INSTALL RN 0004-2025 Tvrtka d.o.o.,Marmontova 23, 21000 Split.docx",
+    "created_at": "2025-09-23T21:20:23.611219",
+    "nacin": "Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
     "rn": "0004/2025",
     "status": "nezadužen",
     "assigned_to": "-"
   },
   {
+    "zahtjev_image": "",
     "type": "instalacija",
-    "client": "Billy Pos d.oo",
-    "file": "nalozi/billy-pos-d-oo/RN_billy-pos-d-oo_20250911_002253.docx",
-    "created_at": "2025-09-11T00:22:53.690514",
-    "nacin": "Hitna instalacija (instalacija sljedeći radni dan)",
-    "podopc": [],
+    "client": "Tvrtka d.o.o.",
+    "file": "nalozi/tvrtka-d-o-o/INSTALL RN 0004-2025 Tvrtka d.o.o.,Marmontova 23, 21000 Split.docx",
+    "created_at": "2025-09-23T21:20:23.611219",
+    "nacin": "Instalacijski paket na lokaciji Pružatelja usluga (Aktivacija, parametriziranje i edukacija na lokaciji Pružatelja usluga do 60 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0004/2025",
+    "status": "zaključen",
+    "assigned_to": "Luka",
+    "assigned_at": "2025-09-23T21:28:57.927668",
+    "closed_at": "2025-09-23T21:33:59.094022",
+    "closed_by": "Luka",
+    "devices_used": [
+      "333333",
+      "22222"
+    ],
+    "sims_used": [
+      "TEST12345",
+      "Test887778"
+    ],
+    "zapisnik_image": "static\\zapisnici\\Instalacija\\0004_2025_20250923_213359.jpeg"
+  },
+  {
+    "type": "servis",
+    "client": "Tvrtka d.o.o.",
+    "file": "nalozi/tvrtka-d-o-o/SERVIS RN 0001-2025 Tvrtka d.o.o.,Marmontova 23, 21000 Split.docx",
+    "created_at": "2025-09-23T21:39:00.574752",
     "rn": "0001/2025",
-    "status": "zaključen",
-    "assigned_to": "Pero",
-    "assigned_at": "2025-09-11T03:21:04.305154",
-    "closed_at": "2025-09-11T08:29:03.155831",
-    "closed_by": "Pero",
-    "devices_used": [
-      "324234234234",
-      "V233231231231231"
-    ],
-    "sims_used": [
-      "231312321321312"
-    ],
-    "zapisnik_image": "static\\uploads\\nalozi\\0001_2025_20250911_082903.png"
-  },
-  {
-    "type": "instalacija",
-    "client": "Etranet grupa d.o.o.",
-    "file": "nalozi/etranet-grupa-d-o-o/INSTALL RN 0004-2025 Etranet grupa d.o.o.,Folnegovićevo naselje 1b, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T01:22:57.449783",
-    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
-    "podopc": [],
-    "rn": "0004/2025",
-    "status": "zaključen",
-    "assigned_to": "Pero",
-    "assigned_at": "2025-09-11T10:45:07.373195",
-    "closed_at": "2025-09-11T10:45:35.757525",
-    "closed_by": "Pero",
-    "devices_used": [
-      "324234234234"
-    ],
-    "sims_used": [
-      "231312321321312"
-    ],
-    "zapisnik_image": "static\\uploads\\nalozi\\0004_2025_20250911_104535.png"
-  },
-  {
-    "type": "instalacija",
-    "client": "Obrt Hrvoje, vl. Hrvoje Lisac",
-    "file": "nalozi/obrt-hrvoje-vl-hrvoje-lisac/INSTALL RN 0005-2025 Obrt Hrvoje, vl. Hrvoje Lisac,Ilica 23, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T12:01:34.796758",
-    "nacin": "Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)",
-    "podopc": [],
-    "rn": "0005/2025",
     "status": "nezadužen",
-    "assigned_to": "-"
+    "servisirani sn uredjaja": "333333",
+    "servisirani sn SIM-a": "TEST12345"
   },
   {
-    "type": "instalacija",
-    "client": "Obrt Hrvoje, vl. Hrvoje Lisac",
-    "file": "nalozi/obrt-hrvoje-vl-hrvoje-lisac/INSTALL RN 0005-2025 Obrt Hrvoje, vl. Hrvoje Lisac,Ilica 23, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T12:01:34.796758",
-    "nacin": "Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)",
-    "podopc": [],
-    "rn": "0005/2025",
+    "type": "deinstalacija",
+    "client": "Tvrtka d.o.o.",
+    "file": "nalozi/tvrtka-d-o-o/DEINST RN 0007-2025 Tvrtka d.o.o.,Marmontova 23, 21000 Split.docx",
+    "created_at": "2025-09-23T21:44:34.057948",
+    "rn": "0007/2025",
     "status": "zaključen",
-    "assigned_to": "Pero",
-    "assigned_at": "2025-09-11T12:22:00.214502",
-    "closed_at": "2025-09-11T12:55:15.677894",
-    "closed_by": "Pero",
-    "devices_used": [
-      "324234234234",
-      "V233231231231231"
-    ],
-    "sims_used": [
-      "2424324324324324234",
-      "231312321321312"
-    ],
-    "zapisnik_image": "static\\uploads\\nalozi\\0005_2025_20250911_125515.png"
+    "deinstalirani sn uredjaja": "22222, 66666",
+    "deinstalirani sn SIM-a": "Test887778, 123245435345345",
+    "closed_at": "2025-09-24T22:51:40.462798",
+    "zapisnik_image": "static\\zapisnici\\Servis\\0007_2025_20250924_225136.jpeg"
   },
   {
+    "zahtjev_image": "zapisnici/Zahtjev/0006_2025_20250923_223352.pdf",
     "type": "instalacija",
-    "client": "Obrt Hrvoje, vl. Hrvoje Lisac",
-    "file": "nalozi/obrt-hrvoje-vl-hrvoje-lisac/INSTALL RN 0006-2025 Obrt Hrvoje, vl. Hrvoje Lisac,Ilica 23, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T12:57:00.725976",
-    "nacin": "Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)",
-    "podopc": [],
+    "client": "Obrt, vl Pero Perić",
+    "file": "nalozi/obrt-vl-pero-peric/INSTALL RN 0006-2025 Obrt, vl Pero Perić,Perina 4, 31000 Osijek.docx",
+    "created_at": "2025-09-23T22:33:52.321569",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
     "rn": "0006/2025",
     "status": "nezadužen",
     "assigned_to": "-"
   },
   {
+    "zahtjev_image": "zapisnici/Zahtjev/0006_2025_20250923_223352.pdf",
     "type": "instalacija",
-    "client": "Obrt Hrvoje, vl. Hrvoje Lisac",
-    "file": "nalozi/obrt-hrvoje-vl-hrvoje-lisac/INSTALL RN 0005-2025 Obrt Hrvoje, vl. Hrvoje Lisac,Ilica 23, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T12:01:34.796758",
-    "nacin": "Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)",
-    "podopc": [],
-    "rn": "0005/2025",
+    "client": "Obrt, vl Pero Perić",
+    "file": "nalozi/obrt-vl-pero-peric/INSTALL RN 0006-2025 Obrt, vl Pero Perić,Perina 4, 31000 Osijek.docx",
+    "created_at": "2025-09-23T22:33:52.321569",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0006/2025",
     "status": "zaključen",
-    "assigned_to": "Pero",
-    "assigned_at": "2025-09-11T12:58:30.783881",
-    "closed_at": "2025-09-11T12:58:58.982403",
-    "closed_by": "Pero",
+    "assigned_to": "Luka",
+    "assigned_at": "2025-09-23T22:35:24.122354",
+    "closed_at": "2025-09-23T22:39:34.957303",
+    "closed_by": "Luka",
     "devices_used": [
-      "324234234234"
+      "22222",
+      "111111"
     ],
     "sims_used": [
-      "4324324234"
+      "Test887778",
+      "Test123"
     ],
-    "zapisnik_image": "static\\uploads\\nalozi\\0005_2025_20250911_125858.png"
+    "zapisnik_image": "static\\zapisnici\\Instalacija\\0006_2025_20250923_223934.jpeg"
   },
   {
+    "zahtjev_image": "",
     "type": "instalacija",
-    "client": "Obrt Hrvoje, vl. Hrvoje Lisac",
-    "file": "nalozi/obrt-hrvoje-vl-hrvoje-lisac/INSTALL RN 0005-2025 Obrt Hrvoje, vl. Hrvoje Lisac,Ilica 23, 10000 Zagreb.docx",
-    "created_at": "2025-09-11T12:01:34.796758",
-    "nacin": "Parametriziranje (Unos podataka u Billy pozadinski sustav do 30 min)",
-    "podopc": [],
-    "rn": "0005/2025",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/INSTALL RN 0007-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:07:01.695771",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0007/2025",
+    "status": "nezadužen",
+    "assigned_to": "-"
+  },
+  {
+    "zahtjev_image": "",
+    "type": "instalacija",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/INSTALL RN 0007-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:07:01.695771",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0007/2025",
     "status": "zaključen",
-    "assigned_to": "Pero",
-    "assigned_at": "2025-09-11T13:23:48.756761",
-    "closed_at": "2025-09-11T13:46:05.541699",
-    "closed_by": "Pero",
+    "assigned_to": "Luka",
+    "assigned_at": "2025-09-23T23:11:24.942472",
+    "closed_at": "2025-09-23T23:12:18.119718",
+    "closed_by": "Luka",
     "devices_used": [
-      "V233231231231231"
+      "55555",
+      "66666",
+      "test213",
+      "test214"
     ],
     "sims_used": [
-      "213213123"
+      "34543",
+      "TEST12345",
+      "4324234234"
     ],
-    "zapisnik_image": "static\\uploads\\nalozi\\0005_2025_20250911_134605.png"
+    "zapisnik_image": "static\\zapisnici\\Instalacija\\0007_2025_20250923_231218.jpeg"
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/DEINST RN 0008-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:16:00.536406",
+    "rn": "0008/2025",
+    "status": "zaključen",
+    "deinstalirani sn uredjaja": "55555, 66666, test213, test214",
+    "deinstalirani sn SIM-a": "34543, TEST12345, 4324234234",
+    "closed_at": "2025-09-24T22:59:54.291786",
+    "zapisnik_image": "static\\zapisnici\\Servis\\0008_2025_20250924_225951.jpeg"
+  },
+  {
+    "zahtjev_image": "zapisnici/Zahtjev/0008_2025_20250923_232757.pdf",
+    "type": "instalacija",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/INSTALL RN 0008-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:27:57.151650",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0008/2025",
+    "status": "nezadužen",
+    "assigned_to": "-"
+  },
+  {
+    "zahtjev_image": "",
+    "type": "instalacija",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/INSTALL RN 0008-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:27:57.151650",
+    "nacin": "Instalacijski paket (Aktivacija, parametriziranje, dostava i edukacija na lokaciji Korisnika do 30 minuta)",
+    "podopc": [
+      "Kod Pružatelja usluga"
+    ],
+    "rn": "0008/2025",
+    "status": "zaključen",
+    "assigned_to": "Luka",
+    "assigned_at": "2025-09-23T23:28:25.315478",
+    "closed_at": "2025-09-23T23:30:05.868718",
+    "closed_by": "Luka",
+    "devices_used": [
+      "test216",
+      "66666",
+      "test214"
+    ],
+    "sims_used": [],
+    "zapisnik_image": "static\\zapisnici\\Instalacija\\0008_2025_20250923_233005.jpeg"
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/DEINST RN 0009-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:33:34.442826",
+    "rn": "0009/2025",
+    "status": "zaključen",
+    "deinstalirani sn uredjaja": "55555, test216, 66666, test214",
+    "deinstalirani sn SIM-a": "TEST12345",
+    "closed_at": "2025-09-23T23:46:01.539595",
+    "zapisnik_image": "static\\zapisnici\\Deinstalacija\\0009_2025_20250923_234558.jpeg"
+  },
+  {
+    "type": "deinstalacija",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/DEINST RN 0010-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:47:00.274548",
+    "rn": "0010/2025",
+    "status": "nezadužen",
+    "deinstalirani sn uredjaja": "test216, 66666, test214",
+    "deinstalirani sn SIM-a": "TEST12345"
+  },
+  {
+    "zahtjev_image": "zapisnici/Zahtjev/0010_2025_20250923_234700.pdf",
+    "type": "deinstalacija",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/DEINST RN 0010-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-23T23:47:02.621932",
+    "rn": "0010/2025",
+    "status": "nezadužen",
+    "assigned_to": "-"
+  },
+  {
+    "type": "servis",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/SERVIS RN 0002-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-24T01:16:57.849066",
+    "rn": "0002/2025",
+    "status": "nezadužen",
+    "servisirani sn uredjaja": "test216",
+    "servisirani sn SIM-a": ""
+  },
+  {
+    "type": "servis",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/SERVIS RN 0003-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-24T01:39:00.224841",
+    "rn": "0003/2025",
+    "status": "nezadužen",
+    "servisirani sn uredjaja": "443534534",
+    "servisirani sn SIM-a": "32432432424"
+  },
+  {
+    "type": "servis",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/SERVIS RN 0004-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-24T01:48:53.586378",
+    "rn": "0004/2025",
+    "status": "nezadužen",
+    "servisirani sn uredjaja": "34543534545",
+    "servisirani sn SIM-a": ""
+  },
+  {
+    "type": "servis",
+    "client": "Etranet grupa d.o.o.",
+    "file": "nalozi/etranet-grupa-d-o-o/SERVIS RN 0005-2025 Etranet grupa d.o.o.,Radnička cesta 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-24T22:18:14.211124",
+    "rn": "0005/2025",
+    "status": "nezadužen",
+    "servisirani sn uredjaja": "345345435435345",
+    "servisirani sn SIM-a": ""
+  },
+  {
+    "type": "servis",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/SERVIS RN 0006-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-24T22:24:49.110212",
+    "rn": "0006/2025",
+    "status": "nezadužen",
+    "servisirani sn uredjaja": "66666",
+    "servisirani sn SIM-a": ""
+  },
+  {
+    "type": "servis",
+    "client": "Billy POS d.o.o.",
+    "file": "nalozi/billy-pos-d-o-o/SERVIS RN 0007-2025 Billy POS d.o.o.,Radnička 177, 10000 Zagreb.docx",
+    "created_at": "2025-09-24T22:49:24.619212",
+    "rn": "0007/2025",
+    "status": "nezadužen",
+    "servisirani sn uredjaja": "345435435345",
+    "servisirani sn SIM-a": ""
+  },
+  {
+    "type": "servis",
+    "client": "Domaća radinost, vl Mirka Mirkić",
+    "file": "nalozi/domaca-radinost-vl-mirka-mirkic/SERVIS RN 0008-2025 Domaća radinost, vl Mirka Mirkić,Ivekova 3, 23000 Zadar.docx",
+    "created_at": "2025-09-24T22:54:36.037943",
+    "rn": "0008/2025",
+    "status": "nezadužen",
+    "servisirani sn uredjaja": "test214",
+    "servisirani sn SIM-a": ""
   }
 ]

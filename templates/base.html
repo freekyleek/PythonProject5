@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}Moja Web Aplikacija{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  <!-- Stil i forma preuzeti iz dostavljenog base.html predloška (bez dodatnih funkcija) -->
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>{% block title %}Moja Web Aplikacija{% endblock %}</title>
+<link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet"/>
+<!-- Stil i forma preuzeti iz dostavljenog base.html predloška (bez dodatnih funkcija) -->
+<style>
     :root{
-      --mainbox-bg: #0d6efd;
+      --mainbox-bg: #0B2B9E; /* promijenjeno prema zahtjevu */
       --mainbox-fg: #ffffff;
     }
     html, body {
@@ -38,14 +38,15 @@
       from { background-position: center 50px; }
       to   { background-position: center 300px; }
     }
-    .header-banner, .content-row, .main-area, .sidebar, .right-sidebar { position:relative; z-index:2; }
+    .header-banner, .content-row, .main-area, .right-sidebar { position:relative; z-index:2; 
+    }
 
     /* Profilna kutija – samo prikaz (bez upload funkcije) */
     .profile-box {
       position: absolute; top: 20px; right: 60px;
       text-align: center; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
-    .profile-img {
+    .profile-img { border-radius: 50%; 
       width: 80px; height: 80px; border-radius: 12px; border: 3px solid #3355aa;
       object-fit: cover; cursor: default; box-shadow: 0 0 8px rgba(0,0,0,0.5);
       display:flex; align-items:center; justify-content:center; font-size:1.8em; font-weight:bold; background:#224488;
@@ -57,44 +58,21 @@
     }
     .profile-btn:hover { background-color: #1a357d; }
 
-    /* Lijevi sidebar – izgled iz predloška */
-    .sidebar {
-      width: 250px;
-      background: linear-gradient(90deg, #001F4D, #84c3f7, #ffffff, #001F4D);
-      background-size: 300% 100%;
-      animation: sidebarBGShift 15s linear infinite;
-      border: 3px solid;
-      border-image-slice: 1;
-      border-image-source: linear-gradient(90deg, black, gold, black);
-      border-radius: 12px;
-      margin-right: 18px;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      font-size: 1.05em;
-      padding: 18px 10px 12px 10px;
-      display: flex; flex-direction: column;
-      box-shadow: 0 3px 15px rgba(50,0,0,0.12);
-      color: #fff; text-shadow: 0 0 3px black;
-      position: relative; box-sizing: border-box; min-height: 350px; overflow-y: auto;
-    }
-    .sidebar ul { list-style-type: none; padding-left: 10px; margin: 0; flex-grow: 1; overflow-y: auto; max-height: calc(100vh - 150px); }
-    .sidebar ul li { margin: 10px 0; }
-    .sidebar ul li a { color: #ffd600; text-decoration: none; cursor: pointer; font-weight: bold; display: block; text-shadow: 0 0 3px black; }
-    .sidebar ul li a:hover { text-decoration: underline; }
-    .sidebar ul li.logout-link a { color: #d22727 !important; font-weight: bold; }
-    .sidebar ul li.logout-link { margin-top: auto; }
-    @keyframes sidebarBGShift { 0% { background-position: 0% 0%; } 50% { background-position: 100% 0%; } 100% { background-position: 0% 0%; } }
-
     /* Glavni sadržaj i “mainbox” okvir iz predloška */
-    .content-row { display: flex; gap: 18px; align-items: flex-start; padding: 16px 20px 32px; }
-    .main-area { flex: 1 1 auto; display: flex; justify-content: center; padding-right: 12px; }
+    .content-row { display: flex;  align-items: flex-start; padding: 16px 20px 32px; 
+      gap: 0.5cm !important;
+      padding-left: 0.5cm !important;
+      padding-right: 0.5cm !important;
+    }
+    .main-area { flex: 1 1 auto; display: flex; justify-content: center; padding-right: 12px; 
+    }
     .mainbox {
-      width: 100%; max-width: 960px;
-      background: var(--mainbox-bg); color: var(--mainbox-fg);
+      width: 100%; background: var(--mainbox-bg); color: var(--mainbox-fg);
       border-radius: 16px; box-shadow: 0 10px 30px rgba(13,110,253,.25);
-      padding: 24px 28px; box-sizing: border-box; position: relative; isolation: isolate; min-height: 200px;
+      padding: 24px 28px; box-sizing:  position: relative; isolation: isolate; min-height: 200px;
     }
     .mainbox::before {
-      content: ""; position: absolute; inset: calc(-0.2cm - 2px); padding: 0.2cm; border-radius: inherit;
+      content: ""; position: absolute; inset: calc(-0.2cm - 2px); padding: 0.2cm; 
       background: linear-gradient(90deg, #0a3d8f, #ffffff, #0a3d8f);
       background-size: 200% 100%; animation: BorderFlow 6s linear infinite;
       -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -120,73 +98,755 @@
     .header-banner { position:relative; height: 220px; overflow:hidden; }
     .banner-slider { position:relative; height:100%; }
     .banner-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .7s ease; }
-  </style>
+
+    /* === Globalni font: Segoe UI (Regular) === */
+    :root{
+      --app-font: "Segoe UI", "Segoe UI Regular", SegoeUI, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    }
+    html, body{
+      font-family: var(--app-font);
+      font-weight: 400;
+    }
+    button, input, select, textarea{
+      font-family: var(--app-font);
+      font-weight: 400;
+    }
+
+    /* === Chatbox (desni sidebar) – NIŠTA NE DIRATI U FUNKCIONALNOSTI === */
+    .right-sidebar .chatbox {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #000;
+      border: 1px solid #2a3342;
+      border-radius: 14px;
+      color: #fff;
+      min-height: 350px;
+      height: 100%;
+      padding: 0;
+      margin-top: 12px; /* malo razmaka ispod prebačenog searchbara */
+    }
+    .chat-header { padding: 12px 14px; border-bottom: 1px solid #2a3342; }
+    .chat-header h3 { margin: 0; color: #ffd600; }
+    .chat-messages { list-style: none; margin: 0; padding: 12px 14px; overflow-y: auto; flex: 1; background: #000; }
+    .chat-messages li { margin: 6px 0; line-height: 1.35; word-wrap: break-word; overflow-wrap: anywhere; }
+    .chat-messages .username { font-weight: 700; margin-right: 6px; }
+    .chat-messages .msg-text { color: #ffffff; }
+    .chat-messages li:nth-child(even) .msg-text { color: #ffd600; }
+    .chat-input { border-top: 1px solid #2a3342; padding: 10px; background: #0b0f18; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; }
+    .chat-input .input-row { display: flex; align-items: center; gap: 8px; }
+    .chat-input .emoji-btn { background: #111827; border: 1px solid #374151; border-radius: 10px; padding: 6px 10px; cursor: pointer; color: #e5e7eb; }
+    .chat-input .send-btn { background: #1f2937; border: 1px solid #374151; border-radius: 10px; padding: 6px 12px; cursor: pointer; color: #e5e7eb; }
+    .chat-input input#chat-text { flex: 1; background: #111827; border: 1px solid #374151; border-radius: 10px; padding: 8px 10px; color: #fff; outline: none; }
+    .emoji-panel { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 8px; background: #000; border: 1px solid #2a3342; border-radius: 12px; padding: 8px; max-height: 140px; overflow-y: auto; }
+    .emoji-panel[hidden] { display: none; }
+    .emoji-panel button { background: #0b0f18; border: 1px solid #2a3342; border-radius: 8px; font-size: 18px; line-height: 1; padding: 6px 0; cursor: pointer; color: #fff; }
+    .chat-notice { margin-top: 6px; font-size: 0.9em; color: #ffd600; }
+
+    /* === HORIZONTALNI NAV ISPOD BANNERA (umjesto lijevog sideboxa) === */
+    .top-links {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      padding: 10px 16px 0;
+    }
+    .top-links ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4cm; /* razmak između stavaka: 0,4 cm */
+      align-items: center;
+      justify-content: center;
+    }
+    .top-links li { display: inline-block; }
+    .top-links a {
+      text-decoration: none;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: #ffd600;
+      border: 1px solid rgba(255,255,255,0.18);
+      transition: transform .15s ease, background-color .2s ease, box-shadow .2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+      display: inline-block;
+    }
+    .top-links a:hover,
+    .top-links a:focus {
+      background: rgba(255,255,255,0.18);
+      outline: none;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+    }
+    .top-links a:active {
+      transform: translateY(0);
+      background: rgba(255,255,255,0.24);
+    }
+
+
+
+
+/* === Dropdown za "Nalozi" s delay === */
+.top-links li.dropdown { position: relative; }
+.top-links li.dropdown > a.has-dropdown { position: relative; }
+.top-links li.dropdown .dropdown-menu {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  min-width: 200px;
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+  background: #1A04D1;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  z-index: 60;
+  transition: opacity 0.3s ease, visibility 0s linear 1s;
+}
+.top-links li.dropdown:hover .dropdown-menu,
+.top-links li.dropdown:focus-within .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+.top-links li.dropdown .dropdown-menu li { margin: 0; }
+.top-links li.dropdown .dropdown-menu a {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  color: #B5B51D; /* žuti tekst */
+}
+.top-links li.dropdown .dropdown-menu a:hover,
+.top-links li.dropdown .dropdown-menu a:focus {
+  background: rgba(255,255,255,0.15);
+  box-shadow: none;
+  transform: none;
+  outline: none;
+}/* RESPONSIVE: kad je usko, neka desni sidebar padne ispod maina */
+    @media (max-width: 1060px){
+      .content-row { flex-direction: column; align-items: stretch; 
+      gap: 0.5cm !important;
+      padding-left: 0.5cm !important;
+      padding-right: 0.5cm !important;
+    }
+      .right-sidebar { width: 100%; }
+    }
+
+    /* === DODANO: samo promjene boja prema zahtjevu === */
+    /* Searchbox pozadina i tekst */
+    .sidebar-search .sidebar-search-input {
+      background: #0B2B9E;
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sidebar-search .sidebar-search-input i { color: #ffffff; }
+    .sidebar-search .sidebar-search-input input#client-search {
+      background: transparent;
+      color: #ffffff;
+      border: none;
+      outline: none;
+    }
+    .sidebar-search .sidebar-search-input input#client-search::placeholder {
+      color: #ffffff;
+      opacity: 0.8;
+    }
+    /* Dropdown lista rezultata */
+    .sidebar-search .sidebar-search-results {
+      background: #0B2B9E;
+      color: #ffffff;
+      border-radius: 10px;
+      margin-top: 6px;
+      list-style: none;
+      padding: 6px;
+    }
+    .sidebar-search .sidebar-search-results li {
+      color: #ffffff;
+      padding: 6px 8px;
+      border-radius: 6px;
+    }
+    /* Mainbox linkovi bijeli */
+    .mainbox a,
+    .mainbox a:visited,
+    .mainbox a:hover,
+    .mainbox a:active {
+      color: #ffffff;
+    }
+
+    /* Logout link in red */
+    .top-links a.logout {
+      color: #ff4d4f !important;
+      border-color: rgba(255, 0, 0, 0.35);
+    }
+    .top-links a.logout:hover,
+    .top-links a.logout:focus {
+      background: rgba(255, 0, 0, 0.12);
+      box-shadow: 0 6px 16px rgba(255, 0, 0, 0.35);
+    }
+
+
+    /* Naslovna link in metallic silver with gentle flashing */
+    .top-links a.naslovna {
+
+      color: black;
+      animation: flash 3s infinite;
+      text-shadow: 0 0 3px #444, 0 0 5px #666;
+    
+      font-weight: 600;
+      color: black;
+      animation: flash 3s infinite;
+      text-shadow: 0 0 3px #444, 0 0 5px #666;
+    
+      color: black;
+      animation: flash 3s infinite;
+      text-shadow: 0 0 2px #444, 0 0 4px #666;
+    
+}
+    @keyframes flash { 0%, 100% { opacity: 1; text-shadow: 0 0 2px #444, 0 0 4px #666; } 50% { opacity: 0.95; text-shadow: 0 0 6px rgba(255, 215, 0, 0.7), 0 0 10px rgba(255, 215, 0, 0.5); } }
+      50% { opacity: 0.75; }
+    }
+
+
+/* Auto icons for mainbox section titles */
+.mainbox h1 .title-icon,
+.mainbox h2 .title-icon,
+.mainbox h3 .title-icon,
+.mainbox h4 .title-icon {
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.95;
+}
+.mainbox h1, .mainbox h2, .mainbox h3, .mainbox h4 {
+  display: flex; align-items: center; gap: 8px;
+}
+
+
+
+/* === Žuta pozadina SAMO za gumbe Naslovna i Odjava === */
+.top-links li > a.btn-yellow { background-color: #B5B51D !important; }
+.top-links li > a.btn-yellow:hover { background-color: #9E9E19 !important; }
+
+
+
+/* === Tekst gumba Odjava u crveno === */
+.top-links li > a.btn-yellow,
+.top-links li > a.btn-yellow[href="/odjava"] {
+  color: #FF0000 !important;
+}
+
+
+
+/* === FIX: Odjava crveni tekst + bez dinamickog obruba oko mainboxa === */
+.top-links a[href="/odjava"],
+.top-links a[href$="/odjava"],
+.top-links a[href*="odjava"] {
+  color: #FF0000 !important;
+}
+
+#mainbox, .mainbox, .main-box,
+#mainbox:hover, .mainbox:hover, .main-box:hover,
+#mainbox:focus, .mainbox:focus, .main-box:focus,
+#mainbox:active, .mainbox:active, .main-box:active {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+
+/* === Global text font (Segoe UI across text, excluding buttons & icons) === */
+/* Primjenjujemo font na tipografske elemente, NE na gumbe/ikone */
+p, h1, h2, h3, h4, h5, h6,
+li, dt, dd, blockquote, small,
+code, pre, kbd, samp,
+label, legend,
+table, caption, thead, tbody, tfoot, tr, th, td,
+a:not(.btn):not([role="button"]),
+span:not(.btn):not(.fa):not(.fas):not(.far):not(.fal):not(.fab):not([class^="fa-"]),
+input[type="text"], input[type="search"], input[type="email"], input[type="password"],
+textarea, select {
+  font-family: var(--app-font) !important;
+  font-weight: 400;
+}
+
+
+/* === Uklonjen dinamički obrub oko mainboxa (hard override) === */
+#mainbox, .mainbox, .main-box,
+#mainbox:hover, .mainbox:hover, .main-box:hover,
+#mainbox:focus, .mainbox:focus, .main-box:focus,
+#mainbox:active, .mainbox:active, .main-box:active {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  animation: none !important;
+  transition: none !important;
+  background-clip: padding-box; /* no outline-like effect */
+}
+#mainbox::before, #mainbox::after,
+.mainbox::before, .mainbox::after,
+.main-box::before, .main-box::after {
+  content: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+</style>
   {% block extra_head %}{% endblock %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+  <meta name="csrf-token" content="{{ csrf_token() if csrf_token is defined else '' }}">
 </head>
 <body>
-  <div class="bg-moving-logo"></div>
+<div class="bg-moving-logo"></div>
 
-  <!-- Gornji banner sa slajderom -->
-  <header class="header-banner" role="banner">
-    <div class="banner-slider" aria-hidden="true">
-      <img src="{{ url_for('static', filename='banners/banner1.jpg') }}" alt="Banner 1" class="banner-img" />
-      <img src="{{ url_for('static', filename='banners/banner2.jpg') }}" alt="Banner 2" class="banner-img" />
-      <img src="{{ url_for('static', filename='banners/banner3.jpg') }}" alt="Banner 3" class="banner-img" />
-    </div>
-
-    <!-- Profil/Prijava (samo prikaz) -->
-    <div class="profile-box" aria-label="Profil korisnika">
-      {% if username %}
-        <a href="{{ url_for('profile', username=username) }}" tabindex="0" class="profile-img" aria-label="Profil {{ username }}">
-          {{ username[0]|upper }}
-        </a>
-        <a href="{{ url_for('profile', username=username) }}" class="profile-btn" role="button">Profil: {{ username }}</a>
-      {% else %}
-        <a href="{{ url_for('login') }}" class="profile-btn">Prijava</a>
-      {% endif %}
-    </div>
-  </header>
-
-  <div class="content-row">
-    <!-- Lijevi sidebox: točan redoslijed tražen iz projekta -->
-    <nav class="sidebar" aria-label="Glavna navigacija">
-      <ul>
-        {% if username %}
-          <li><a href="{{ url_for('klijenti') }}">Klijenti</a></li>
-          <li><a href="{{ url_for('nalozi') }}">Nalozi</a></li>
-          <li><a href="{{ url_for('zaduzeni_nalozi') }}">Zaduženi nalozi</a></li>
-          <li><a href="{{ url_for('uredjaji') }}">Uređaji</a></li>
-          <li><a href="{{ url_for('aktivni_uredjaji') }}">Aktivni uređaji</a></li>
-          <li><a href="{{ url_for('sim') }}">SIM</a></li>
-          <li><a href="{{ url_for('operateri') }}">Operateri</a></li>
-          <li><a href="{{ url_for('datoteke') }}">Datoteke</a></li>
-          <li><a href="{{ url_for('info') }}">Info</a></li>
-          <li class="logout-link"><a href="{{ url_for('logout') }}">Odjava</a></li>
-        {% else %}
-          <li><a href="{{ url_for('login') }}">Prijava</a></li>
-        {% endif %}
-      </ul>
-    </nav>
-
-    <!-- Glavni sadržaj -->
-    <main class="main-area" role="main">
-      <div class="mainbox">
-        {% block content %}{% endblock %}
-      </div>
-    </main>
-
-    <!-- Desni sidebox – samo vizualni prostor za dodatke -->
-    <aside class="right-sidebar" aria-label="Bočna traka">
-      {% block rightbar %}
-        <div class="card">
-          <h3>Info</h3>
-          <p>Bočna traka spremna za vaše widgete.</p>
-        </div>
-      {% endblock %}
-    </aside>
+<!-- Gornji banner sa slajderom -->
+<header class="header-banner" role="banner">
+  <div aria-hidden="true" class="banner-slider">
+    <img alt="Banner 1" class="banner-img" src="{{ url_for('static', filename='banners/banner1.jpg') }}"/>
+    <img alt="Banner 2" class="banner-img" src="{{ url_for('static', filename='banners/banner2.jpg') }}"/>
+    <img alt="Banner 3" class="banner-img" src="{{ url_for('static', filename='banners/banner3.jpg') }}"/>
   </div>
 
-  <script src="{{ url_for('static', filename='slide.js') }}"></script>
-  {% block extra_scripts %}{% endblock %}
+  <!-- Profil/Prijava (samo prikaz) -->
+  <div aria-label="Profil korisnika" class="profile-box">
+    {% if current_user.is_authenticated %}
+      <a aria-label="Profil {{ username }}" class="profile-img" href="{{ url_for('operater_profil', username=current_user.username) }}" tabindex="0">
+        {{ current_user.username[0]|upper if current_user.is_authenticated else '?' }}
+      </a>
+      <a class="profile-btn" href="{{ url_for('operater_profil', username=current_user.username) }}" role="button">Profil: {{ current_user.username }}</a>
+    {% else %}
+      <a class="profile-btn" href="{{ url_for('login') }}">Prijava</a>
+    {% endif %}
+  </div>
+</header>
+
+<!-- HORIZONTALNI NAV LINKOVI ISPOD BANNERA (centirano, linearno, highlight pri hoveru) -->
+<nav aria-label="Glavna navigacija" class="top-links">
+  <ul>
+    {% if current_user.is_authenticated %}<li><a href="/naslovna" class="naslovna btn-yellow">Naslovna</a></li>
+      <li><a href="{{ url_for('klijenti') }}">Klijenti</a></li>
+
+      {% if has_role('superadmin','admin','prodaja','podrska','voditelj','podrška','tehnicar','tehničar') %}
+        
+<li class="dropdown">
+  <a href="{{ url_for('nalozi') }}" class="has-dropdown" aria-haspopup="true" aria-expanded="false">Nalozi</a>
+  <ul class="dropdown-menu" role="menu" aria-label="Podizbornik Nalozi">
+    <li><a href="/zaduzeni-nalozi">Zaduženi nalozi</a></li>
+  </ul>
+</li>
+{% endif %}
+
+      {% if has_role('superadmin','admin','prodaja','podrska','voditelj','serviser','podrška') %}
+        
+<li class="dropdown">
+  <a href="/uredjaji" class="has-dropdown" aria-haspopup="true" aria-expanded="false">Uređaji</a>
+  <ul class="dropdown-menu" role="menu" aria-label="Podizbornik Uređaji">
+    <li><a href="/aktivni-uredjaji">Aktivni uređaji</a></li>{% if not has_role('prodaja') %}
+    <li><a href="/servis-uredjaja">Servis uređaja</a></li>{% endif %}
+  </ul>
+</li>
+      {% endif %}
+
+      {% if has_role('superadmin','admin','prodaja','podrska','voditelj','podrška') %}
+      {% endif %}
+
+      {% if has_role('superadmin','admin','prodaja','podrska','voditelj','podrška') %}
+        <li><a href="{{ url_for('sim') }}">SIM</a></li>
+      {% endif %}
+
+      {% if has_role('superadmin','admin','podrska','voditelj','podrška') %}
+        <li><a href="{{ url_for('operateri') }}">Operateri</a></li>
+      {% endif %}
+
+      <li><a href="{{ url_for('datoteke') }}">Datoteke</a></li>
+      <li><a href="{{ url_for('info') }}">Info</a></li>
+      
+      
+      {% if not has_role('serviser','voditelj','tehničar','tehnicar') %}
+      {% if has_pocetna %}
+        <li><a href="{{ url_for('pocetna') }}">Analitika</a></li>
+      {% else %}
+        <li><a href="/pocetna">Analitika</a></li>
+      {% endif %}
+      {% endif %}
+      <li><a href="{{ url_for('logout') }}" class="logout btn-yellow">Odjava</a></li>
+    {% else %}
+      <li><a href="{{ url_for('login') }}">Prijava</a></li>
+    {% endif %}
+  </ul>
+</nav>
+
+<div class="content-row">
+  <!-- UKLONJEN LIJEVI SIDEBOX: pregledno ostaje samo glavni sadržaj i desni sidebar -->
+
+  <!-- Glavni sadržaj -->
+  <main class="main-area" role="main">
+    <div class="mainbox"><div class="mainbox-box">
+      {% block content %}{% endblock %}
+    </div></div>
+  </main>
+
+  <!-- Desni sidebox – ovdje PREMJEŠTEN search bar iznad chatboxa -->
+  <aside aria-label="Bočna traka" class="right-sidebar">
+      <!-- TRAŽILICA KLIJENATA (PREMJEŠTENA; FUNKCIJE I IZGLED NE DIRATI) -->
+      <div class="sidebar-search" role="search">
+        <div class="sidebar-search-input">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input id="client-search" type="text" placeholder="pretraži klijenta" autocomplete="off" aria-label="Pretraži klijenta">
+        </div>
+        <ul id="client-search-results" class="sidebar-search-results" hidden></ul>
+      </div>
+
+      {% block rightbar %}
+        <div id="chatbox" class="chatbox" role="region" aria-label="Operaterski chat" data-auth="{{ 1 if current_user.is_authenticated else 0 }}" data-uname="{{ current_user.username if current_user.is_authenticated else '' }}">
+          <div class="chat-header"><h3>Chat</h3></div>
+          <ul id="chat-messages" class="chat-messages" aria-live="polite" aria-relevant="additions text"></ul>
+          <form id="chat-form" class="chat-input" autocomplete="off" onsubmit="return false" novalidate>
+            <div class="input-row">
+              <button type="button" id="emoji-btn" class="emoji-btn" title="Emoji" aria-haspopup="true" aria-expanded="false">😊</button>
+              <input id="chat-text" type="text" placeholder="{{ current_user.username if current_user.is_authenticated else 'prijava' }}: napiši poruku…" {% if not current_user.is_authenticated %}disabled{% endif %}>
+              <button type="submit" id="send-btn" class="send-btn" {% if not current_user.is_authenticated %}disabled{% endif %}><img src="{{ url_for('static', filename='icons/send.png') }}" alt="Pošalji" style="width:20px;height:20px;object-fit:contain;"></button>
+            </div>
+            <div id="emoji-panel" class="emoji-panel" hidden></div>
+            <div id="chat-notice" class="chat-notice" hidden></div>
+          </form>
+        </div>
+      {% endblock %}
+  </aside>
+</div>
+
+<script src="{{ url_for('static', filename='slide.js') }}"></script>
+{% block extra_scripts %}
+<script>
+(function(){
+  function ready(fn){
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, {once:true});
+    else fn();
+  }
+
+  ready(function(){
+    try{
+      // === CHATBOX INIT (idempotent) ===
+      var box = document.getElementById('chatbox');
+      var listEl = document.getElementById('chat-messages');
+      var formEl = document.getElementById('chat-form');
+      var inputEl = document.getElementById('chat-text');
+      var emojiBtn = document.getElementById('emoji-btn');
+      var emojiPanel = document.getElementById('emoji-panel');
+      var noticeEl = document.getElementById('chat-notice');
+      var sendBtn = document.getElementById('send-btn');
+
+      if (box && listEl && formEl && inputEl && !box.__inited){
+        box.__inited = true;
+        var uname = box.dataset.uname || '';
+        var isAuth = (box.dataset.auth === '1');
+
+        if (isAuth && uname && !inputEl.value){
+          inputEl.placeholder = uname + ': napiši poruku…';
+        }
+
+        // Emoji
+        if (emojiPanel){
+          var EMOJIS = ["😀","😁","😂","🤣","😉","😊","😍","😘","😎","🤔","🙄","😴","👍","👎","👏","🙌","🙏","🔥","✨","💡","✅","❌","⚠️","💬","📌","📎","🛠️","🧰","🚀","⏱️","📷","📁","📝","🔧","🔌","🔋","📞","📍","💻","📊","📈"];
+          emojiPanel.innerHTML = EMOJIS.map(function(e){ return '<button type="button" data-emoji="'+e+'" aria-label="Unesi emoji '+e+'">'+e+'</button>'; }).join('');
+        }
+        if (emojiBtn && emojiPanel){
+          emojiBtn.addEventListener('click', function(){
+            var isHidden = emojiPanel.hasAttribute('hidden');
+            if(isHidden) emojiPanel.removeAttribute('hidden'); else emojiPanel.setAttribute('hidden','');
+            emojiBtn.setAttribute('aria-expanded', String(isHidden));
+          });
+          document.addEventListener('click', function(ev){
+            if(!ev.target.closest('.chat-input') && !ev.target.closest('#emoji-btn')){
+              emojiPanel.setAttribute('hidden','');
+              emojiBtn.setAttribute('aria-expanded','false');
+            }
+          });
+          emojiPanel.addEventListener('click', function(ev){
+            var btn = ev.target.closest('button[data-emoji]');
+            if(!btn) return;
+            var e = btn.getAttribute('data-emoji');
+            var start = inputEl.selectionStart || inputEl.value.length;
+            var end   = inputEl.selectionEnd || inputEl.value.length;
+            inputEl.value = inputEl.value.slice(0, start) + e + inputEl.value.slice(end);
+            inputEl.selectionStart = inputEl.selectionEnd = start + e.length;
+            inputEl.focus();
+          });
+        }
+
+        function colorFor(name){
+          if(!name) return '#9ca3af';
+          var h = 0;
+          for(var i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) >>> 0; }
+          var hue = h % 360;
+          return 'hsl('+hue+' 70% 60%)';
+        }
+        function lineItem(m){
+          var li = document.createElement('li');
+          var u = document.createElement('span');
+          u.className = 'username';
+          u.style.color = colorFor(m.username || '');
+          u.textContent = (m.username || 'anon') + ':';
+          var t = document.createElement('span');
+          t.className = 'msg-text';
+          t.textContent = ' ' + (m.text || '');
+          li.appendChild(u);
+          li.appendChild(t);
+          return li;
+        }
+        var lastRenderLen = 0;
+        function render(msgs){
+          listEl.innerHTML = '';
+          (msgs||[]).forEach(function(m){ listEl.appendChild(lineItem(m)); });
+          if(msgs && msgs.length !== lastRenderLen){
+            listEl.scrollTop = listEl.scrollHeight;
+            lastRenderLen = msgs.length;
+          }
+        }
+        function csrfToken(){
+          var m = document.querySelector('meta[name="csrf-token"]');
+          return m ? m.getAttribute('content') : '';
+        }
+        async function load(){
+          try{
+            var r = await fetch('/api/chat', { credentials: 'same-origin' });
+            if(!r.ok){ showNotice('Greška: ' + r.status); return; }
+            var ct = r.headers.get('Content-Type') || '';
+            var data = (ct.indexOf('application/json') !== -1) ? await r.json().catch(function(){return {};}) : {};
+            if(data && data.ok){ render(data.messages || []); }
+          }catch(e){ /* ignore */ }
+        }
+        async function send(text){
+          try{
+            var r = await fetch('/api/chat', {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken()},
+              body: JSON.stringify({text: text})
+            });
+            var ct = r.headers.get('Content-Type') || '';
+            var data = (ct.indexOf('application/json') !== -1) ? await r.json().catch(function(){return {};}) : {};
+            if(!r.ok || !data.ok){
+              var msg = (data && data.error) ? data.error : 'Greška pri slanju poruke.';
+              showNotice(msg);
+              return false;
+            }
+            return true;
+          }catch(e){
+            showNotice('Greška pri slanju poruke.');
+            return false;
+          }
+        }
+        function showNotice(msg){
+          if(!noticeEl) return;
+          noticeEl.textContent = msg || '';
+          noticeEl.hidden = !msg;
+          clearTimeout(window.__noticeTimer);
+          window.__noticeTimer = setTimeout(function(){ if(noticeEl) noticeEl.hidden = true; }, 4000);
+        }
+        var sending = false;
+        async function sendHandler(ev){
+          if(ev) ev.preventDefault();
+          if(!(box && (box.dataset.auth === '1'))){ showNotice('Prijavite se.'); return; }
+          if(sending) return;
+          var uname = box.dataset.uname || '';
+          var txt = (inputEl.value || '').trim();
+          if(uname && txt.toLowerCase().startsWith((uname + ':').toLowerCase())){
+            txt = txt.slice(uname.length + 1).trim();
+          }
+          if(!txt){ return; }
+          sending = true;
+          var ok = await send(txt);
+          sending = false;
+          if(ok){
+            inputEl.value = uname ? (uname + ': ') : '';
+            await load();
+          }
+        }
+        if (sendBtn) sendBtn.addEventListener('click', sendHandler);
+        formEl.addEventListener('submit', function(e){ e.preventDefault(); sendHandler(e); });
+        inputEl.addEventListener('keydown', function(e){ if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendHandler(e); } });
+
+        // initial & poll
+        load();
+        setInterval(load, 3000);
+      }
+
+      // === CLIENT SEARCH INIT (idempotent, scoped to right sidebar) ===
+      var sidebar = document.querySelector('.right-sidebar');
+      var input = sidebar ? sidebar.querySelector('.sidebar-search input#client-search') : null;
+      var list  = sidebar ? sidebar.querySelector('#client-search-results') : null;
+
+      if (input && list && !input.__inited){
+        input.__inited = true;
+        var timer = null, items = [], idx = -1;
+
+        function clearList(){
+          list.innerHTML = '';
+          list.hidden = true;
+          items = []; idx = -1;
+        }
+        function esc(s){
+          return String(s || '').replace(/[&<>\"']/g, function(m){
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]);
+          });
+        }
+        function render(results){
+          var html = (results||[]).map(function(r){
+            return '<li tabindex="0" data-name="'+esc(r.name)+'" data-oib="'+esc(r.oib || '')+'">' +
+                     '<span class="name">'+esc(r.name)+'</span>' +
+                     '<span class="oib">'+esc(r.oib || '')+'</span>' +
+                   '</li>';
+          }).join('');
+          list.innerHTML = html;
+          list.hidden = !results || results.length === 0;
+          items = Array.prototype.slice.call(list.querySelectorAll('li'));
+          idx = items.length ? 0 : -1;
+          if (idx >= 0) items[idx].classList.add('is-active');
+        }
+        async function doSearch(q){
+          try{
+            var r = await fetch('/api/klijenti/search?q=' + encodeURIComponent(q), {credentials:'same-origin'});
+            if (!r.ok) { clearList(); return; }
+            var data = await r.json().catch(function(){return {};});
+            if (data && data.ok && Array.isArray(data.results)) render(data.results);
+            else clearList();
+          }catch(e){ clearList(); }
+        }
+        function select(li){
+          var name = li.getAttribute('data-name') || '';
+          input.value = name;
+          clearList();
+          window.location.href = '/klijent/' + encodeURIComponent(name);
+        }
+        input.addEventListener('input', function(){
+          var q = (input.value || '').trim();
+          if (!q){ clearList(); return; }
+          clearTimeout(timer);
+          timer = setTimeout(function(){ doSearch(q); }, 220);
+        });
+        input.addEventListener('keydown', function(e){
+          if (list.hidden) return;
+          if (e.key === 'ArrowDown'){
+            e.preventDefault();
+            if (!items.length) return;
+            if (idx >= 0) items[idx].classList.remove('is-active');
+            idx = (idx + 1) % items.length;
+            items[idx].classList.add('is-active');
+            items[idx].scrollIntoView({block:'nearest'});
+          } else if (e.key === 'ArrowUp'){
+            e.preventDefault();
+            if (!items.length) return;
+            if (idx >= 0) items[idx].classList.remove('is-active');
+            idx = (idx - 1 + items.length) % items.length;
+            items[idx].classList.add('is-active');
+            items[idx].scrollIntoView({block:'nearest'});
+          } else if (e.key === 'Enter'){
+            if (idx >= 0 && items[idx]){ e.preventDefault(); select(items[idx]); }
+          } else if (e.key === 'Escape'){
+            clearList();
+          }
+        });
+        list.addEventListener('click', function(e){
+          var li = e.target.closest('li');
+          if (li) select(li);
+        });
+        document.addEventListener('click', function(e){
+          if (!e.target.closest('.sidebar-search')) clearList();
+        });
+      }
+    }catch(e){
+      // swallow
+      console && console.warn && console.warn('Init error:', e);
+    }
+  });
+})();
+</script>
+{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    const iconMap = {
+      'analitika': 'fa-chart-line',
+      'statistika': 'fa-chart-column',
+      'klijenti': 'fa-users',
+      'klijent': 'fa-user',
+      'naslovna': 'fa-house',
+      'zadaci': 'fa-list-check',
+      'zadatci': 'fa-list-check',
+      'obavijesti': 'fa-bell',
+      'poruke': 'fa-envelope',
+      'chat': 'fa-comments',
+      'računi': 'fa-file-invoice-dollar',
+      'račun': 'fa-receipt',
+      'postavke': 'fa-gear',
+      'profil': 'fa-id-badge',
+      'projekti': 'fa-diagram-project',
+      'dokumenti': 'fa-file-lines',
+      'datoteke': 'fa-folder-open',
+      'podsjetnici': 'fa-clock',
+      'kalendar': 'fa-calendar-days',
+      'help': 'fa-circle-question',
+      'info': 'fa-circle-info',
+      'nalozi': 'fa-clipboard-list',
+      'zaduženi nalozi': 'fa-user-check',
+      'uređaji': 'fa-desktop',
+      'uređaj': 'fa-desktop',
+      'aktivni uređaji': 'fa-plug',
+      'sim': 'fa-sim-card',
+      'operateri': 'fa-user-tie',
+      'odjava': 'fa-right-from-bracket',
+      'prijava': 'fa-right-to-bracket'
+    };
+
+    const isIconized = (el) => el.querySelector('.title-icon i');
+
+    const candidates = Array.from(document.querySelectorAll(
+      '.mainbox h1, .mainbox h2, .mainbox h3, .mainbox h4'
+    ));
+
+    candidates.forEach(h => {
+      if (isIconized(h)) return;
+      const txt = (h.textContent || '').trim().toLowerCase();
+      if (!txt) return;
+      // find best key by prefix or contains
+      let pick = null;
+      if (iconMap[txt]) pick = iconMap[txt];
+      else {
+        for (const key of Object.keys(iconMap)) {
+          if (txt.startsWith(key) || txt.includes(key)) { pick = iconMap[key]; break; }
+        }
+      }
+      // fallback default
+      if (!pick) pick = 'fa-circle-info';
+      const span = document.createElement('span');
+      span.className = 'title-icon';
+      const i = document.createElement('i');
+      i.className = 'fa-solid ' + pick;
+      i.setAttribute('aria-hidden', 'true');
+      span.appendChild(i);
+      // Prepend before text
+      if (h.firstChild) h.insertBefore(span, h.firstChild);
+      else h.appendChild(span);
+    });
+  } catch (e) {
+    console && console.warn && console.warn('Icon injection failed:', e);
+  }
+});
+</script>
+
 </body>
 </html>

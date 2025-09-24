@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Kreiraj podsjetnik{% endblock %}
+{% block content %}
+  <div class="box" style="max-width:640px; margin:0 auto; padding:16px;">
+    <h2 style="margin-top:0;">Kreiraj podsjetnik — {{ client_name }}</h2>
+    <form method="post" action="/klijent/{{ client_name }}/podsjetnik" style="display:grid; gap:12px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <label>Datum<input type="date" name="date" required></label>
+        <label>Vrijeme<input type="time" name="time" required></label>
+      </div>
+      <label>Napomena (opcionalno)
+        <textarea name="note" rows="4" placeholder="Napiši kratku napomenu…"></textarea>
+      </label>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <a href="/klijent/{{ client_name }}" class="btn secondary">Odustani</a>
+        <button type="submit" class="btn">Kreiraj podsjetnik</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

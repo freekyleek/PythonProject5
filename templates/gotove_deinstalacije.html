@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Gotove deinstalacije{% endblock %}
+{% block content %}
+<h1>Gotove deinstalacije</h1>
+
+{% if deinstalacije %}
+  <ul class="orders">
+    {% for n in deinstalacije %}
+      <li class="order-item">
+        <span class="status-dot {{ n.status }}"></span>
+        <span class="order-title">RN {{ n.rn }} — {{ n.client }}</span>
+        <span class="order-assign">Zaključeno: {{ (n.closed_at or n.created_at)[:19] }}</span>
+        <a class="order-link" href="{{ url_for('static', filename=n.file) }}" target="_blank">Dokument</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>Nema gotovih deinstalacija.</p>
+{% endif %}
+
+<div style="margin-top:16px;">
+  <a class="btn" href="{{ url_for('nalozi') }}">← Natrag na Nalozi</a>
+</div>
+
+<style>
+.orders{ list-style:none; padding:0; margin:0; }
+.order-item{ display:grid; grid-template-columns: 18px 1fr auto auto auto; align-items:center; gap:12px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.08); }
+.status-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; background:#2ECC71; }
+.order-title{ opacity:.95; }
+.order-assign{ opacity:.8; font-size:.95em; }
+.order-link{ margin-left:10px; }
+.btn{display:inline-block;padding:8px 14px;border-radius:8px;background:#0b5ed7;color:#fff;text-decoration:none;}
+</style>
+{% endblock %}

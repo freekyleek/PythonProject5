@@ -1,2 +1,33 @@
 {% extends 'base.html' %}
-{% block content %}<h1>Aktivni uređaji</h1>{% endblock %}
+{% block title %}Aktivni uređaji{% endblock %}
+{% block content %}
+<h1>Aktivni uređaji</h1>
+{% if uredjaji %}
+<table class="tbl">
+  <thead>
+    <tr><th>Serijski broj</th><th>Model</th><th>Naziv klijenta</th><th>OIB klijenta</th></tr>
+  </thead>
+  <tbody>
+  {% for d in uredjaji %}
+    <tr>
+      <td>{{ d.serijski }}</td>
+      <td>{{ d.model or '-' }}</td>
+      <td>{{ d.client or '-' }}</td>
+      <td>
+        <span class="status-dot {{ 'on' if d.active else 'off' }}" title="{{ 'Aktivan' if d.active else 'Neaktivan' }}"></span>
+        {{ d.oib or '-' }}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p>Nema aktivnih uređaja.</p>
+{% endif %}
+<style>
+.tbl{ width:100%; border-collapse:collapse; margin-top:12px;}
+.tbl th,.tbl td{ padding:8px 10px; border-bottom:1px solid rgba(255,255,255,.15); text-align:left;}
+.status-dot{ display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; background:#198754;}
+.status-dot.off{ background:#dc3545;}
+</style>
+{% endblock %}

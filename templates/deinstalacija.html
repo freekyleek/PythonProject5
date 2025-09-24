@@ -1,9 +1,108 @@
-{% extends 'base.html' %}
-{% block title %}Deinstalacija{% endblock %}
+{% extends "base.html" %}
 {% block content %}
-  <h1>Deinstalacija — {{ klijent.name }}</h1>
-  <p>Ovdje možete definirati korake ili podatke za deinstalaciju.</p>
-  <div style="margin-top:20px;">
-    <a href="{{ url_for('kreiraj_nalog', name=klijent.name) }}" class="btn">← Natrag na „Kreiraj nalog”</a>
-  </div>
+<div class="container mt-3">
+  <h2>{{ title or ('Deinstalacija — ' ~ (klijent.name if klijent and klijent.name else '')) }}</h2>
+
+  <form id="deinstForm" method="POST" enctype="multipart/form-data">
+    <h4 class="mt-3">Uređaji kod klijenta</h4>
+    {% if uredjaji_klijent %}
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+          <thead><tr><th>SN</th><th>Model</th><th>Odaberi</th></tr></thead>
+          <tbody>
+            {% for u in uredjaji_klijent %}
+              <tr>
+                <td>{{ u.serijski }}</td>
+                <td>{{ u.model }}</td>
+                <td><input type="checkbox" name="odabrani_uredjaji" value="{{ u.serijski }}"></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted">Nema evidentiranih uređaja.</p>
+    {% endif %}
+
+    <h4 class="mt-4">SIM kartice kod klijenta</h4>
+    {% if sims_klijent %}
+      <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+          <thead><tr><th>SN</th><th>Odaberi</th></tr></thead>
+          <tbody>
+            {% for s in sims_klijent %}
+              <tr>
+                <td>{{ s.serijski }}</td>
+                <td><input type="checkbox" name="odabrani_simovi" value="{{ s.serijski }}"></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted">Nema evidentiranih SIM kartica.</p>
+    {% endif %}
+<div class="mt-4">
+      <label for="napomena" class="form-label fw-semibold">Napomena</label>
+      <textarea id="napomena" name="napomena" class="form-control" rows="3" placeholder="Upišite napomenu..."></textarea>
+      <div class="form-text">Ova napomena će se upisati u RN umjesto {{Napomena}}.</div>
+    </div>
+
+
+
+    <div class="mt-4 p-3 border rounded bg-light">
+      <label for="zahtjev_img" class="form-label fw-semibold">Priloži zahtjev (obavezno za kreiranje deinstalacijskog naloga)</label>
+      <input class="form-control" type="file" id="zahtjev_img" name="zahtjev_img" accept=".jpeg,.jpg,.pdf,.png" required>
+      <div class="form-text">Dozvoljeni formati: JPG, JPEG, PNG ili PDF.</div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+        <button type="button" id="btnAttachZahtjev" class="btn btn-secondary">Priloži zahtjev</button>
+        <span id="zahtjevFileName" class="align-self-center text-muted" style="font-size:0.9rem;"></span><!-- NOVO: Gumb za kreiranje deinstalacijskog naloga -->
+      <button type="submit" id="btnCreateDeinstNalog" name="action" value="kreiraj_deinst_nalog" class="btn btn-warning">
+        Kreiraj deinstalacijski nalog
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+(function() {
+  const form = document.getElementById('deinstForm');
+  const btn = document.getElementById('btnCreateDeinstNalog');
+  const zahtjev = document.getElementById('zahtjev_img');
+  const btnAttach = document.getElementById('btnAttachZahtjev');
+  const zahtjevName = document.getElementById('zahtjevFileName');
+  if(btnAttach){ btnAttach.addEventListener('click', ()=> zahtjev && zahtjev.click()); }
+  if(zahtjev){ zahtjev.addEventListener('change', ()=> { zahtjevName && (zahtjevName.textContent = zahtjev.files && zahtjev.files[0] ? zahtjev.files[0].name : ''); }); }
+
+  function hasSelection() {
+    const devs = form.querySelectorAll('input[name="odabrani_uredjaji"]:checked');
+    const sims = form.querySelectorAll('input[name="odabrani_simovi"]:checked');
+    return devs.length > 0 || sims.length > 0;
+  }
+
+  btn.addEventListener('click', function(e) {
+    // Client-side validacija samo za kreiranje naloga
+    if (!hasSelection()) {
+      e.preventDefault();
+      alert('Obavezno odabrati barem jedan uređaj ili barem jedan SIM.');
+      return false;
+    }
+    if (!zahtjev.value) {
+      e.preventDefault();
+      alert('Obavezno je priložiti datoteku zahtjeva (JPG/PNG/PDF).');
+      zahtjev.focus();
+      return false;
+    }
+    const allowed = ['.jpg','.jpeg','.png','.pdf'];
+    const val = zahtjev.value.toLowerCase();
+    if (!allowed.some(ext => val.endsWith(ext))) {
+      e.preventDefault();
+      alert('Dozvoljeni formati: JPG, JPEG, PNG ili PDF.');
+      return false;
+    }
+  });
+})();
+</script>
 {% endblock %}

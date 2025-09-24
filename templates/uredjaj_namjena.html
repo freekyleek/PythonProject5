@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Namjena uređaja – {{ uredjaj.naziv or uredjaj.model or uredjaj.serijski }}{% endblock %}
+{% block content %}
+<h2>Namjena uređaja: {{ uredjaj.naziv or uredjaj.model or uredjaj.serijski }}</h2>
+<p><strong>Serijski:</strong> {{ uredjaj.serijski }}</p>
+
+<form id="namjenaForm" method="post" action="/api/uredjaj/{{ uredjaj.serijski }}/namjena" style="margin-top:10px;">
+  <label for="namjena">Namjena uređaja:</label>
+  <select id="namjena" name="namjena" required>
+    {% for opt in allowed %}
+    <option value="{{ opt }}" {% if uredjaj.namjena==opt %}selected{% endif %}>{{ opt }}</option>
+    {% endfor %}
+  </select>
+  <input type="hidden" name="next" value="{{ url_for('uredjaji') }}">
+  <button type="submit" class="btn" style="margin-left:8px;">Spremi</button>
+</form>
+
+<p style="margin-top:12px;">
+  <a href="{{ url_for('uredjaji') }}">⟵ Natrag na /uredjaji</a>
+</p>
+{% endblock %}

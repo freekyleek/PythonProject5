@@ -2,24 +2,90 @@
 {% block title %}Nalozi{% endblock %}
 {% block content %}
 <h1>Nalozi</h1>
-<div class="toolbar"><a class="btn" href="{{ url_for('zaduzi_nalog') }}">Zaduži</a></div>
+{% if has_role('superadmin','admin','podrska','voditelj','podrška') %}<div class="toolbar"><a class="btn" href="{{ url_for('zaduzi_nalog') }}">Zaduži</a></div>{% endif %}
+
 <div class="box">
-  <h2>Zaključeni nalozi</h2>
-  {% if zakljuceni %}
+  <h2>Otvorene instalacije</h2>
+  {% if instalacije %}
     <ul class="orders">
-      {% for n in zakljuceni %}
+      {% for n in instalacije %}
         <li class="order-item">
+          <span class="status-dot {{ n.status }}"></span>
           <span class="order-title">RN {{ n.rn }} — {{ n.client }}</span>
-          <span class="order-assign">Zaključio: {{ n.closed_by or n.assigned_to or '-' }}</span>
+          <span class="order-assign">Zadužen: {{ assigned_map.get(n.rn|string) or n.assigned_to or '-' }}</span>
           <a class="order-link" href="{{ url_for('static', filename=n.file) }}" target="_blank">Dokument</a>
-          {% if current_user.is_superadmin %}
+          {% if has_role('superadmin','admin') %}
             <button class="delete-x" title="Obriši nalog" data-rn="{{ n.rn }}">×</button>
           {% endif %}
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p>Nema zaključених nalога.</p>
+    <p>Nema otvorenih instalacija.</p>
+  {% endif %}
+</div>
+
+
+<div class="box">
+  <h2>Deinstalacije u tijeku</h2>
+  {% if deinstalacije_u_tijeku %}
+    <ul class="orders">
+      {% for n in deinstalacije_u_tijeku %}
+        <li class="order-item">
+          <span class="status-dot {% if n.assigned_to %}zadužen{% else %}nezadužen{% endif %}"></span>
+          <span class="order-title">DEINST RN {{ n.rn }} — {{ n.client }}</span>
+          {% set _addr = n.adresa_isporuke or n.adresa_isporuke_1 or n.adresa_isporuke2 or n.address_shipping or n.adresa or n.sjediste or n.adresa_sjedista or n.client_address or n.address or n.lokacija %}
+          <span class="order-addr">Adresa: {{ _addr or '-' }}</span>
+          <span class="order-assign">{% if n.assigned_to %}Zadužen: {{ n.assigned_to }}{% else %}Nezadužen{% endif %}</span>
+          {% if n.file %}<a class="order-link" href="{{ url_for('static', filename=n.file) }}" target="_blank">Dokument</a>{% endif %}
+          {% if n.assigned_to and current_user and (current_user.username|lower == (n.assigned_to|string)|lower) %}<a class="order-link" href="{{ url_for('zakljuci_deinstalaciju', rn=n.rn) }}">Zaključi</a>{% endif %}
+    </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nema deinstalacija u tijeku.</p>
+  {% endif %}
+</div>
+
+<div class="box">
+  <h2>Otvoreni servisi</h2>
+  {% if servisi %}
+    <ul class="orders">
+      {% for n in servisi %}
+        <li class="order-item">
+          <span class="order-title">SERVIS RN {{ n.rn }} — {{ n.client }}</span>
+          {% set _addr = n.adresa_isporuke or n.adresa_isporuke_1 or n.adresa_isporuke2 or n.address_shipping or n.adresa or n.sjediste or n.adresa_sjedista or n.client_address or n.address or n.lokacija %}
+          <span class="order-addr">Adresa: {{ _addr or '-' }}</span>
+          <span class="order-assign">Zadužen: {{ assigned_map.get(n.rn|string) or n.assigned_to or '-' }}</span>
+          {% if n.file %}<a class="order-link" href="{{ url_for('static', filename=n.file) }}" target="_blank">Dokument</a>{% endif %}
+          {% set _ass = assigned_map.get(n.rn|string) or n.assigned_to %}
+          {% if _ass and current_user and (current_user.username|lower == (_ass|string)|lower) %}<a class="order-link" href="{{ url_for('zakljuci_nalog', rn=n.rn) }}">Zaključi</a>{% endif %}
+    </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nema otvorenih servisa.</p>
+  {% endif %}
+</div>
+
+<div class="box">
+  <h2>Zaključeni nalozi</h2>
+  {% if zakljuceni %}
+    <ul class="orders">
+      {% for n in zakljuceni %}
+        <li class="order-item">
+          <span class="status-dot {{ n.status }}"></span>
+          <span class="order-title">RN {{ n.rn }} — {{ n.client }}</span>
+          <span class="order-assign">Zaključio: {{ n.closed_by or n.assigned_to or '-' }}</span>
+          <a class="order-link" href="{{ url_for('static', filename=n.file) }}" target="_blank">Dokument</a>
+          {% if has_role('superadmin','admin') %}
+            <button class="delete-x" title="Obriši nalog" data-rn="{{ n.rn }}">×</button>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Nema zaključених naloga.</p>
   {% endif %}
 </div>
 
@@ -29,12 +95,26 @@
 .status-dot{ width:12px; height:12px; border-radius:50%; display:inline-block; background:#777; }
 .status-dot.zadužen{ background:#E8B400; } /* žuta */
 .status-dot.zaključen{ background:#2ECC71; } /* zelena */
+.status-dot.nezadužen{ background:#DC3545; } /* crvena */
 .order-title{ opacity:.95; }
 .order-assign{ opacity:.8; font-size:.95em; }
 .order-link{ margin-left:10px; }
 .delete-x{ background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 18px; line-height: 1; }
 .delete-x:hover{ background: rgba(220,53,69,.9); border-color: rgba(220,53,69,1); }
 .btn{display:inline-block;padding:8px 14px;border-radius:8px;background:#0b5ed7;color:#fff;text-decoration:none;} .toolbar{margin:8px 0 16px;}
+
+/* === UI fixes for linear (one-row) layout === */
+.orders { list-style: none; margin: 0; padding: 0; }
+.order-item { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-bottom: 1px solid #eee; flex-wrap: nowrap; }
+.order-item > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.order-title { flex: 0 1 auto; font-weight: 600; }
+.order-addr { flex: 1 1 auto; opacity: .9; }
+.order-assign { flex: 0 0 auto; }
+.order-link { flex: 0 0 auto; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.status-dot.zadužen { background: #FFC107 !important; }     /* žuta */
+.status-dot.nezadužen { background: #DC3545 !important; }   /* crvena */
+
 </style>
 <script>
 document.addEventListener('click', async (e)=>{
@@ -48,4 +128,11 @@ document.addEventListener('click', async (e)=>{
   else{ alert(data.error || 'Greška pri brisanju.'); }
 });
 </script>
+
+
+<div style="margin-top:18px;text-align:right;">
+  <a class="btn" href="{{ url_for('gotove_deinstalacije') }}">Gotove deinstalacije</a>
+  <a class="btn" href="{{ url_for('gotovi_servisi') }}">Gotovi servisi</a>
+</div>
+
 {% endblock %}
